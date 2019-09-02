@@ -14,6 +14,12 @@ using namespace cpp_utils::graphs;
 
 SCENARIO("test safe inf uint") {
 
+    GIVEN("casts") {
+        REQUIRE(safe_inf_uint{0L} == 0L);
+        REQUIRE(safe_inf_uint{10L} == 10L);
+        REQUIRE(safe_inf_uint{UINT64_MAX} == UINT64_MAX);
+    }
+
     GIVEN("non infinite operations") {
         safe_inf_uint a = 150;
         safe_inf_uint b = 50;

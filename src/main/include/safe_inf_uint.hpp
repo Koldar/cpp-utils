@@ -93,6 +93,22 @@ public:
     }
     constexpr safe_inf_uint(unsigned long n): value{n} {
     }
+    safe_inf_uint(float n): value{static_cast<uint64_t>(n)} {
+        if (n < 0) {
+            throw cpp_utils::exceptions::NumericalOperationException{"cast to unsigned", n};
+        }
+        if (n > UINT64_MAX) {
+            throw cpp_utils::exceptions::NumericalOperationException{"cast to unsigned", n};
+        }
+    }
+    safe_inf_uint(double n): value{static_cast<uint64_t>(n)} {
+        if (n < 0) {
+            throw cpp_utils::exceptions::NumericalOperationException{"cast to unsigned", n};
+        }
+        if (n < UINT64_MAX) {
+            throw cpp_utils::exceptions::NumericalOperationException{"cast to unsigned", n};
+        }
+    }
 
 public:
     inline static safe_inf_uint zero() {
