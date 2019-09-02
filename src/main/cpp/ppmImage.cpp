@@ -57,7 +57,7 @@ PPMImage::PPMImage(const char* filename) {
 	for (size_t y=0; y<this->height; ++y) {
 		for (size_t x=0; x<this->width; ++x) {
 			f >> red >> green >> blue;
-			debug("x=", x, "y=", y);
+			//debug("x=", x, "y=", y);
 			this->setPixel(x, y, color_t{wrapped_uchar{red}, wrapped_uchar{green}, wrapped_uchar{blue}});
 		}
 	}
@@ -101,11 +101,12 @@ PPMImage& PPMImage::operator +=(const color_t& other) {
 }
 
 color_t PPMImage::getPixel(size_t x, size_t y) const {
-	return this->image[y*this->height + x];
+	return this->image[y*this->width + x];
 }
 
 void PPMImage::setPixel(size_t x, size_t y, const color_t& color) {
-	this->image[y*this->height + x] = color;
+	//debug("trying to set y=", y, " x=", x, "total is y=", this->height, "x=", this->width);
+	this->image[y*this->width + x] = color;
 }
 
 void PPMImage::setAllPixels(const color_t& color) {
@@ -138,6 +139,7 @@ void PPMImage::generatePPM(const std::string& filename) const {
 	std::ofstream ofs;
 	std::stringstream ss;
 	ss << filename << ".ppm";
+	debug("generating PPM image", ss.str());
 	ofs.open(ss.str(), std::ofstream::out | std::ofstream::trunc);
 	//header
 	ofs << "P3\n";
