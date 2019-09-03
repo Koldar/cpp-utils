@@ -2,6 +2,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <vector>
+#include <string>
 
 namespace cpp_utils {
 

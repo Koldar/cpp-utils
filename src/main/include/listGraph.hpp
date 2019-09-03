@@ -1,5 +1,5 @@
-#ifndef _LISTGRPAH_HEADER__
-#define _LISTGRPAH_HEADER__
+#ifndef _LISTGRAPH_HEADER__
+#define _LISTGRAPH_HEADER__
 
 #include <algorithm>
 #include <vector>
