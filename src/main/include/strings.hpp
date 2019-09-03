@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include "macros.hpp"
+#include "log.hpp"
 
 namespace cpp_utils {
 
@@ -60,6 +61,61 @@ std::string swcout(OTHERs... args) {
     std::stringstream ss;
     return _swcout(ss, args...);
 }
+
+template <typename SEP>
+std::string _join(std::stringstream& ss, SEP sep) {
+    debug("in nothing!");
+    return ss.str();
+}
+
+template <typename SEP, typename FIRST>
+std::string _join(std::stringstream& ss, SEP sep, FIRST first) {
+    debug("in base! first is", first);
+    ss << first;
+    return ss.str();
+}
+
+template <typename SEP, typename FIRST, typename... OTHERS>
+std::string _join(std::stringstream& ss, SEP sep, FIRST first, OTHERS... args) {
+    debug("in recursion! first is", first);
+    ss << first << sep;
+    return _join(ss, sep, args...);
+}
+
+/**
+ * @brief join strings by adding a separator between them
+ * 
+ * @code
+ *  cpp_utils::join("-", "a", "b", "c"); //a-b-c
+ * @endcode
+ * 
+ * 
+ * @tparam OTHERS types of all the arguments to concatenate. If strings are not provided, they will be converted to strings with `<<`
+ * @param separator the string (or something else) that will be added between each `args`. If this is not a string, it will be converted with `<<`
+ * @param args the stuff to concatenate
+ * @return std::string string representation
+ */
+template <typename SEP, typename... OTHERS>
+std::string join(SEP separator, OTHERS... args) {
+    debug("call join!");
+    std::stringstream ss;
+    return _join(ss, separator, args...);
+}
+
+template <typename SEP, typename CONTAINER>
+std::string joinOn(SEP& separator, CONTAINER& c) {
+    std::stringstream ss;
+    bool first = true;
+    for (auto x : c) {
+        if (first) {
+            ss << x;
+            first = false;
+        } else {
+            ss << separator << x;
+        }
+    }
+    return ss.str();
+} 
 
 
 /**

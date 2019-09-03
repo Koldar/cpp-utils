@@ -8,9 +8,24 @@
 #include "vectorplus.hpp"
 #include "safe_inf_uint.hpp"
 #include "math.hpp"
+#include "path.hpp"
+#include "strings.hpp"
 
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
+
+SCENARIO("test strings") {
+    REQUIRE(join("-", "a", "b", "c") == std::string{"a-b-c"});
+    REQUIRE(join("-", "a", 2, "c") == std::string{"a-2-c"});
+    REQUIRE(join(3, "a", 2, "c") == std::string{"a323c"});
+    REQUIRE(cpp_utils::join("-", "a") == std::string{"a"});
+    REQUIRE(cpp_utils::join("-") == std::string{});
+    REQUIRE(cpp_utils::join(3) == std::string{});
+}
+
+SCENARIO("test path") {
+    REQUIRE(Path{"hello.cpp"}.toString() == std::string{"hello.cpp"});
+}
 
 SCENARIO("test float operations") {
 
