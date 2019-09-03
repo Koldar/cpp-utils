@@ -7,10 +7,31 @@
 #include "StaticPriorityQueue.hpp"
 #include "vectorplus.hpp"
 #include "safe_inf_uint.hpp"
+#include "math.hpp"
 
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
 
+SCENARIO("test float operations") {
+
+    GIVEN("double") {
+
+        REQUIRE(isApproximatelyEqual(5., 5., 0.001) == true);
+        REQUIRE(isApproximatelyEqual(5., 6., 0.001) == false);
+
+        REQUIRE(isApproximatelyEqual(5.001, 5.002, 0.002) == true);
+        REQUIRE(isApproximatelyEqual(5.001, 5.003, 0.0001) == false);
+
+        REQUIRE(isDefinitelyGreaterThan(5.001, 4.001, 0.002) == true);
+        REQUIRE(isDefinitelyGreaterThan(5.002, 5.001, 0.0001) == true);
+        REQUIRE(isDefinitelyGreaterThan(5.002, 5.001, 0.002) == false);
+
+        REQUIRE(isDefinitelyLessThan(4.001, 5.001, 0.002) == true);
+        REQUIRE(isDefinitelyLessThan(5.001, 5.002, 0.0001) == true);
+        REQUIRE(isDefinitelyLessThan(5.001, 5.002, 0.002) == false);
+    }
+
+}
 
 SCENARIO("test safe inf uint") {
 
@@ -18,6 +39,14 @@ SCENARIO("test safe inf uint") {
         REQUIRE(safe_inf_uint{0L} == 0L);
         REQUIRE(safe_inf_uint{10L} == 10L);
         REQUIRE(safe_inf_uint{UINT64_MAX} == UINT64_MAX);
+
+        REQUIRE(isApproximatelyEqual(static_cast<float>(safe_inf_uint{0L}), ((float)0), 0.001f));
+        REQUIRE(isApproximatelyEqual(static_cast<float>(safe_inf_uint{10L}), ((float)10), 0.001f));
+        REQUIRE(isApproximatelyEqual(static_cast<float>(safe_inf_uint{UINT64_MAX}), ((float)UINT64_MAX), 0.001f));
+
+        REQUIRE(isApproximatelyEqual(static_cast<double>(safe_inf_uint{0L}), ((double)0), 0.001));
+        REQUIRE(isApproximatelyEqual(static_cast<double>(safe_inf_uint{10L}), ((double)10), 0.001));
+        REQUIRE(isApproximatelyEqual(static_cast<double>(safe_inf_uint{UINT64_MAX}), ((double)UINT64_MAX), 0.001));
     }
 
     GIVEN("non infinite operations") {

@@ -80,12 +80,12 @@ public:
 
     safe_inf_uint(int n): value{static_cast<uint64_t>(n)} {
         if (n < 0) {
-            throw cpp_utils::exceptions::NumericalOperationException{"cast to unsigned", n};
+            throw cpp_utils::exceptions::NumericalOperationException{"cast from int to unsigned", n};
         }
     }
     safe_inf_uint(long n): value{static_cast<uint64_t>(n)} {
         if (n < 0) {
-            throw cpp_utils::exceptions::NumericalOperationException{"cast to unsigned", n};
+            throw cpp_utils::exceptions::NumericalOperationException{"cast from long to unsigned", n};
         }
     }
 
@@ -95,18 +95,18 @@ public:
     }
     safe_inf_uint(float n): value{static_cast<uint64_t>(n)} {
         if (n < 0) {
-            throw cpp_utils::exceptions::NumericalOperationException{"cast to unsigned", n};
+            throw cpp_utils::exceptions::NumericalOperationException{"cast from float to unsigned", n};
         }
         if (n > UINT64_MAX) {
-            throw cpp_utils::exceptions::NumericalOperationException{"cast to unsigned", n};
+            throw cpp_utils::exceptions::NumericalOperationException{"cast from float(overflow) to unsigned", n};
         }
     }
     safe_inf_uint(double n): value{static_cast<uint64_t>(n)} {
         if (n < 0) {
-            throw cpp_utils::exceptions::NumericalOperationException{"cast to unsigned", n};
+            throw cpp_utils::exceptions::NumericalOperationException{"cast from double to unsigned", n};
         }
-        if (n < UINT64_MAX) {
-            throw cpp_utils::exceptions::NumericalOperationException{"cast to unsigned", n};
+        if (n > UINT64_MAX) {
+            throw cpp_utils::exceptions::NumericalOperationException{"cast from double(overflow) to unsigned", n};
         }
     }
 
