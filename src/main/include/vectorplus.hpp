@@ -6,6 +6,12 @@
 
 namespace cpp_utils {
 
+template<typename EL>
+class vectorplus;
+
+template <typename EL>
+std::ostream& operator << (std::ostream& out, const vectorplus<EL>& vec);
+
 /**
  * @brief a vector which has defined more utility functions
  * 
@@ -13,6 +19,7 @@ namespace cpp_utils {
  */
 template<typename EL>
 class vectorplus : public std::vector<EL> {
+    friend std::ostream& operator << <>(std::ostream& out, const vectorplus<EL>& vec);
 public:
     /**
      * @brief check if the vector is actually empty
@@ -65,6 +72,18 @@ public:
         this->push_back(el);
     }
     /**
+     * @brief add all the elements in the given container inside this one
+     * 
+     * @tparam CONTAINER the type of the other container
+     * @param other the other container
+     */
+    template <template<typename> typename CONTAINER>
+    void addAll(const CONTAINER<EL>& other) {
+        for (auto x : other) {
+            this->add(x);
+        }
+    }
+    /**
      * @brief remove the element in the given index
      * 
      * @param index the index involved. error if the index is not valid. index canm be negative for starting backwards
@@ -96,6 +115,22 @@ private:
         return index >= 0 ? index : this->size() + index;
     }
 };
+
+template <typename EL>
+std::ostream& operator << (std::ostream& out, const vectorplus<EL>& vec) {
+    out << "[";
+    bool first = true; 
+    for (auto x: vec) {
+        if (first) {
+            out << x;
+            first = false;
+        } else {
+            out << ", " << x;
+        }
+    }
+    out << "]";
+    return out;
+}
 
 }
 
