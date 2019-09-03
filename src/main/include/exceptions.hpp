@@ -69,6 +69,13 @@ public:
     ADD_STRING_CONSTRUCTOR(ImpossibleException)
 };
 
+/**
+ * @brief exception to throw when you have listed several scenarios depending to a single parameter and the parameter you have is not compliant with any scenario you're expecting
+ * 
+ * For example in a `switch case` statement depending on a variable `int x` you're expecting either 1,2 or 3 but you got 4.
+ * 
+ * @tparam TYPE type of the parameter you're depending on
+ */
 template <typename TYPE>
 class InvalidScenarioException: public AbstractException {
 public:
