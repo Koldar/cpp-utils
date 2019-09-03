@@ -23,9 +23,15 @@ SCENARIO("test strings") {
     REQUIRE(cpp_utils::join(3) == std::string{});
 }
 
-SCENARIO("test path") {
-    REQUIRE(Path{"hello.cpp"}.toString() == std::string{"hello.cpp"});
-}
+// SCENARIO("test path") {
+//     REQUIRE(Path{"hello"}.toString() == std::string{"hello"});
+//     REQUIRE(Path{"/hello"}.toString() == std::string{"/hello"});
+//     REQUIRE(Path{"./hello"}.toString() == std::string{"./hello"});
+//     REQUIRE(Path{"hello/"}.toString() == std::string{"hello"});
+//     REQUIRE(Path{"hello/*"}.toString() == std::string{"hello/*"});
+//     REQUIRE(Path{"hello/*/"}.toString() == std::string{"hello/*"});
+//     REQUIRE(Path{"hello/../"}.toString() == std::string{"hello/.."});
+// }
 
 SCENARIO("test float operations") {
 
@@ -130,30 +136,43 @@ SCENARIO("test vector plus") {
      GIVEN("a vector plus") {
          vectorplus<int> a;
 
-         REQUIRE(a.isEmpty() == true);
-         REQUIRE(a.size() == 0L);
+         WHEN("basics") {
 
-         a.add(5);
-         a.add(6);
-         a.add(7);
+            REQUIRE(a.isEmpty() == true);
+            REQUIRE(a.size() == 0L);
 
-         REQUIRE(a.contains(8) == false);
-         REQUIRE(a.contains(5) == true);
-         REQUIRE(a.contains(6) == true);
-         REQUIRE(a.contains(7) == true);
+            a.add(5);
+            a.add(6);
+            a.add(7);
 
-         REQUIRE(a.size() == 3L);
-         REQUIRE(a[0] == 5);
-         REQUIRE(a[1] == 6);
-         REQUIRE(a[2] == 7);
-         REQUIRE(a[-1] == 7);
-         REQUIRE(a[-2] == 6);
-         REQUIRE(a[-3] == 5);
+            REQUIRE(a.contains(8) == false);
+            REQUIRE(a.contains(5) == true);
+            REQUIRE(a.contains(6) == true);
+            REQUIRE(a.contains(7) == true);
 
-         a.removeAt(2);
+            REQUIRE(a.size() == 3L);
+            REQUIRE(a[0] == 5);
+            REQUIRE(a[1] == 6);
+            REQUIRE(a[2] == 7);
+            REQUIRE(a[-1] == 7);
+            REQUIRE(a[-2] == 6);
+            REQUIRE(a[-3] == 5);
 
-         REQUIRE(a.contains(7) == false);
-         REQUIRE(a.size() == 2L);
+            a.removeAt(2);
+
+            REQUIRE(a.contains(7) == false);
+            REQUIRE(a.size() == 2L);
+         }
+
+         WHEN("functional") {
+             a.add(5);
+             a.add(6);
+             a.add(7);
+             a.add(8);
+
+             REQUIRE(a.map<long>([](int x) { return 2*x; }) == vectorplus<long>::make(10,12,14,16));
+             REQUIRE(a.filter([](int x) {return x > 6; }).map<int>([](int x) { return 2*x; }) == vectorplus<int>::make(14,16));
+         }
      }
  }
 

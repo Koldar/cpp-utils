@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <functional>
 
 namespace cpp_utils {
 
@@ -11,6 +12,7 @@ class vectorplus;
 
 template <typename EL>
 std::ostream& operator << (std::ostream& out, const vectorplus<EL>& vec);
+
 
 /**
  * @brief a vector which has defined more utility functions
@@ -109,6 +111,41 @@ public:
     bool contains(const EL& el) const {
         auto position = std::find(this->begin(), this->end(), el);
         return position != this->end();
+    }
+    template<typename OUTPUT>
+    vectorplus<OUTPUT> map(std::function<OUTPUT(EL)> lambda) {
+        vectorplus<OUTPUT> result{};
+        for (auto el: *this) {
+            result.add(lambda(el));
+        }
+        return result;
+    }
+    vectorplus<EL> filter(std::function<bool(EL)> lambda) {
+        vectorplus<EL> result{};
+        for (auto el: *this) {
+            if (lambda(el)) {
+                result.add(el);
+            }
+        }
+        return result;
+    }
+public:
+    template <typename... OTHER>
+    static vectorplus<EL> make(OTHER... other) {
+        vectorplus<EL> result{};
+        return make(result, other...);
+    }
+
+    template <typename FIRST>
+    static vectorplus<EL>& make(vectorplus<EL>& vec, FIRST f) {
+        vec.add(f);
+        return vec;
+    }
+
+    template <typename FIRST, typename... OTHER>
+    static vectorplus<EL>& make(vectorplus<EL>& vec, FIRST f, OTHER... other) {
+        vec.add(f);
+        return make(vec, other...);
     }
 private:
     int toAbsolute(int index) {
