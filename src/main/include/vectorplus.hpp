@@ -85,6 +85,12 @@ public:
             this->add(x);
         }
     }
+
+    template <typename... OTHER>
+    void add(EL first, OTHER... args) {
+        this->add(first);
+        this->add(args...);
+    }
     /**
      * @brief remove the element in the given index
      * 

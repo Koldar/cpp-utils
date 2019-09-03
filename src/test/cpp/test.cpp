@@ -164,6 +164,13 @@ SCENARIO("test vector plus") {
             REQUIRE(a.size() == 2L);
          }
 
+         WHEN("adding eleemnts") {
+             a.add(5);
+             REQUIRE(a[0] == 5);
+             a.add(6,7,8);
+             REQUIRE(a == vectorplus<int>::make(5,6,7,8));
+         }
+
          WHEN("functional") {
              a.add(5);
              a.add(6);
