@@ -6,6 +6,7 @@
 #include "listGraph.hpp"
 #include "StaticPriorityQueue.hpp"
 #include "vectorplus.hpp"
+#include "mapplus.hpp"
 #include "safe_inf_uint.hpp"
 #include "math.hpp"
 #include "path.hpp"
@@ -204,7 +205,32 @@ SCENARIO("test vector plus") {
              REQUIRE(a.filter([](int x) {return x > 6; }).map<int>([](int x) { return 2*x; }) == vectorplus<int>::make(14,16));
          }
      }
+
+     GIVEN("constant vector plus") {
+         const vectorplus<int> a{vectorplus<int>::make(5,6,7,8)};
+
+         REQUIRE(a.size() == 4);
+         REQUIRE(a[2] == 7);
+     }
  }
+
+SCENARIO("test MapPlus") {
+
+    GIVEN("an empty map") {
+        MapPlus<char, int> a;
+
+        a['a'] = 6;
+        a['b'] = 3;
+        a['c'] = 2;
+
+        REQUIRE(a.size() == 3);
+        REQUIRE(a.containsKey('a') == true);
+        REQUIRE(a.containsKey('d') == false);
+
+        REQUIRE(a.containsValue(3) == true);
+        REQUIRE(a.containsValue(7) == false);
+    }
+}
 
 SCENARIO("test adjacent graph") {
     GIVEN("an empty graph") {
