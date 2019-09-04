@@ -9,7 +9,6 @@
 #include "mapplus.hpp"
 #include "safe_inf_uint.hpp"
 #include "math.hpp"
-#include "path.hpp"
 #include "strings.hpp"
 #include "adjacentGraph.hpp"
 

@@ -33,6 +33,7 @@ namespace internal {
  * Each chunk is large depending on how many object `X` can fit in a given area
  * 
  */
+template <typename OBJ>
 class cchunk {
 private:
     /**
@@ -52,11 +53,6 @@ private:
      */
     char* max_;
 
-    /**
-     * @brief size of each object we intend to put inside the area ::mem_
-     * 
-     */
-    size_t obj_size_;  
     /**
      * @brief size in byte of the allocated contiguous area pointed by ::mem_
      * 
@@ -91,22 +87,20 @@ public:
      *  fort example when the object is larger than the pool requested or when the saving multiple objects with the same size
      *  will lead to some unused memory (e.g., save int (size 4) and requested 23 bytes: 3 bytes will be left unused).
      * 
-     * @param obj_size size of the object type we want to put in the chunk
      * @param pool_size size of the chunk we want to build
      */
-    cchunk(size_t obj_size, size_t pool_size) :
-        obj_size_{obj_size}, 
-        pool_size_{pool_size - (pool_size % obj_size)} { // round down
-        if(pool_size_ < obj_size_) {
-            critical("cchunk object size < pool size (", pool_size, "<", obj_size_, "); setting pool size to object size");
-            pool_size_ = obj_size_;
+    cchunk(size_t pool_size) :
+        pool_size_{pool_size - (pool_size % sizeof(OBJ))} { // round down
+        if(pool_size_ < sizeof(OBJ)) {
+            critical("cchunk object size < pool size (", pool_size, "<", sizeof(OBJ), "); setting pool size to object size");
+            pool_size_ = sizeof(OBJ);
         }
 
         mem_ = new char[pool_size_];
         next_ = mem_;
         max_ = mem_ + pool_size_;
 
-        freed_stack_ = new int[(pool_size_/obj_size)];
+        freed_stack_ = new int[(pool_size_/sizeof(OBJ))];
         stack_size_ = 0;
     }
 
@@ -134,7 +128,7 @@ public:
     inline char* allocate() {
         if(next_ < max_) {
             char* retval = next_;
-            next_ += obj_size_;
+            next_ += sizeof(OBJ);
             return retval;
         }
         //the chunk is completely filled. Check if there are some objects in the chunk which are marked as "to be freed"
@@ -175,7 +169,7 @@ public:
         DO_ON_DEBUG {
             assert(mem_ >= addr);
         }
-        return ((unsigned)(addr-mem_) < pool_size_);
+        return ((unsigned)(addr - mem_) < pool_size_);
     }
 
     /**
@@ -207,7 +201,7 @@ public:
         //mem_
         bytes += sizeof(char)*pool_size_;
         //stack_freed
-        bytes += sizeof(int)*(pool_size_/obj_size_);
+        bytes += sizeof(int)*(pool_size_/sizeof(OBJ));
         return bytes;
     }
 
@@ -215,7 +209,7 @@ public:
         out << "warthog::mem::cchunk pool_size: "
             << pool_size_ 
             << " obj_size: "
-            << obj_size_
+            << sizeof(OBJ)
             << " freed_stack_ size: "
             << stack_size_;
     }
@@ -223,6 +217,7 @@ public:
 
 };
 
+template <typename OBJ>
 std::ostream& operator << (std::ostream& out, const cchunk& c) {
     c.print(out);
     return out;
@@ -234,14 +229,16 @@ std::ostream& operator << (std::ostream& out, const cchunk& c) {
  * @brief implement the Pool design pattern
  * 
  * the pool is heap-located place where you can allocate and free objects all with the same
- * object size (hence you can store int32_t and char[4] together if you really want).
+ * object type.
  * 
  * The pool itself is composed by several chunks: each chunk is a contiguous space of memory while
  * the pool is just a sequence of such chunks.
  * 
  * The pool will greedily allocate as much space as possible.
  * 
+ * @tparam OBJ type of object we want to store in this pool
  */
+template <typename OBJ>
 class cpool {
 private:
     /**
@@ -267,22 +264,16 @@ private:
      * After filling all the chunk allowed, the pool will double this amount and 
      */
     size_t max_chunks_;
-    /**
-     * @brief size each object in the pool has
-     * 
-     */
-    size_t obj_size_;
 public:
     /**
      * @brief Construct a new cpool object
      * 
      * The pool will be initially empty
      * 
-     * @param obj_size size (in bytes) of the objects we want to store in the pool
      * @param max_chunks maximum number of chunks the pool has
      */
-    cpool(size_t obj_size, size_t max_chunks) :
-        num_chunks_{0}, max_chunks_{max_chunks}, obj_size_{obj_size} {
+    cpool(size_t max_chunks) :
+        num_chunks_{0}, max_chunks_{max_chunks} {
         init();
     }
 
@@ -290,10 +281,8 @@ public:
      * @brief Construct a new cpool object
      * 
      * we will build a pool with at most 20 chunks
-     * 
-     * @param obj_size size each object in the pool will have
      */
-    cpool(size_t obj_size) : num_chunks_{0}, max_chunks_{20}, obj_size_{obj_size} {
+    cpool() : num_chunks_{0}, max_chunks_{20} {
         init();
     }
 
@@ -395,7 +384,7 @@ public:
             <<	" #max_chunks "
             << max_chunks_ 
             << " obj_size: "
-            << obj_size_;
+            << sizeof(OBJ);
             << std::endl;
         for(unsigned int i = 0; i < num_chunks_; i++) {
             chunks_[i]->print(out);
@@ -406,14 +395,14 @@ public:
 private:
 
     // no copy
-    cpool(const warthog::mem::cpool& other) = delete; //{ } 
-    warthog::mem::cpool& operator=(const warthog::mem::cpool& other) = delete; //{ return *this; }
+    cpool(const cpool& other) = delete; //{ } 
+    cpool& operator=(const cpool& other) = delete; //{ return *this; }
 
     void init() {
         //initialize array
         chunks_ = new cchunk*[max_chunks_];
         for(int i = 0; i < (int) max_chunks_; i++) {
-            add_chunk(warthog::mem::DEFAULT_CHUNK_SIZE);
+            add_chunk(DEFAULT_CHUNK_SIZE);
         }
         //mark the first chunk as the current one
         current_chunk_ = chunks_[0];
@@ -422,7 +411,7 @@ private:
     void add_chunk(size_t pool_size) {
         if(num_chunks_ < max_chunks_) {
             //we have space for another chunk. Create it
-            chunks_[num_chunks_] = new cchunk(obj_size_, pool_size);
+            chunks_[num_chunks_] = new cchunk<OBJ>(pool_size);
             num_chunks_++;
         } else {
             /* we have already reached the maximum chunk number allowed
@@ -434,7 +423,7 @@ private:
             //big_max is the new max_chunk threshold. we need to update the chunk array as well
             size_t big_max= max_chunks_*2;
             //CREATE THE NEW CHUNK ARRAY
-            cchunk** big_chunks = new cchunk*[big_max];
+            cchunk** big_chunks = new cchunk<OBJ>*[big_max];
             for(unsigned int i = 0; i < max_chunks_; i++) {
                 big_chunks[i] = chunks_[i];
             }
@@ -445,13 +434,14 @@ private:
             max_chunks_ = big_max;
 
             // finally; add a new chunk
-            chunks_[num_chunks_] = new cchunk(obj_size_, pool_size);
+            chunks_[num_chunks_] = new cchunk<OBJ>(pool_size);
             num_chunks_++;
         }
     }
 };
 
-std::ostream& operator << (std::ostream& out, const cpool& pool) {
+template <typename OBJ>
+std::ostream& operator << (std::ostream& out, const cpool<OBJ>& pool) {
     pool.print(out);
     return out;
 }
