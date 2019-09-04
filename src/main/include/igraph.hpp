@@ -5,6 +5,7 @@
 #include "IImageable.hpp"
 #include "iterator.hpp"
 #include "operators.hpp"
+#include "ppmImage.hpp"
 #include <climits>
 #include <vector>
 #include <utility>
