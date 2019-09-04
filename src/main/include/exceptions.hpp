@@ -126,6 +126,22 @@ public:
 };
 
 /**
+ * @brief exception thrown when an element inside a bigger concept goes against some sort of format compliance
+ * 
+ * For example a file may start with "55" but we got "54". The file is "T" while "54" is U.
+ * 
+ * @tparam T concept invalidated
+ * @tparam U element which cause the format invalidation
+ */
+template <typename T, typename U>
+class InvalidFormatException: public AbstractException {
+public:
+    InvalidFormatException(T container, U element): AbstractException{} {
+        this->message = cpp_utils::sprintf("in %s the element %s cause a format invalidation!", container, element);
+    }
+};
+
+/**
  * @brief exception to throw when the operation needs to have at least one element in a container, but the container is actually empty
  * 
  * @tparam ITEM type of the element inside the container
