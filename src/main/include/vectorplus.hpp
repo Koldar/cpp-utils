@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <type_traits>
 
 namespace cpp_utils {
 
@@ -22,6 +23,12 @@ std::ostream& operator << (std::ostream& out, const vectorplus<EL>& vec);
 template<typename EL>
 class vectorplus : public std::vector<EL> {
     friend std::ostream& operator << <>(std::ostream& out, const vectorplus<EL>& vec);
+public:
+    vectorplus(): std::vector<EL>{} {
+    }
+    vectorplus(const std::vector<EL> other): std::vector<EL>{other} {
+
+    }
 public:
     /**
      * @brief check if the vector is actually empty
@@ -48,7 +55,7 @@ public:
      * @return const EL& 
      */
     const EL& at(int index) const {
-        return std::vector<EL>::operator[](this->toAbsolute(index));
+        return this->std::vector<EL>::operator[](this->toAbsolute(index));
     }
     /**
      * @brief an element in the vector. use negative indices for going backwards in the vector
@@ -119,14 +126,14 @@ public:
         return position != this->end();
     }
     template<typename OUTPUT>
-    vectorplus<OUTPUT> map(std::function<OUTPUT(EL)> lambda) {
+    vectorplus<OUTPUT> map(std::function<OUTPUT(EL)> lambda) const {
         vectorplus<OUTPUT> result{};
         for (auto el: *this) {
             result.add(lambda(el));
         }
         return result;
     }
-    vectorplus<EL> filter(std::function<bool(EL)> lambda) {
+    vectorplus<EL> filter(std::function<bool(EL)> lambda) const {
         vectorplus<EL> result{};
         for (auto el: *this) {
             if (lambda(el)) {
@@ -154,7 +161,7 @@ public:
         return make(vec, other...);
     }
 private:
-    int toAbsolute(int index) {
+    int toAbsolute(int index) const {
         return index >= 0 ? index : this->size() + index;
     }
 };
