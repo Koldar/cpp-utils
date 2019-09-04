@@ -45,22 +45,22 @@ public:
         return typename IImmutableGraph<G,V,E>::const_vertex_iterator{it};
     }
     virtual typename IImmutableGraph<G,V,E>::const_vertex_iterator endVertices() const {
-        critical("vertex paylaod is long", this->vertexPayload.size());
+        debug("vertex paylaod is long", this->vertexPayload.size());
         auto val = const_vertex_iterator::cend(this->vertexPayload);
-        critical("val index is ", val.index);
+        debug("val index is ", val.index);
         const_vertex_iterator* it = new const_vertex_iterator{val};
-        critical("it index is ", it->index);
+        debug("it index is ", it->index);
 
         return typename IImmutableGraph<G,V,E>::const_vertex_iterator{it};
     }
 
     virtual typename IImmutableGraph<G,V,E>::const_edge_iterator beginEdges() const {
-        info("calling beginEdges...");
+        debug("calling beginEdges...");
         const_edge_iterator* it = new const_edge_iterator{const_edge_iterator::cbegin(this->edges)};
         return typename IImmutableGraph<G,V,E>::const_edge_iterator{it};
     }
     virtual typename IImmutableGraph<G,V,E>::const_edge_iterator endEdges() const {
-        info("calling endEdges...");
+        debug("calling endEdges...");
         const_edge_iterator* it = new const_edge_iterator{const_edge_iterator::cend(this->edges)};
         return typename IImmutableGraph<G,V,E>::const_edge_iterator{it};
     }
