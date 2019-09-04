@@ -14,6 +14,28 @@
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
 
+SCENARIO("test var holders") {
+    GIVEN("a var holder on bool") {
+        VarHolder<bool> a;
+
+        a = true;
+        REQUIRE(a == true);
+
+        a = false;
+        REQUIRE(a == false);
+    }
+
+    GIVEN("a var holder on int") {
+        VarHolder<int> a;
+
+        a = 6;
+        REQUIRE(a == 6);
+
+        a += 7;
+        REQUIRE(a == 13);
+    }
+}
+
 SCENARIO("test strings") {
     REQUIRE(join("-", "a", "b", "c") == std::string{"a-b-c"});
     REQUIRE(join("-", "a", 2, "c") == std::string{"a-2-c"});
