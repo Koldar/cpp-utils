@@ -40,11 +40,15 @@ std::string _swcout(std::stringstream& ss, const FIRST& s) {
     return ss.str();
 }
 
+//TODO swcout and scout can be written as join!
 template <typename FIRST, typename... OTHERs>
 std::string _swcout(std::stringstream& ss, const FIRST& s, OTHERs... args) {
     ss << s << " ";
     return _swcout(ss, args...);
 }
+
+//TODO create a cout version that accept data like sprintf but uses << to generate the values.
+//allowed formats are %s (call <<), %p (obtain pointer of somethign which isn't a pointer, the pointer itself otherwise), %.2f (only for decimals)
 
 /**
  * @brief iteratively perform a "<<" operation over each argument given

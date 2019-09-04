@@ -178,7 +178,7 @@ public:
         return ss;
     }
 public:
-    using const_vertex_iterator = ProxyConstIterator<std::pair<node_id, const V&>, std::pair<node_id, const V*>*>;
+    using const_vertex_iterator = ProxyConstIterator<std::pair<node_id, const V&>, std::pair<node_id, const V&>*>;
     using const_edge_iterator = ProxyConstIterator<Edge<E>&, Edge<E>*>;
 public:
     IImmutableGraph() {
@@ -265,6 +265,15 @@ public:
         callExternalProgram("convert -depth 8 -compress none /tmp/getPPM.png /tmp/getPPM.ppm");
         PPMImage* result = new PPMImage{"/tmp/getPPM.ppm"};
         return result;
+    }
+    /**
+     * @brief true if there are no edges in the graph
+     * 
+     * @return true no edges are present
+     * @return false at least one edge is present
+     */
+    virtual bool hasNoEdges() const {
+        return this->numberOfEdges() == 0;
     }
 };
 

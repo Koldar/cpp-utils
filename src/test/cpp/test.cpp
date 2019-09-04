@@ -10,6 +10,7 @@
 #include "math.hpp"
 #include "path.hpp"
 #include "strings.hpp"
+#include "adjacentGraph.hpp"
 
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
@@ -204,6 +205,78 @@ SCENARIO("test vector plus") {
          }
      }
  }
+
+SCENARIO("test adjacent graph") {
+    GIVEN("an empty graph") {
+        ListGraph<int, int, int> lg{20};
+        AdjacentGraph<int, int, int> ag{lg};
+
+        REQUIRE(ag.size() == 0);
+        REQUIRE(ag.isEmpty() == true);
+        REQUIRE(ag.getPayload() == 20);
+
+        ag.saveBMP("empty_adjacentGraph");
+    }
+
+    GIVEN("non empty graph") {
+        ListGraph<int, int, bool> lg{20};
+        auto n0 = lg.addVertex(1);
+        auto n1 = lg.addVertex(2);
+        auto n2 = lg.addVertex(3);
+        auto n3 = lg.addVertex(4);
+        auto n4 = lg.addVertex(5);
+        lg.addEdge(n0, n1, true);
+        lg.addEdge(n0, n2, true);
+        lg.addEdge(n2, n3, true);
+        lg.addEdge(n3, n4, true);
+
+        AdjacentGraph<int, int, bool> ag{lg};
+
+        WHEN("testing the graph") {
+            REQUIRE(ag.getEdge(n0, n1) == true);
+            REQUIRE(ag.getEdge(n0, n2) == true);
+            REQUIRE(ag.hasEdge(n0, n3) == false);
+            REQUIRE(ag.hasEdge(n0, n4) == false);
+            REQUIRE(ag.getEdge(n2, n3) == true);
+            REQUIRE(ag.getEdge(n3, n4) == true);
+        }
+
+        WHEN("testing saving image") {
+            ag.saveBMP("adjacentGraph");
+        }
+
+        WHEN("testing getters") {
+            REQUIRE(ag.size() == 5);
+            REQUIRE_FALSE(ag.isEmpty());
+
+            REQUIRE(ag.getOutDegree(n0) == 2);
+            REQUIRE(ag.getOutDegree(n4) == 0);
+            REQUIRE(ag.getOutDegree(n2) == 1);
+            
+            REQUIRE(ag.hasSuccessors(n0));
+            REQUIRE(ag.hasSuccessors(n2));
+            REQUIRE(ag.hasSuccessors(n4) == false);
+
+            REQUIRE_FALSE(ag.hasPredecessors(n0));
+            REQUIRE(ag.hasPredecessors(n2));
+            REQUIRE(ag.hasPredecessors(n4));
+
+            REQUIRE(ag.numberOfVertices() == 5);
+            REQUIRE(ag.numberOfEdges() == 4);
+
+            REQUIRE(ag.getInDegree(n0) == 0);
+            REQUIRE(ag.getInDegree(n2) == 1);
+            REQUIRE(ag.getInDegree(n4) == 1);
+
+            REQUIRE(ag.getInEdges(n4) == std::vector<InEdge<bool>>{InEdge<bool>{n3, true}});
+            REQUIRE(ag.getInEdges(n0) == std::vector<InEdge<bool>>{});
+
+            REQUIRE(ag.getOutEdges(n0) == std::vector<OutEdge<bool>>{OutEdge<bool>{n1, true}, OutEdge<bool>{n2, true}});
+            REQUIRE(ag.getOutEdges(n2) == std::vector<OutEdge<bool>>{OutEdge<bool>{n3, true}});
+            REQUIRE(ag.getOutEdges(n4) == std::vector<OutEdge<bool>>{});
+        }
+    }
+}
 
 SCENARIO("test graphs") {
     GIVEN("an empty graph") {
