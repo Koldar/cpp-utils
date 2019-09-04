@@ -86,17 +86,51 @@ private:
     TYPE t;
 };
 
+/**
+ * @brief like InvalidScenarioException but here the scenario is uniquely indentified by 2 parameters, not one
+ * 
+ * @tparam T1 the type of the first parameter
+ * @tparam T2 the type of the second parameter
+ */
 template <typename T1, typename T2>
 class InvalidPairScenarioException: public AbstractException {
 private:
+    ///first value
     T1 t1;
+    ///second value
     T2 t2;
 public:
+    /**
+     * @brief Construct a new Invalid Pair Scenario Exception object
+     * 
+     * @param t1 the in valid value of the first parameter
+     * @param t2 the invalid value of the second parameter
+     */
     InvalidPairScenarioException(T1 t1, T2 t2) : AbstractException{}, t1{t1}, t2{t2} {
         this->message = cpp_utils::sprintf("No matched scenario for value %s-%s", t1, t2);
     }
 };
 
+/**
+ * @brief exception to throw when you can't perform the operation because **self** is in an invalid state
+ * 
+ */
+template<typename SELF>
+class InvalidStateException: public AbstractException {
+private:
+    const SELF& self;
+public:
+    InvalidStateException(const SELF& self): AbstractException{}, self{self} {
+        this->message = cpp_utils::sprintf("%s is in an invalid state", self);
+    }
+};
+
+/**
+ * @brief exception to throw when the operation needs to have at least one element in a container, but the container is actually empty
+ * 
+ * @tparam ITEM type of the element inside the container
+ * @tparam CONTAINER container involved
+ */
 template <typename ITEM, typename CONTAINER>
 class ElementNotFoundException: public AbstractException {
 public:
