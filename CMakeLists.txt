@@ -40,7 +40,8 @@ set(CMAKE_FILE_ALTERED_COMMAND "")
 # - 1.3: added position independent code, cmake command line arguments
 # - 1.4: "make install/uninstall" works without root access; Use U_INSTALL_DIRECTORY to alter installation directory; refactored  messages
 # - 1.5: ease to tweak log in cmake
-set(CMAKE_FILE_BUILDING_PROCESS_VERSION "1.5")
+# - 1.6: fmax-errors=1 isntead of -Wfatal-errors
+set(CMAKE_FILE_BUILDING_PROCESS_VERSION "1.6")
 #The place where all the stuff created by "sudo make install" will be positioned"
 #Leave it if you don't want to change the behaviour. Can be overriden by U_INSTALL_DIRECTORY. For example: "-DU_INSTALL_DIRECTORY=~/usr"
 #(no end slash!).
@@ -148,7 +149,8 @@ if(PARENTDIR STREQUAL "Debug")
     add_definitions(-DQUICK_LOG=${THEPROJECT_DEBUG_LOG_LEVEL} -DDEBUG -fno-stack-protector )
 endif(PARENTDIR STREQUAL "Debug")
 #add common definitions
-add_definitions(-Wfatal-errors -std=c++11 -Werror)
+#I perfer fmax-errors=1 instead of -Wfatal-errors becuase the second won't show the compiler notes of the error, but the first will
+add_definitions(-fmax-errors=1 -std=c++11 -Werror)
 
 # ****************** SUB DIRECTORIES *************************
 add_subdirectory(src/main/cpp)
