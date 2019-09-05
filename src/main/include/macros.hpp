@@ -41,7 +41,7 @@
  * @param[in] X a pointer to check
  * @param[in] ELSE statement to execute if X is null
  */
-#define ELVIS(X, ELSE) (((X) != nullptr) ? *(X) : (ELSE))
+//#define ELVIS(X, ELSE) (((X) != nullptr) ? *(X) : (ELSE))
 
 #define CAT(x, y) x ## y
 
