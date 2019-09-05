@@ -11,9 +11,75 @@
 #include "math.hpp"
 #include "strings.hpp"
 #include "adjacentGraph.hpp"
+#include "pool.hpp"
+#include "commons.hpp"
 
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
+
+SCENARIO("test elvis") {
+    int a = 5;
+    int* b = nullptr;
+    int c = 0;
+
+    float d = 7;
+
+    REQUIRE(*elvis(&a, &c) == 5);
+    REQUIRE(*elvis(b, &c) == 0);
+
+    REQUIRE(elvis(&a, &d) == static_cast<void*>(&a));
+    REQUIRE(elvis(b, &d) == static_cast<void*>(&d));
+}
+
+SCENARIO("test cpool") {
+    cpool<int> pool{20};
+
+    int* a = new (pool.allocate()) int{5};
+
+    REQUIRE(*a == 5);
+
+    pool.reclaim();
+}
+
+SCENARIO("test ceil power") {
+    REQUIRE(pow2GreaterThan(0) == 0);
+    REQUIRE(pow2GreaterThan(1) == 1);
+    REQUIRE(pow2GreaterThan(2) == 2);
+    REQUIRE(pow2GreaterThan(3) == 4);
+    REQUIRE(pow2GreaterThan(4) == 4);
+    REQUIRE(pow2GreaterThan(5) == 8);
+}
+
+SCENARIO("test log") {
+    GIVEN("integer") {
+        REQUIRE(log2(1) == 0);
+        REQUIRE(log2(2) == 1);
+        REQUIRE(log2(4) == 2);
+        REQUIRE(log2(8) == 3);
+        REQUIRE(log2(64) == 6);
+
+        REQUIRE(log2(6) == 2);
+    }
+
+    GIVEN("float") {
+        REQUIRE(isApproximatelyEqual(log2(1.f), 0.f, 0.01f));
+        REQUIRE(isApproximatelyEqual(log2(2.f), 1.f, 0.01f));
+        REQUIRE(isApproximatelyEqual(log2(4.f), 2.f, 0.01f));
+    }
+
+    GIVEN("double") {
+        REQUIRE(isApproximatelyEqual(log2(1.), 0., 0.01));
+        REQUIRE(isApproximatelyEqual(log2(2.), 1., 0.01));
+        REQUIRE(isApproximatelyEqual(log2(4.), 2., 0.01));
+    }
+
+    GIVEN("operations") {
+        uint32_t n = 64;
+        REQUIRE(log2(n) == 6);
+        REQUIRE((0xFFFFFFFF << (log2(n)+ 1)) == 0xFFFFFF80);
+        REQUIRE((0xFFFFFFFF << (log2(n) + 1) ^ ~n) == 63);
+    }
+}
 
 SCENARIO("test var holders") {
     GIVEN("a var holder on bool") {
@@ -396,20 +462,6 @@ class Foo: public HasPriority {
             this->p = p;
         }
     };
-
-
-SCENARIO("test macros") {
-
-    GIVEN("elvis") {
-        int a = 5;
-        int* b = &a;
-        int* c = nullptr;
-
-        REQUIRE(ELVIS(b, 10) == 5); 
-        REQUIRE(ELVIS(c, 10) == 10);
-    }
-
-}
 
 SCENARIO("test queue") {
 
