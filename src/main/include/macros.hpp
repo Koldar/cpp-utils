@@ -23,7 +23,7 @@
  * @param Y the class which neesd to be superclass of class @c X
  * @see https://stackoverflow.com/a/30687399/1887602
  */
-#define EXTENDS(X, Y) typename X, typename std::enable_if<std::is_base_of<Y, X>::value>::type* = nullptr
+#define EXTENDS(X, Y) typename std::enable_if<std::is_base_of<Y, X>::value>::type* = nullptr
 
 /**
  * @brief perform the elvis operator

@@ -42,7 +42,7 @@ public:
  * @author: dharabor
  * @created: 09/08/2012
  */
-template <EXTENDS(ITEM, HasPriority)>
+template <typename ITEM, EXTENDS(ITEM, HasPriority)>
 class StaticPriorityQueue : public IMemorable {
     public:
         friend std::ostream& operator << (std::ostream& ss, const StaticPriorityQueue<ITEM>& q) {
