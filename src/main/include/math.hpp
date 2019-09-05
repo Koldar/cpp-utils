@@ -67,6 +67,46 @@ bool isDefinitelyLessThan(T a, T b, T epsilon) {
     return (b - a) > ( (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)) * epsilon);
 }
 
+/**
+ * @brief compute log 2
+ * 
+ * @note
+ * this function allows for computation compile time
+ * 
+ * @tparam T type of both the input and the output
+ * @param n input
+ * @return constexpr T \f$log_{2}(n)\f$
+ */
+template <typename T>
+constexpr T log2(T n) {
+    return (n<2) ? 0 : 1 + log2(n/2);
+}
+
+template <typename T>
+constexpr T _Pow2GreaterThan(T n, T power) {
+    return (power >= n) ? power : _Pow2GreaterThan(n, 2*power);
+}
+
+/**
+ * @brief retrieve the smallest power of 2 which is greater or equal than the given number
+ * 
+ * @code
+ *  ceilPow(1) //1
+ *  ceilPow(2) //2
+ *  ceilPow(3) //4
+ *  ceilPow(4) //4
+ *  ceilPow(5) //8
+ * @endcode
+ * 
+ * @tparam T type of the number
+ * @param n the number involved
+ * @return constexpr T 
+ */
+template <typename T>
+constexpr T pow2GreaterThan(T n) {
+    return n == 0 ? 0 : _Pow2GreaterThan(n, 1);
+}
+
 }
 
 #endif
