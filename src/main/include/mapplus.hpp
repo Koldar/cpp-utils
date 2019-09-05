@@ -3,14 +3,10 @@
 
 #include <iostream>
 #include <sstream>
+#include <unordered_map>
 
 namespace cpp_utils {
 
-template <typename K, typename V>
-class MapPlus;
-
-template <typename K, typename V>
-std::ostream& operator << (std::ostream& out, const MapPlus<K, V>& a);
 
 /**
  * @brief derived class of map
@@ -22,9 +18,20 @@ std::ostream& operator << (std::ostream& out, const MapPlus<K, V>& a);
  * @tparam K 
  * @tparam V 
  */
-template <typename K, typename V>
-class MapPlus: public std::unordered_map<K, V> {
-    friend std::ostream& operator << <>(std::ostream& out, const MapPlus<K, V>& a);
+template <typename K, typename V, 
+    typename HASH = std::hash<K>,
+	typename PRED = std::equal_to<K>,
+	typename ALLOC = std::allocator<std::pair<const K, V>>
+>
+class MapPlus: public std::unordered_map<K, V, HASH, PRED, ALLOC> {
+    friend std::ostream& operator <<(std::ostream& out, const MapPlus<K, V, HASH, PRED, ALLOC>& a) {
+        out << "{";
+        for (auto it=a.cbegin(); it!=a.cend(); ++it) {
+            out << it->first << ": " << it->second << ", ";
+        }
+        out << "}";
+        return out;
+    }
 public:
     /**
      * @brief check if the map contains a specific key
@@ -50,19 +57,10 @@ public:
                 return it->first;
             }
         }
-        throw cpp_utils::exceptions::ElementNotFoundException<V, MapPlus<K, V>>{v, *this};
+        throw cpp_utils::exceptions::ElementNotFoundException<V, MapPlus<K, V, HASH, PRED, ALLOC>>{v, *this};
     }
 };
 
-template <typename K, typename V>
-std::ostream& operator << (std::ostream& out, const MapPlus<K, V>& a) {
-    out << "{";
-    for (auto it=a.cbegin(); it!=a.cend(); ++it) {
-        out << it->first << ": " << it->second << ", ";
-    }
-    out << "}";
-    return out;
-}
 
 
 }
