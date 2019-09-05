@@ -19,7 +19,7 @@ namespace cpp_utils {
  * @brief an id identifying each vertex in the graph
  * 
  */
-typedef u_int64_t node_id;
+typedef u_int64_t nodeid_t;
 
 template<typename E>
 class Edge;
@@ -52,12 +52,12 @@ class Edge {
         return ss;
     }
 public:
-    Edge<E>(node_id sourceId, node_id sinkId, const E& payload) : payload{payload}, sourceId{sourceId}, sinkId{sinkId} {};
+    Edge<E>(nodeid_t sourceId, nodeid_t sinkId, const E& payload) : payload{payload}, sourceId{sourceId}, sinkId{sinkId} {};
     Edge<E>(const Edge<E>& other) : payload{other.payload}, sourceId{other.sourceId}, sinkId{other.sinkId} {};
-    Edge<E>(node_id sourceId, const OutEdge<E>& other): Edge<E>{sourceId, other.getSinkId(), other.getPayload()} {
+    Edge<E>(nodeid_t sourceId, const OutEdge<E>& other): Edge<E>{sourceId, other.getSinkId(), other.getPayload()} {
 
     }
-    Edge<E>(node_id sinkId, const InEdge<E>& other): Edge<E>{other.getSourceId(), sinkId, other.getPayload()} {
+    Edge<E>(nodeid_t sinkId, const InEdge<E>& other): Edge<E>{other.getSourceId(), sinkId, other.getPayload()} {
         
     }
     virtual ~Edge<E>() {};
@@ -75,25 +75,25 @@ public:
     const E& getPayload() const {
         return this->payload;
     }
-    node_id getSourceId() const {
+    nodeid_t getSourceId() const {
         return this->sourceId;
     }
-    node_id getSinkId() const {
+    nodeid_t getSinkId() const {
         return this->sinkId;
     }
-    bool isCompliant(node_id sourceId, node_id sinkId) const {
+    bool isCompliant(nodeid_t sourceId, nodeid_t sinkId) const {
         return this->sourceId == sourceId && this->sinkId == sinkId;
     }
-    bool hasSource(node_id sourceId) const {
+    bool hasSource(nodeid_t sourceId) const {
         return this->sourceId == sourceId;
     }
-    bool hasSink(node_id sinkId) const {
+    bool hasSink(nodeid_t sinkId) const {
         return this->sinkId == sinkId;
     }
 private:
     E payload;
-    node_id sourceId;
-    node_id sinkId;
+    nodeid_t sourceId;
+    nodeid_t sinkId;
 };
 
 template <typename E>
@@ -109,7 +109,7 @@ bool operator ==(const Edge<E>& a, const Edge<E>& b) {
 template<typename E>
 class InEdge {
 public:
-    InEdge<E>(node_id sourceId, const E& payload) : payload{payload}, sourceId{sourceId} {};
+    InEdge<E>(nodeid_t sourceId, const E& payload) : payload{payload}, sourceId{sourceId} {};
     InEdge<E>(const InEdge<E>& other) : payload{other.payload}, sourceId{other.sourceId} {};
     InEdge<E>(const Edge<E>& other) : payload{other.getPayload()}, sourceId{other.getSourceId()} {};
     virtual ~InEdge<E>() {};
@@ -125,10 +125,10 @@ public:
 public:
     E getPayload();
     const E& getPayload() const;
-    node_id getSourceId() const;
+    nodeid_t getSourceId() const;
 private:
     E payload;
-    node_id sourceId;
+    nodeid_t sourceId;
 };
 
 /**
@@ -139,7 +139,7 @@ private:
 template<typename E>
 class OutEdge {
 public:
-    OutEdge<E>(node_id sinkId, const E& payload) : payload{payload}, sinkId{sinkId} {};
+    OutEdge<E>(nodeid_t sinkId, const E& payload) : payload{payload}, sinkId{sinkId} {};
     OutEdge<E>(const OutEdge<E>& other) : payload{other.payload}, sinkId{other.sinkId} {};
     OutEdge<E>(const Edge<E>& other) : payload{other.getPayload()}, sinkId{other.getSinkId()} {};
     virtual ~OutEdge() {};
@@ -163,12 +163,12 @@ public:
     const E& getPayload() const {
         return this->payload;
     }
-    node_id getSinkId() const {
+    nodeid_t getSinkId() const {
         return this->sinkId;
     }
 private:
     E payload;
-    node_id sinkId;
+    nodeid_t sinkId;
 };
 
 template <typename G, typename V, typename E>
@@ -179,7 +179,7 @@ public:
         return ss;
     }
 public:
-    using const_vertex_iterator = ProxyConstIterator<std::pair<node_id, const V&>, std::pair<node_id, const V&>*>;
+    using const_vertex_iterator = ProxyConstIterator<std::pair<nodeid_t, const V&>, std::pair<nodeid_t, const V&>*>;
     using const_edge_iterator = ProxyConstIterator<Edge<E>&, Edge<E>*>;
 public:
     IImmutableGraph() {
@@ -218,15 +218,15 @@ public:
      * @param id the id of the vertex to fetch
      * @return const V& the payload associated to such vertex id
      */
-    virtual const V& getVertex(node_id id) const = 0;
-    virtual const E& getEdge(node_id sourceId, node_id sinkId) const = 0;
+    virtual const V& getVertex(nodeid_t id) const = 0;
+    virtual const E& getEdge(nodeid_t sourceId, nodeid_t sinkId) const = 0;
     virtual const G& getPayload() const = 0;
     virtual G& getPayload() = 0;
-    virtual size_t getInDegree(node_id id) const = 0;
-    virtual size_t getOutDegree(node_id id) const = 0;
-    virtual size_t getDegree(node_id id) const = 0;
-    virtual bool hasSuccessors(node_id id) const = 0;
-    virtual bool hasPredecessors(node_id id) const = 0;
+    virtual size_t getInDegree(nodeid_t id) const = 0;
+    virtual size_t getOutDegree(nodeid_t id) const = 0;
+    virtual size_t getDegree(nodeid_t id) const = 0;
+    virtual bool hasSuccessors(nodeid_t id) const = 0;
+    virtual bool hasPredecessors(nodeid_t id) const = 0;
     /**
      * @brief Get the Out Edge object
      * 
@@ -234,10 +234,10 @@ public:
      * @param index index of the out edge to retrieve. index starts from 0 (inclusive)
      * @return const OutEdge<E>& 
      */
-    virtual OutEdge<E> getOutEdge(node_id id, int index) const = 0;
-    virtual bool hasEdge(node_id sourceId, node_id sinkId) const = 0;
-    virtual std::vector<InEdge<E>> getInEdges(node_id id) const = 0;
-    virtual std::vector<OutEdge<E>> getOutEdges(node_id id) const = 0;
+    virtual OutEdge<E> getOutEdge(nodeid_t id, int index) const = 0;
+    virtual bool hasEdge(nodeid_t sourceId, nodeid_t sinkId) const = 0;
+    virtual std::vector<InEdge<E>> getInEdges(nodeid_t id) const = 0;
+    virtual std::vector<OutEdge<E>> getOutEdges(nodeid_t id) const = 0;
     virtual bool isEmpty() const = 0;
     virtual const PPMImage* getPPM() const {
         callExternalProgram("rm -f /tmp/getPPM.png /tmp/getPPM.ppm /tmp/getPPM.dot");
@@ -288,8 +288,8 @@ public:
 template <typename G, typename V, typename E>
 class INonExtendableGraph: public IImmutableGraph<G,V,E> {
 public:
-    virtual void changeWeightEdge(node_id sourceId, node_id sinkId, const E& newPayload) = 0;
-    virtual void changeWeightOutEdge(node_id sourceId, int index, const E& newPayload) = 0;
+    virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) = 0;
+    virtual void changeWeightOutEdge(nodeid_t sourceId, int index, const E& newPayload) = 0;
 };
 
 /**
@@ -314,9 +314,9 @@ public:
         }
     }
 
-    virtual node_id addVertex(const V& payload) = 0;
-    virtual void addEdge(node_id sourceId, node_id sinkId, const E& payload) = 0;
-    virtual void removeEdge(node_id sourceId, node_id sinkId) = 0;
+    virtual nodeid_t addVertex(const V& payload) = 0;
+    virtual void addEdge(nodeid_t sourceId, nodeid_t sinkId, const E& payload) = 0;
+    virtual void removeEdge(nodeid_t sourceId, nodeid_t sinkId) = 0;
     virtual void removeAllEdges() = 0;
 };
 

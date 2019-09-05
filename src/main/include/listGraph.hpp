@@ -10,7 +10,7 @@ namespace cpp_utils::graphs {
 template <typename G, typename V, typename E>
 class ListGraph : public IVertexExtendableGraph<G,V,E> {
 public:
-    using const_vertex_iterator = PairNumberContainerBasedConstIterator<std::vector<V>, node_id, V>;
+    using const_vertex_iterator = PairNumberContainerBasedConstIterator<std::vector<V>, nodeid_t, V>;
     using const_edge_iterator = DefaultNumberContainerBasedConstIterator<std::vector<Edge<E>>, Edge<E>>;
 private:
     std::vector<V> vertexPayload;
@@ -64,16 +64,16 @@ public:
         const_edge_iterator* it = new const_edge_iterator{const_edge_iterator::cend(this->edges)};
         return typename IImmutableGraph<G,V,E>::const_edge_iterator{it};
     }
-    virtual const V& getVertex(node_id id) const {
+    virtual const V& getVertex(nodeid_t id) const {
         return this->vertexPayload[id];
     }
-    virtual const E& getEdge(node_id sourceId, node_id sinkId) const {
+    virtual const E& getEdge(nodeid_t sourceId, nodeid_t sinkId) const {
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
             if (it->isCompliant(sourceId, sinkId)) {
                 return (*it).getPayload();
             }
         }
-        throw exceptions::ElementNotFoundException<std::pair<node_id, node_id>, const G&>{std::pair<node_id, node_id>{sourceId, sinkId}, this->getPayload()};
+        throw exceptions::ElementNotFoundException<std::pair<nodeid_t, nodeid_t>, const G&>{std::pair<nodeid_t, nodeid_t>{sourceId, sinkId}, this->getPayload()};
     }
 
     virtual const G& getPayload() const {
@@ -83,7 +83,7 @@ public:
         return this->payload;
     }
 
-    virtual size_t getInDegree(node_id id) const {
+    virtual size_t getInDegree(nodeid_t id) const {
         size_t result = 0;
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
             if (it->getSinkId() == id) {
@@ -92,7 +92,7 @@ public:
         }
         return result;
     }
-    virtual size_t getOutDegree(node_id id) const {
+    virtual size_t getOutDegree(nodeid_t id) const {
         size_t result = 0;
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
             if (it->getSourceId() == id) {
@@ -101,7 +101,7 @@ public:
         }
         return result;
     }
-    virtual size_t getDegree(node_id id) const {
+    virtual size_t getDegree(nodeid_t id) const {
         size_t result = 0;
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
             if (it->getSinkId() == id || it->getSourceId() == id) {
@@ -110,7 +110,7 @@ public:
         }
         return result;
     }
-    virtual bool hasSuccessors(node_id id) const {
+    virtual bool hasSuccessors(nodeid_t id) const {
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
             if (it->getSourceId() == id) {
                 return true;
@@ -118,7 +118,7 @@ public:
         }
         return false;
     }
-    virtual bool hasPredecessors(node_id id) const {
+    virtual bool hasPredecessors(nodeid_t id) const {
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
             if (it->getSinkId() == id) {
                 return true;
@@ -126,7 +126,7 @@ public:
         }
         return false;
     }
-    virtual OutEdge<E> getOutEdge(node_id id, int index) const {
+    virtual OutEdge<E> getOutEdge(nodeid_t id, int index) const {
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
             if (it->getSourceId() == id) {
                 if (index == 0) {
@@ -136,10 +136,10 @@ public:
                 }
             }
         }
-        throw exceptions::ElementNotFoundException<std::pair<node_id, int>, const G&>{std::pair<node_id, node_id>{id, index}, this->getPayload()};
+        throw exceptions::ElementNotFoundException<std::pair<nodeid_t, int>, const G&>{std::pair<nodeid_t, nodeid_t>{id, index}, this->getPayload()};
     }
     
-    virtual bool hasEdge(node_id sourceId, node_id sinkId) const {
+    virtual bool hasEdge(nodeid_t sourceId, nodeid_t sinkId) const {
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
             if (it->isCompliant(sourceId, sinkId)) {
                 return true;
@@ -147,7 +147,7 @@ public:
         }
         return false;
     }
-    virtual std::vector<InEdge<E>> getInEdges(node_id id) const {
+    virtual std::vector<InEdge<E>> getInEdges(nodeid_t id) const {
         std::vector<InEdge<E>> result{};
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
             if (it->hasSink(id)) {
@@ -156,7 +156,7 @@ public:
         }
         return result;
     }
-    virtual std::vector<OutEdge<E>> getOutEdges(node_id id) const {
+    virtual std::vector<OutEdge<E>> getOutEdges(nodeid_t id) const {
         std::vector<OutEdge<E>> result{};
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
             if (it->hasSource(id)) {
@@ -169,14 +169,14 @@ public:
         return this->size() == 0;
     }
 public:
-    virtual void changeWeightEdge(node_id sourceId, node_id sinkId, const E& newPayload) {
+    virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) {
         for (auto i=0; i<this->edges.size(); ++i) {
             if (this->edges[i].isCompliant(sourceId, sinkId)) {
                 this->edges[i].setPayload(newPayload);
             }
         }
     }
-    virtual void changeWeightOutEdge(node_id sourceId, int index, const E& newPayload) {
+    virtual void changeWeightOutEdge(nodeid_t sourceId, int index, const E& newPayload) {
         for (auto i=0; i<this->edges.size(); ++i) {
             if (this->edges[i].hasSource(sourceId)) {
                 if (index == 0) {
@@ -188,14 +188,14 @@ public:
         }
     }
 public:
-    virtual node_id addVertex(const V& payload) {
+    virtual nodeid_t addVertex(const V& payload) {
         this->vertexPayload.push_back(payload);
         return this->vertexPayload.size() - 1;
     }
-    virtual void addEdge(node_id sourceId, node_id sinkId, const E& payload) {
+    virtual void addEdge(nodeid_t sourceId, nodeid_t sinkId, const E& payload) {
         this->edges.push_back(Edge<E>{sourceId, sinkId, payload});
     }
-    virtual void removeEdge(node_id sourceId, node_id sinkId) {
+    virtual void removeEdge(nodeid_t sourceId, nodeid_t sinkId) {
         this->edges.erase(std::remove_if(this->edges.begin(), this->edges.end(), [&sourceId,&sinkId](const Edge<E>& x) {
             return x.isCompliant(sourceId, sinkId);
         }));

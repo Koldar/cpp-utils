@@ -19,7 +19,7 @@ namespace cpp_utils::graphs {
  */
 template <typename G, typename V, typename E>
 class AdjacentGraph: public INonExtendableGraph<G, V, E> {
-    using const_vertex_iterator = PairNumberContainerBasedConstIterator<std::vector<V>, node_id, V>;
+    using const_vertex_iterator = PairNumberContainerBasedConstIterator<std::vector<V>, nodeid_t, V>;
     using const_edge_iterator = MapNumberContainerBasedConstIterator<std::vector<OutEdge<E>>, OutEdge<E>, Edge<E>>;
 private:
     G payload;
@@ -107,16 +107,16 @@ public:
         )};
         return typename IImmutableGraph<G,V,E>::const_edge_iterator{it};
     }
-    virtual const V& getVertex(node_id id) const {
+    virtual const V& getVertex(nodeid_t id) const {
         return this->vertexPayload[id];
     }
-    virtual const E& getEdge(node_id sourceId, node_id sinkId) const {
+    virtual const E& getEdge(nodeid_t sourceId, nodeid_t sinkId) const {
         for (auto i=this->outEdgesOfvertexBegin[sourceId]; i<this->outEdgesOfvertexBegin[sourceId+1]; ++i) {
             if (this->edges[i].getSinkId() == sinkId) {
                 return this->edges[i].getPayload();
             }
         }
-        throw cpp_utils::exceptions::ElementNotFoundException<node_id, AdjacentGraph<G,V,E>>{sinkId, *this};
+        throw cpp_utils::exceptions::ElementNotFoundException<nodeid_t, AdjacentGraph<G,V,E>>{sinkId, *this};
     }
     virtual const G& getPayload() const {
         return this->payload;
@@ -124,7 +124,7 @@ public:
     virtual G& getPayload() {
         return this->payload;
     }
-    virtual size_t getInDegree(node_id id) const {
+    virtual size_t getInDegree(nodeid_t id) const {
         size_t result = 0;
         debug("new computation!");
         for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
@@ -136,16 +136,16 @@ public:
         }
         return result;
     }
-    virtual size_t getOutDegree(node_id id) const {
+    virtual size_t getOutDegree(nodeid_t id) const {
         return this->outEdgesOfvertexBegin[id+1] - this->outEdgesOfvertexBegin[id];
     }
-    virtual size_t getDegree(node_id id) const {
+    virtual size_t getDegree(nodeid_t id) const {
         return this->getOutDegree(id) + this->getInDegree(id);
     }
-    virtual bool hasSuccessors(node_id id) const {
+    virtual bool hasSuccessors(nodeid_t id) const {
         return this->getOutDegree(id) > 0;
     }
-    virtual bool hasPredecessors(node_id id) const {
+    virtual bool hasPredecessors(nodeid_t id) const {
         for (auto sourceId=0; sourceId<this->vertexPayload.size(); ++sourceId) {
             if (sourceId == id) {
                 continue;
@@ -158,10 +158,10 @@ public:
         }
         return false;
     }
-    virtual OutEdge<E> getOutEdge(node_id id, int index) const {
+    virtual OutEdge<E> getOutEdge(nodeid_t id, int index) const {
         return this->edges[this->outEdgesOfvertexBegin[id] + index];
     }
-    virtual bool hasEdge(node_id sourceId, node_id sinkId) const {
+    virtual bool hasEdge(nodeid_t sourceId, nodeid_t sinkId) const {
         for (auto i=this->outEdgesOfvertexBegin[sourceId]; i<this->outEdgesOfvertexBegin[sourceId+1]; ++i) {
             if (this->edges[i].getSinkId() == sinkId) {
                 return true;
@@ -169,10 +169,10 @@ public:
         }
         return false;
     }
-    virtual std::vector<InEdge<E>> getInEdges(node_id id) const {
+    virtual std::vector<InEdge<E>> getInEdges(nodeid_t id) const {
         std::vector<InEdge<E>> result{};
     
-        for (node_id sourceId=0; sourceId<this->vertexPayload.size(); ++sourceId) {
+        for (nodeid_t sourceId=0; sourceId<this->vertexPayload.size(); ++sourceId) {
             if (sourceId == id) {
                 continue;
             }
@@ -184,7 +184,7 @@ public:
         }
         return result;
     }
-    virtual std::vector<OutEdge<E>> getOutEdges(node_id id) const {
+    virtual std::vector<OutEdge<E>> getOutEdges(nodeid_t id) const {
         std::vector<OutEdge<E>> result{};
         for (auto i=0; i<this->getOutDegree(id); ++i) {
             result.push_back(this->edges[this->outEdgesOfvertexBegin[id] + i]);
@@ -196,16 +196,16 @@ public:
         return this->vertexPayload.size() == 0;
     }
 public:
-    virtual void changeWeightEdge(node_id sourceId, node_id sinkId, const E& newPayload) {
+    virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) {
         for (auto i=this->outEdgesOfvertexBegin[sourceId]; i<this->outEdgesOfvertexBegin[sourceId+1]; ++i) {
             if (this->edges[i].getSinkId() == sinkId) {
                 this->edges[i].getPayload() = newPayload;
                 return;
             }
         }
-        throw cpp_utils::exceptions::ElementNotFoundException<node_id, AdjacentGraph<G,V,E>>{sinkId, *this};
+        throw cpp_utils::exceptions::ElementNotFoundException<nodeid_t, AdjacentGraph<G,V,E>>{sinkId, *this};
     }
-    virtual void changeWeightOutEdge(node_id sourceId, int index, const E& newPayload) {
+    virtual void changeWeightOutEdge(nodeid_t sourceId, int index, const E& newPayload) {
         this->edges[this->outEdgesOfvertexBegin[sourceId] + index].getPayload() = newPayload;
     }
 public:
@@ -213,7 +213,7 @@ public:
         return MemoryConsumption{sizeof(*this), MemoryConsumptionEnum::BYTE};
     }
 public:
-    virtual OutEdge<E>& getOutEdge(node_id id, int index) {
+    virtual OutEdge<E>& getOutEdge(nodeid_t id, int index) {
         return this->edges[this->outEdgesOfvertexBegin[id] + index];
     }
 protected:
@@ -224,10 +224,10 @@ protected:
      * this operation takes \f$O(n)\f$
      * 
      * @param outEdgeIndex the index of the OutEdge inside the vector edges
-     * @return node_id the id of the vertex which is the source of the given OutEdge
+     * @return nodeid_t the id of the vertex which is the source of the given OutEdge
      */
-    node_id getSourceOfOutEdge(int outEdgeIndex) const {
-        for (node_id i=0; i<this->outEdgesOfvertexBegin.size(); ++i) {
+    nodeid_t getSourceOfOutEdge(int outEdgeIndex) const {
+        for (nodeid_t i=0; i<this->outEdgesOfvertexBegin.size(); ++i) {
             if (this->outEdgesOfvertexBegin[i] > outEdgeIndex) {
                 //we have just surpassed th out edge, hence the source was the last one we have visisted
                 return i - 1;
