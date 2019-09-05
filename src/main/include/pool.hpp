@@ -217,12 +217,12 @@ public:
 
 };
 
-template <typename OBJ>
-std::ostream& operator << (std::ostream& out, const cchunk& c) {
-    c.print(out);
-    return out;
 }
 
+template <typename OBJ>
+std::ostream& operator << (std::ostream& out, const internal::cchunk<OBJ>& c) {
+    c.print(out);
+    return out;
 }
 
 /**
@@ -246,12 +246,12 @@ private:
      * 
      * each array cell contains a pointer pointing to the chunk area
      */
-    internal::cchunk** chunks_;
+    internal::cchunk<OBJ>** chunks_;
     /**
      * @brief pointer to the chunk a new object will be stored into
      * 
      */
-    internal::cchunk* current_chunk_;
+    internal::cchunk<OBJ>* current_chunk_;
 
     /**
      * @brief current number of chunks this pool object has
@@ -331,7 +331,7 @@ public:
             }
 
             // not enough space in any existing chunk; make a new chunk
-            add_chunk(warthog::mem::DEFAULT_CHUNK_SIZE);
+            add_chunk(DEFAULT_CHUNK_SIZE);
             current_chunk_ = chunks_[num_chunks_-1];
             mem_ptr = current_chunk_->allocate();
         }
@@ -367,7 +367,7 @@ public:
             bytes += chunks_[i]->mem();
         }
         //chunk array
-        bytes += sizeof(warthog::mem::cchunk*)*max_chunks_;
+        bytes += sizeof(internal::cchunk<OBJ>*) * max_chunks_;
         //this
         bytes += sizeof(*this);
         return bytes;
@@ -384,7 +384,7 @@ public:
             <<	" #max_chunks "
             << max_chunks_ 
             << " obj_size: "
-            << sizeof(OBJ);
+            << sizeof(OBJ)
             << std::endl;
         for(unsigned int i = 0; i < num_chunks_; i++) {
             chunks_[i]->print(out);
@@ -400,7 +400,7 @@ private:
 
     void init() {
         //initialize array
-        chunks_ = new cchunk*[max_chunks_];
+        chunks_ = new internal::cchunk<OBJ>*[max_chunks_];
         for(int i = 0; i < (int) max_chunks_; i++) {
             add_chunk(DEFAULT_CHUNK_SIZE);
         }
@@ -411,7 +411,7 @@ private:
     void add_chunk(size_t pool_size) {
         if(num_chunks_ < max_chunks_) {
             //we have space for another chunk. Create it
-            chunks_[num_chunks_] = new cchunk<OBJ>(pool_size);
+            chunks_[num_chunks_] = new internal::cchunk<OBJ>(pool_size);
             num_chunks_++;
         } else {
             /* we have already reached the maximum chunk number allowed
@@ -421,9 +421,9 @@ private:
 
             // ENLARGE THE THRESHOLD
             //big_max is the new max_chunk threshold. we need to update the chunk array as well
-            size_t big_max= max_chunks_*2;
+            size_t big_max = max_chunks_ * 2;
             //CREATE THE NEW CHUNK ARRAY
-            cchunk** big_chunks = new cchunk<OBJ>*[big_max];
+            internal::cchunk<OBJ>** big_chunks = new internal::cchunk<OBJ>*[big_max];
             for(unsigned int i = 0; i < max_chunks_; i++) {
                 big_chunks[i] = chunks_[i];
             }
@@ -434,7 +434,7 @@ private:
             max_chunks_ = big_max;
 
             // finally; add a new chunk
-            chunks_[num_chunks_] = new cchunk<OBJ>(pool_size);
+            chunks_[num_chunks_] = new internal::cchunk<OBJ>(pool_size);
             num_chunks_++;
         }
     }
@@ -444,8 +444,6 @@ template <typename OBJ>
 std::ostream& operator << (std::ostream& out, const cpool<OBJ>& pool) {
     pool.print(out);
     return out;
-}
-
 }
 
 }
