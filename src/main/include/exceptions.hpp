@@ -155,6 +155,20 @@ public:
     }
 };
 
+/**
+ * @brief Exception to throw if you still need to implement a feature
+ * 
+ */
+class NotYetImplementedException: public AbstractException {
+public:
+    NotYetImplementedException(const char* c): AbstractException{"Feature %s still needs to be implemented", c} {
+
+    }
+    NotYetImplementedException(const std::string& c): AbstractException{"Feature %s still needs to be implemented", c.c_str()} {
+        
+    }
+};
+
 class InvalidArgumentException: public AbstractException {
 public:
     InvalidArgumentException(): AbstractException{} {
