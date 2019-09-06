@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include "imemory.hpp"
+#include "ICleanable.hpp"
 
 namespace cpp_utils {
 
@@ -34,7 +36,7 @@ namespace internal {
  * 
  */
 template <typename OBJ>
-class cchunk {
+class cchunk : public IMemorable, public ICleanable {
 private:
     /**
      * @brief an area on the heap that contains the developer custom data
@@ -150,7 +152,7 @@ public:
         DO_ON_DEBUG {
             assert(mem_ >= addr);
             if((unsigned)(addr-mem_) >= pool_size_) {
-                error("err; warthog::mem::cchunk; freeing memory outside range of the chunk at addr: ", &mem);
+                error("err; warthog::mem::cchunk; freeing memory outside range of the chunk at addr: ", &mem_);
             }
         }
 
@@ -189,21 +191,6 @@ public:
     inline size_t pool_size() const {
         return pool_size_;
     }
-    
-    /**
-     * @brief number of bytes this object waste
-     * 
-     * @return size_t 
-     */
-    inline size_t mem() const {
-        //this
-        size_t bytes = sizeof(*this);
-        //mem_
-        bytes += sizeof(char)*pool_size_;
-        //stack_freed
-        bytes += sizeof(int)*(pool_size_/sizeof(OBJ));
-        return bytes;
-    }
 
     void print(std::ostream& out) const {
         out << "warthog::mem::cchunk pool_size: "
@@ -213,8 +200,23 @@ public:
             << " freed_stack_ size: "
             << stack_size_;
     }
-
-
+public:
+    /**
+     * @brief number of bytes this object waste
+     * 
+     * @return size_t 
+     */
+    MemoryConsumption getByteMemoryOccupied() const {
+        return sizeof(*this)
+            //mem_
+            + sizeof(char) * pool_size_
+            //stack_freed
+            + sizeof(int) * (pool_size_/sizeof(OBJ));
+    }
+public:
+    void cleanup() {
+        this->reclaim();
+    }
 };
 
 }
@@ -239,7 +241,7 @@ std::ostream& operator << (std::ostream& out, const internal::cchunk<OBJ>& c) {
  * @tparam OBJ type of object we want to store in this pool
  */
 template <typename OBJ>
-class cpool {
+class cpool: public IMemorable, public ICleanable {
 private:
     /**
      * @brief an array of chunks
@@ -355,25 +357,6 @@ public:
     }
 
     /**
-     * @brief number of bytes the whole pool uses in the system memory
-     * 
-     * @return size_t 
-     */
-    size_t mem() const {
-        size_t bytes = 0;
-        for(unsigned int i=0; i < num_chunks_; i++)
-        {
-            //space each chunk occupies
-            bytes += chunks_[i]->mem();
-        }
-        //chunk array
-        bytes += sizeof(internal::cchunk<OBJ>*) * max_chunks_;
-        //this
-        bytes += sizeof(*this);
-        return bytes;
-    }
-
-    /**
      * @brief string representation of this pool
      * 
      * @param out the stream where to put the string representation on
@@ -391,7 +374,28 @@ public:
             out << std::endl;
         }
     }
-
+public:
+    /**
+     * @brief number of bytes the whole pool uses in the system memory
+     * 
+     * @return size_t 
+     */
+    MemoryConsumption getByteMemoryOccupied() const {
+        MemoryConsumption result;
+        for(unsigned int i=0; i < num_chunks_; i++) {
+            //space each chunk occupies
+            result += chunks_[i]->getByteMemoryOccupied();
+        }
+        //chunk array
+        result += sizeof(internal::cchunk<OBJ>*) * max_chunks_;
+        //this
+        result += sizeof(*this);
+        return result;
+    }
+public:
+    void cleanup() {
+        this->reclaim();
+    }
 private:
 
     // no copy
@@ -411,7 +415,7 @@ private:
     void add_chunk(size_t pool_size) {
         if(num_chunks_ < max_chunks_) {
             //we have space for another chunk. Create it
-            chunks_[num_chunks_] = new internal::cchunk<OBJ>(pool_size);
+            chunks_[num_chunks_] = new internal::cchunk<OBJ>{pool_size};
             num_chunks_++;
         } else {
             /* we have already reached the maximum chunk number allowed
