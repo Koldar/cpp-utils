@@ -100,4 +100,34 @@ MemoryConsumption operator - (const MemoryConsumption& a, const MemoryConsumptio
         return result;
 }
 
+std::ostream& operator <<(std::ostream& out, const MemoryConsumptionEnum& mce) {
+    switch (mce) {
+        case MemoryConsumptionEnum::BYTE: {
+            out << "B";
+            break;
+        }
+        case MemoryConsumptionEnum::KILOBYTE: {
+            out << "KB";
+            break;
+        }
+        case MemoryConsumptionEnum::MEGABYTE: {
+            out << "MB";
+            break;
+        }
+        case MemoryConsumptionEnum::GIGABYTE: {
+            out << "GB";
+            break;
+        }
+        default:
+        throw cpp_utils::exceptions::InvalidScenarioException<MemoryConsumptionEnum>{mce};
+    }
+    return out;
+}
+
+std::ostream& operator <<(std::ostream& out, const MemoryConsumption& mc) {
+    out << mc.value << mc.unit;
+    
+    return out;
+}
+
 }
