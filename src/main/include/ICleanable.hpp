@@ -1,11 +1,14 @@
 #ifndef _ICLEANABLE_HEADER__
 #define _ICLEANABLE_HEADER__
 
+namespace cpp_utils {
+
 /**
  * @brief any class implementing this interface will implement the `cleanup` method
  * 
  */
 class ICleanable {
+public:
     /**
      * @brief set of operation that allows you to reuse the same instance over a different scenario
      * 
@@ -14,6 +17,8 @@ class ICleanable {
      */
     virtual void cleanup() = 0;
 };
+
+}
 
 
 #endif
