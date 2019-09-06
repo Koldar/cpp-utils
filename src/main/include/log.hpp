@@ -37,7 +37,7 @@
  * @param[in] level the name of the log level
  * @param[in] ... the entries to put on stream
  */
-#define _abstractLog(level, ...) std::cerr <<  "[" << level << "] " << getBaseName(__FILE__) << "@" << __func__ << "[" << __LINE__ << "] " << _debug(__VA_ARGS__) << std::endl
+#define _abstractLog(level, ...) std::cerr <<  "[" << level << "] " << cpp_utils::getBaseNameAsString(__FILE__) << "@" << __func__ << "[" << __LINE__ << "] " << _debug(__VA_ARGS__) << std::endl
 
 #if QUICK_LOG <= 0
 /**

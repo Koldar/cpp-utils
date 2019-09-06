@@ -45,20 +45,13 @@ public:
      * 
      * @param other another graph. It's mandatory that the ids of `other` are **contiguous** and they start from 0!
      */
-    AdjacentGraph<G,V,E>(const IImmutableGraph<G,V,E>& other) : payload{other.getPayload()}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
-        //nodes
-        for (auto id = 0; id<other.size(); ++id) {
-            this->vertexPayload.push_back(other.getVertex(id));
-        }
-        int edgesNextCell = 0;
-        for (auto sourceId=0; sourceId<this->vertexPayload.size(); ++sourceId) {
-            this->outEdgesOfvertexBegin.push_back(edgesNextCell);
-            for (int i=0; i<other.getOutDegree(sourceId); ++i) {
-                this->edges.push_back(OutEdge<E>{other.getOutEdge(sourceId, i)});
-                edgesNextCell += 1;
-            }
-        }
-        this->outEdgesOfvertexBegin.push_back(edgesNextCell);
+    AdjacentGraph<G,V,E>(const IImmutableGraph<G,V,E>& other) : payload{}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
+        this->payload = other.getPayload();
+        init(other);
+    }
+    AdjacentGraph<G,V,E>(const IImmutableGraph<G,V,E>&& other) : payload{other.getPayload()}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
+        this->payload = other.getPayload();
+        this->init(other);
     }
     virtual ~AdjacentGraph<G,V,E>() {
 
@@ -234,6 +227,21 @@ protected:
             }
         }
         throw cpp_utils::exceptions::ImpossibleException{};
+    }
+    void init(const IImmutableGraph<G,V,E>& other) {
+        //nodes
+        for (auto id = 0; id<other.size(); ++id) {
+            this->vertexPayload.push_back(other.getVertex(id));
+        }
+        int edgesNextCell = 0;
+        for (auto sourceId=0; sourceId<this->vertexPayload.size(); ++sourceId) {
+            this->outEdgesOfvertexBegin.push_back(edgesNextCell);
+            for (int i=0; i<other.getOutDegree(sourceId); ++i) {
+                this->edges.push_back(OutEdge<E>{other.getOutEdge(sourceId, i)});
+                edgesNextCell += 1;
+            }
+        }
+        this->outEdgesOfvertexBegin.push_back(edgesNextCell);
     }
 
 };

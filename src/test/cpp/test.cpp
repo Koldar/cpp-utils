@@ -330,6 +330,13 @@ SCENARIO("test adjacent graph") {
             REQUIRE_THROWS(ag.idOfVertex(7));
         }
 
+        WHEN("testing constructor") {
+            //reference
+            AdjacentGraph<int, int, bool> ag1{ag};
+            //rvalue
+            AdjacentGraph<int, int, bool> ag2{AdjacentGraph<int, int, bool>{ag}};
+        }
+
         WHEN("testing the graph") {
             REQUIRE(ag.getEdge(n0, n1) == true);
             REQUIRE(ag.getEdge(n0, n2) == true);
