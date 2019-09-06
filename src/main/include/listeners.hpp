@@ -20,7 +20,7 @@ namespace cpp_utils {
 template <typename OBSERVER>
 class Listenable {
 protected:
-    std::vector<OBSERVER> listeners;
+    std::vector<OBSERVER*> listeners;
 public:
     Listenable(): listeners {} {
 
@@ -30,7 +30,7 @@ public:
     }
 public:
     void addListener(const OBSERVER& listener) {
-        this->listeners.push_back(listener);
+        this->listeners.push_back(&listener);
     }
     void removeListener(const OBSERVER& listener) {
         this->listeners.erase(std::remove(this->listeners.begin(), this->listeners.end(), listener), this->listeners.end());
@@ -39,8 +39,13 @@ public:
         this->listners.clear();
     }
     void fireEvent(std::function<void(const OBSERVER&)> lambda) const {
-        for (OBSERVER l : this->listeners) {
-            lambda(l);
+        for (OBSERVER* l : this->listeners) {
+            lambda(*l);
+        }
+    }
+    void fireEvent(std::function<void(OBSERVER&)> lambda) const {
+        for (OBSERVER* l : this->listeners) {
+            lambda(*l);
         }
     }
 };
