@@ -5,6 +5,7 @@
 #include "imemory.hpp"
 #include "macros.hpp"
 #include "exceptions.hpp"
+#include "ICleanable.hpp"
 
 namespace cpp_utils {
 
@@ -43,7 +44,38 @@ public:
  * @created: 09/08/2012
  */
 template <typename ITEM, EXTENDS(ITEM, HasPriority)>
-class StaticPriorityQueue : public IMemorable {
+class StaticPriorityQueue : public IMemorable, public ICleanable {
+    private:
+        /**
+         * @brief the maximum capacity of the queue
+         * 
+         * The queue won't be able to store more than the given amount of items
+         */
+		unsigned int capacity;
+        /**
+         * @brief true if the queue put as head the item with least priority 
+         * 
+         * false if the queue puts the item with highest priority
+         * 
+         */
+		bool minqueue;
+        /**
+         * @brief number of elements in the queue
+         * 
+         * It is always less of ::capacity
+         * 
+         */
+		unsigned int qsize;
+        /**
+         * @brief an array of pointers representing a contiguous area where @c ITEM s are located
+         * This is the actual heap.
+         * 
+         * Note that the queue do not OWN the data
+         * 
+         * It is an array of pointers and not of references because a value inside the array can be null
+         * 
+         */
+        ITEM** heap;
     public:
         friend std::ostream& operator << (std::ostream& ss, const StaticPriorityQueue<ITEM>& q) {
             ss << "[queue ";
@@ -206,9 +238,13 @@ class StaticPriorityQueue : public IMemorable {
 		inline bool isMinqueue() const { 
 			return this->minqueue; 
 		}
-
-		MemoryConsumption getByteMemoryOccupied() const {
-			return MemoryConsumption{this->capacity * sizeof(ITEM*) + sizeof(*this), MemoryConsumptionEnum::BYTE};
+    public:
+        void cleanup() {
+            this->clear();
+        }
+    public:
+		virtual MemoryConsumption getByteMemoryOccupied() const {
+			return this->capacity * sizeof(ITEM*) + sizeof(*this);
 		}
     private:
         /**
@@ -309,38 +345,6 @@ class StaticPriorityQueue : public IMemorable {
 			this->heap[index2] = tmp;
 			tmp->setPriority(index2);
 		}
-
-	private:
-        /**
-         * @brief the maximum capacity of the queue
-         * 
-         * The queue won't be able to store more than the given amount of items
-         */
-		unsigned int capacity;
-        /**
-         * @brief true if the queue put as head the item with least priority 
-         * 
-         * false if the queue puts the item with highest priority
-         * 
-         */
-		bool minqueue;
-        /**
-         * @brief number of elements in the queue
-         * 
-         * It is always less of ::capacity
-         * 
-         */
-		unsigned int qsize;
-        /**
-         * @brief an array of pointers representing a contiguous area where @c ITEM s are located
-         * This is the actual heap.
-         * 
-         * Note that the queue do not OWN the data
-         * 
-         * It is an array of pointers and not of references because a value inside the array can be null
-         * 
-         */
-        ITEM** heap;
 };
 
 
