@@ -323,6 +323,13 @@ SCENARIO("test adjacent graph") {
 
         AdjacentGraph<int, int, bool> ag{lg};
 
+        WHEN("testing indexOf") {
+            REQUIRE(ag.idOfVertex(1) == n0);
+            REQUIRE(ag.idOfVertex(3) == n2);
+            REQUIRE(ag.idOfVertex(5) == n4);
+            REQUIRE_THROWS(ag.idOfVertex(7));
+        }
+
         WHEN("testing the graph") {
             REQUIRE(ag.getEdge(n0, n1) == true);
             REQUIRE(ag.getEdge(n0, n2) == true);
@@ -390,6 +397,13 @@ SCENARIO("test graphs") {
         g.addEdge(n0, n2, true);
         g.addEdge(n2, n3, true);
         g.addEdge(n3, n4, true);
+
+        WHEN("testing indexOf") {
+            REQUIRE(g.idOfVertex(1) == n0);
+            REQUIRE(g.idOfVertex(3) == n2);
+            REQUIRE(g.idOfVertex(5) == n4);
+            REQUIRE_THROWS(g.idOfVertex(7));
+        }
 
         WHEN("testing the graph") {
             REQUIRE(g.getEdge(n0, n1) == true);
@@ -471,6 +485,7 @@ SCENARIO("test queue") {
         WHEN("empty") {
             REQUIRE(q.isEmpty());
             REQUIRE(q.size() == 0);
+            REQUIRE(q.getByteMemoryOccupied() == (sizeof(Foo*)*1000 + sizeof(StaticPriorityQueue<Foo>)));
         }
 
         WHEN("non empty") {
@@ -505,6 +520,60 @@ SCENARIO("test queue") {
             REQUIRE(q.isEmpty());
         }
     }
+
+}
+
+template <typename T>
+class QueueHolder: public IMemorable {
+private:
+    StaticPriorityQueue<T> q;
+public:
+    QueueHolder(): q{20, true} {
+
+    }
+public:
+    MemoryConsumption memory() const {
+        return this->q.getByteMemoryOccupied();
+    }
+public:
+    MemoryConsumption getByteMemoryOccupied() const {
+        return this->q.getByteMemoryOccupied();
+    }
+};
+
+SCENARIO("test access of a virtual method from a template base class inside another template class") {
+    QueueHolder<Foo> qh{};
+    qh.getByteMemoryOccupied();
+    qh.memory();
+}
+
+namespace another_namespace {
+
+
+template <typename T>
+class QueueHolderDifferentNameSpace: public IMemorable {
+private:
+    StaticPriorityQueue<T>& q;
+public:
+    QueueHolderDifferentNameSpace(StaticPriorityQueue<T>& q): q{q} {
+
+    }
+public:
+    MemoryConsumption memory() const {
+        return this->q.getByteMemoryOccupied();
+    }
+public:
+    MemoryConsumption getByteMemoryOccupied() const {
+        return this->q.getByteMemoryOccupied();
+    }
+};
+
+SCENARIO("test access of a virtual method from a template base class inside another template class from different namespace") {
+    StaticPriorityQueue<Foo> q{20, true};
+    QueueHolderDifferentNameSpace<Foo> qh{q};
+    qh.getByteMemoryOccupied();
+    qh.memory();
+}
 
 }
 
