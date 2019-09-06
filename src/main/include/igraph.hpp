@@ -213,15 +213,52 @@ public:
     virtual IImmutableGraph<G,V,E>::const_edge_iterator endEdges() const = 0;
 public:
     /**
-     * @brief Get the Vertex object
+     * @brief Get the Vertex payload
      * 
      * @param id the id of the vertex to fetch
      * @return const V& the payload associated to such vertex id
      */
     virtual const V& getVertex(nodeid_t id) const = 0;
+    /**
+     * @brief Get an edge
+     * 
+     * @param sourceId the id of the vertex which is the source of the edge to retrieve
+     * @param sinkId the id of the vertex which is the sink of the edge to retrieve
+     * @return const E& the payload of such edge
+     */
     virtual const E& getEdge(nodeid_t sourceId, nodeid_t sinkId) const = 0;
+    /**
+     * @brief Get the Payload object
+     * 
+     * @return const G& the payload of the entire graph
+     */
     virtual const G& getPayload() const = 0;
+    /**
+     * @brief Get the Payload object
+     * 
+     * @return G& the payload of the entire graph
+     */
     virtual G& getPayload() = 0;
+    /**
+     * @brief obtain the first vertex id of a vertex which has the given payload
+     * 
+     * @note
+     * what compliant means depends on the implementation of the graph
+     * 
+     * The default operation is really slow. Do not use it for performance reasons!
+     * 
+     * @param payload the payload requested
+     * @return nodeid_t id which vertex has paylaod compliant with @c payload
+     * @throw cpp_utils::exceptions::ElementNotFoundException if no vertex contains such payload
+     */
+    virtual nodeid_t idOfVertex(const V& payload) const {
+        for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
+            if (it->second == payload) {
+                return it->first;
+            }
+        }
+        throw cpp_utils::exceptions::ElementNotFoundException<V, G>{payload, this->getPayload()};
+    }
     virtual size_t getInDegree(nodeid_t id) const = 0;
     virtual size_t getOutDegree(nodeid_t id) const = 0;
     virtual size_t getDegree(nodeid_t id) const = 0;
