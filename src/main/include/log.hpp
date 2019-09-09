@@ -37,7 +37,32 @@
  * @param[in] level the name of the log level
  * @param[in] ... the entries to put on stream
  */
-#define _abstractLog(level, ...) std::cerr <<  "[" << level << "] " << cpp_utils::getBaseNameAsString(__FILE__) << "@" << __func__ << "[" << __LINE__ << "] " << _debug(__VA_ARGS__) << std::endl
+#define _abstractLog(level, ...) __abstractLog(level, __FILE__, __func__, __LINE__, ## __VA_ARGS__)
+
+template <typename FIRST>
+void ___abstractLog(FIRST first) {
+    std::cerr << first;
+}
+
+template <typename FIRST, typename... OTHER>
+void ___abstractLog(FIRST first, OTHER... args) {
+    std::cerr << first << " ";
+    ___abstractLog(args...);
+}
+
+template <typename... OTHER>
+void __abstractLog(const char* level, const char* file, const char* func, int lineno, OTHER... args) {
+    std::cerr 
+        << "[" << level << "]" 
+        << cpp_utils::getBaseNameAsString(file) 
+        << "@" 
+        << func 
+        << "[" << __LINE__ << "] ";
+    ___abstractLog(args...);
+    std::cerr << std::endl;
+}
+
+
 
 #if QUICK_LOG <= 0
 /**
@@ -54,6 +79,57 @@
 #define debug(...) _abstractLog("DEBUG", __VA_ARGS__)
 #else
 #define debug(...) ;
+#endif
+
+#if QUICK_LOG <= 1
+/**
+ * always log an entry via std cio
+ *
+ * Does no impact performances whatsoever
+ *
+ * @code
+ * 	finest("hello", person->name, "!");
+ * @endcode
+ *
+ * @param[in] ... the entries to put on stream
+ */
+#define finest(...) _abstractLog("FINEST", __VA_ARGS__)
+#else
+#define finest(...) ;
+#endif
+
+#if QUICK_LOG <= 2
+/**
+ * always log an entry via std cio
+ *
+ * Does no impact performances whatsoever
+ *
+ * @code
+ * 	finer("hello", person->name, "!");
+ * @endcode
+ *
+ * @param[in] ... the entries to put on stream
+ */
+#define finer(...) _abstractLog("FINER", __VA_ARGS__)
+#else
+#define finer(...) ;
+#endif
+
+#if QUICK_LOG <= 3
+/**
+ * always log an entry via std cio
+ *
+ * Does no impact performances whatsoever
+ *
+ * @code
+ * 	debug("hello", person->name, "!");
+ * @endcode
+ *
+ * @param[in] ... the entries to put on stream
+ */
+#define fine(...) _abstractLog("FINE", __VA_ARGS__)
+#else
+#define fine(...) ;
 #endif
 
 #if QUICK_LOG <= 5

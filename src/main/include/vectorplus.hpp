@@ -26,7 +26,7 @@ class vectorplus : public std::vector<EL> {
 public:
     vectorplus(): std::vector<EL>{} {
     }
-    vectorplus(const std::vector<EL> other): std::vector<EL>{other} {
+    vectorplus(const std::vector<EL>& other): std::vector<EL>{other} {
 
     }
 public:
@@ -80,6 +80,25 @@ public:
     void add(const EL& el) {
         this->push_back(el);
     }
+
+    /**
+     * @brief add an element at the end of the vector
+     * 
+     * @param el the element to add
+     */
+    void addTail(const EL& el) {
+        this->push_back(el);
+    }
+
+    /**
+     * @brief add an element at the beginning of the vector
+     * 
+     * @param el the element to add
+     */
+    void addHead(const EL& el) {
+        this->insert(this->begin(), el);
+    }
+
     /**
      * @brief add all the elements in the given container inside this one
      * 
@@ -98,6 +117,7 @@ public:
         this->add(first);
         this->add(args...);
     }
+
     /**
      * @brief remove the element in the given index
      * 
