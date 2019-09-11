@@ -9,8 +9,12 @@
 #define _FILE_UTILS_H_
 
 #include <string>
+#include <unistd.h>
 
 namespace cpp_utils {
+
+
+std::string recoverFilename(FILE* f);
 
 /**
  * @brief get the number of bytes the file occipies on the filesyste,

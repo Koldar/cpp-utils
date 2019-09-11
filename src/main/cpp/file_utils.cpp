@@ -17,6 +17,25 @@
 
 namespace cpp_utils {
 
+std::string recoverFilename(FILE* f) {
+    //see https://stackoverflow.com/a/11241793/1887602
+    int fd;
+    char fd_path[1000];
+    char* filename = (char*)malloc(1000);
+    ssize_t n;
+
+    fd = fileno(f);
+    sprintf(fd_path, "/proc/self/fd/%d", fd);
+    n = readlink(fd_path, filename, 1000);
+    if (n < 0) {
+        throw cpp_utils::exceptions::ImpossibleException{"readlink"};
+    }
+    filename[n] = '\0';
+    std::string result{filename};
+    delete filename;
+    return result;
+}
+
 size_t getBytesOfFile(const std::string& name) {
 	struct stat result;
 	int statResult = stat(name.c_str(), &result);
