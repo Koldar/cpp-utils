@@ -3,6 +3,86 @@
 
 namespace cpp_utils {
 
+template <typename T>
+struct Types {
+    static T ref(const T& value) {
+        return value;
+    }
+    static const T& cref(const T& value) {
+        return value;
+    }
+    static T* ptr(const T& value) {
+        return (T*)(&value);
+    }
+    static const T* cptr(const T& value) {
+        return &value;
+    }
+};
+
+template <typename T>
+struct Types<T*> {
+    static T ref(const T* value) {
+        return *value;
+    }
+    static const T& cref(const T* value) {
+        return *value;
+    }
+    static T* ptr(const T* value) {
+        return (T*)(value);
+    }
+    static const T* cptr(const T* value) {
+        return value;
+    }
+};
+
+// /**
+//  * @brief obtain the reference of a reference or of a pointer
+//  * 
+//  * @tparam T type of the reference or of a pointer
+//  * @param ref object whose reference we need to retrieve
+//  * @return T& reference of the reference or of apointer
+//  */
+// template <typename T>
+// constexpr const T& ref(const T& ref) {
+//     return info("ref of const ref"), ref;
+// }
+
+// /**
+//  * @brief obtain the reference of a reference or of a pointer
+//  * 
+//  * @tparam T type of the reference or of a pointer
+//  * @param ref object whose reference we need to retrieve
+//  * @return T& reference of the reference or of apointer
+//  */
+// template <typename T>
+// constexpr const T& ref(const T ref) {
+//     return info("ref of const ptr"),  *ref;
+// }
+
+// /**
+//  * @brief obtain the reference of a reference or of a pointer
+//  * 
+//  * @tparam T type of the reference or of a pointer
+//  * @param ref object whose reference we need to retrieve
+//  * @return T& reference of the reference or of apointer
+//  */
+// template <typename T>
+// constexpr T& ref(T& ref) {
+//     return info("ref of ref"), ref;
+// }
+
+// /**
+//  * @brief obtain the reference of a reference or of a pointer
+//  * 
+//  * @tparam T type of the reference or of a pointer
+//  * @param ref object whose reference we need to retrieve
+//  * @return T& reference of the reference or of apointer
+//  */
+// template <typename T>
+// T& ref(T ref) {
+//     return info("ref of ptr"), *ref;
+// }
+
 template <typename PTR>
 constexpr const PTR* elvis(const PTR* ptr, const PTR* pelse) {
     return ptr != nullptr ? ptr : pelse;
