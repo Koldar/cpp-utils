@@ -13,9 +13,47 @@
 #include "adjacentGraph.hpp"
 #include "pool.hpp"
 #include "commons.hpp"
+#include "arrayHeap.hpp"
+#include "KHeaps.hpp"
 
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
+
+class RefAndPtrTest {
+public:
+    int a;
+public:
+    RefAndPtrTest(int a): a{a} {
+
+    }
+};
+
+SCENARIO("test ref and ptr") {
+
+    GIVEN("feeding value") {
+        RefAndPtrTest a{10};
+        const RefAndPtrTest constA{20};
+
+        REQUIRE(cpp_utils::Types<RefAndPtrTest>::ref(a).a == 10);
+        REQUIRE(cpp_utils::Types<RefAndPtrTest>::ref(constA).a == 20);
+        REQUIRE(cpp_utils::Types<RefAndPtrTest>::ptr(a)->a == 10);
+        REQUIRE(cpp_utils::Types<RefAndPtrTest>::ptr(constA)->a == 20);
+    }
+
+    GIVEN("feeding pointer") {
+        RefAndPtrTest* a = new RefAndPtrTest{10};
+        const RefAndPtrTest* constA = new RefAndPtrTest{20};
+
+        REQUIRE(cpp_utils::Types<RefAndPtrTest*>::ref(a).a == 10);
+        REQUIRE(cpp_utils::Types<RefAndPtrTest*>::ref(constA).a == 20);
+        REQUIRE(cpp_utils::Types<RefAndPtrTest*>::ptr(a)->a == 10);
+        REQUIRE(cpp_utils::Types<RefAndPtrTest*>::ptr(constA)->a == 20);
+
+        delete a;
+        delete constA;
+    }
+
+}
 
 SCENARIO("test elvis") {
     int a = 5;
@@ -112,16 +150,6 @@ SCENARIO("test strings") {
     REQUIRE(cpp_utils::join(3) == std::string{});
 }
 
-// SCENARIO("test path") {
-//     REQUIRE(Path{"hello"}.toString() == std::string{"hello"});
-//     REQUIRE(Path{"/hello"}.toString() == std::string{"/hello"});
-//     REQUIRE(Path{"./hello"}.toString() == std::string{"./hello"});
-//     REQUIRE(Path{"hello/"}.toString() == std::string{"hello"});
-//     REQUIRE(Path{"hello/*"}.toString() == std::string{"hello/*"});
-//     REQUIRE(Path{"hello/*/"}.toString() == std::string{"hello/*"});
-//     REQUIRE(Path{"hello/../"}.toString() == std::string{"hello/.."});
-// }
-
 SCENARIO("test float operations") {
 
     GIVEN("double") {
@@ -217,6 +245,14 @@ SCENARIO("test safe inf uint") {
         REQUIRE_THROWS_AS((b / a).isInfinity(), cpp_utils::exceptions::NumericalOperationException);
         REQUIRE(a.isInfinity() == true);
         REQUIRE(b.isInfinity() == true);
+    }
+
+    GIVEN("random operations") {
+        safe_inf_uint ab = 0;
+        safe_inf_uint bc = 100;
+        safe_inf_uint ac = 100;
+
+        REQUIRE((ab + bc) >= ac);
     }
 }
 
@@ -459,22 +495,82 @@ SCENARIO("test graphs") {
     }
 }
 
+SCENARIO("arrayHeap") {
+
+    GIVEN("array heap unitialized") {
+
+        WHEN("array is initialized") {
+            ArrayHeap<int, false> array{10, 0};
+
+            REQUIRE(array[0] == 0);
+            REQUIRE(array[3] == 0);
+
+            array[0] = 5;
+
+            REQUIRE(array[0] == 5);
+            REQUIRE(array.getSize() == 10);
+        }
+
+        WHEN("array is unitialized") {
+            ArrayHeap<int, false> array{10};
+
+            array[0] = 5;
+
+            REQUIRE(array[0] == 5);
+            REQUIRE(array.getSize() == 10);
+        }
+    }
+
+    GIVEN("array heap itialized") {
+        ArrayHeap<int, true> array{10};
+
+        REQUIRE(array[0] == 0);
+        REQUIRE(array[3] == 0);
+
+        array[0] = 5;
+
+        REQUIRE(array[0] == 5);
+        REQUIRE(array.getSize() == 10);
+    }
+}
+
 class Foo: public HasPriority {
     public:
         friend std::ostream& operator <<(std::ostream& ss, const Foo& f) {
-            ss << f.content;
+            ss << f.content << "(" << f.value << ", priority=" << f.p << ")";
             return ss;
         }
         friend bool operator < (const Foo& a, const Foo& b) {
             return a.value < b.value;
+        }
+        friend bool operator ==(const Foo& a, const Foo& b) {
+            if (&a == &b) {
+                info("checking if foo", a, " is equal to foo ", b, " => YES");
+                return true;
+            }
+            info("checking if foo", a, " is equal to foo ", b, " => ", a.content == b.content && a.value == b.value);
+            return a.content == b.content && a.value == b.value;
         }
     private:
         std::string content;
         int value;
         priority_t p;
     public:
+        Foo(): content{""}, value{0}, p{0} {
+
+        }
         Foo(std::string content, int value) : content{content}, value{value}, p{0} {
 
+        }
+        virtual ~Foo() {
+
+        }
+        Foo& operator =(const Foo& other) {
+            this->content = 
+            other.content;
+            this->value = other.value;
+            this->p = other.p;
+            return *this;
         }
         priority_t getPriority() const {
             return this->p;
@@ -486,21 +582,19 @@ class Foo: public HasPriority {
 
 SCENARIO("test queue") {
 
-    GIVEN("a queue") {
+    GIVEN("a queue of objects of pointers") {
         StaticPriorityQueue<Foo> q{1000, true};
 
         WHEN("empty") {
             REQUIRE(q.isEmpty());
             REQUIRE(q.size() == 0);
-            REQUIRE(q.getByteMemoryOccupied() == (sizeof(Foo*)*1000 + sizeof(StaticPriorityQueue<Foo>)));
         }
 
         WHEN("non empty") {
-            Foo o1{"a", 5};
-            Foo o2{"b", 10};
-            Foo o3{"c", 1};
-            Foo o4{"d", 11};
-
+            Foo o1 = Foo{std::string{"a"}, 5};
+            Foo o2 = Foo{std::string{"b"}, 10};
+            Foo o3 = Foo{std::string{"c"}, 1};
+            Foo o4 = Foo{std::string{"d"}, 11};
 
             q.push(o1);
             q.push(o2);
@@ -510,24 +604,119 @@ SCENARIO("test queue") {
             REQUIRE(!q.isEmpty());
             REQUIRE(q.size() == 4);
 
-            REQUIRE(&q.peek() == &o3);
-            REQUIRE(&q.pop() == &o3);
-            REQUIRE(&q.pop() == &o1);
-            REQUIRE(&q.pop() == &o2);
+            info("queue is", q);
+            REQUIRE(q.peek() == o3);
+            REQUIRE(q.pop() == o3);
+            info("queue minus o3", q);
+            REQUIRE(q.pop() == o1);
+            REQUIRE(q.pop() == o2);
 
+            info("queue before readding o2 ", q);
             q.push(o2);
+            info("queue after readding o2 ", q);
             REQUIRE(!q.contains(o1));
             REQUIRE(q.contains(o2));
             REQUIRE(!q.contains(o3));
             REQUIRE(q.contains(o4));
             
             REQUIRE(q.size() == 2);
-            REQUIRE(&q.pop() == &o2);
-            REQUIRE(&q.pop() == &o4);
+            REQUIRE(q.pop() == o2);
+            REQUIRE(q.pop() == o4);
             REQUIRE(q.isEmpty());
         }
     }
 
+}
+
+SCENARIO("test min_id_heap") {
+
+    GIVEN("create queue") {
+        min_id_heap<int, int> heap{100};
+
+        WHEN("block add and remove") {
+
+            heap.pushOrDecrease(50, 3);
+            heap.pushOrDecrease(60, 4);
+            heap.pushOrDecrease(70, 2);
+            heap.pushOrDecrease(80, 1);
+
+            REQUIRE(heap.pop() == 80);
+            REQUIRE(heap.pop() == 70);
+            REQUIRE(heap.pop() == 50);
+            REQUIRE(heap.pop() == 60);
+        }
+
+        WHEN("interleaved add and remove") {
+            heap.pushOrDecrease(50, 3);
+            heap.pushOrDecrease(60, 2);
+
+            REQUIRE(heap.pop() == 60);
+
+            heap.pushOrDecrease(70, 1);
+
+            REQUIRE(heap.pop() == 70);
+            REQUIRE(heap.pop() == 50);
+            REQUIRE(heap.isEmpty());
+        }
+
+        WHEN("revising element priority") {
+            heap.pushOrDecrease(50, 3);
+            heap.pushOrDecrease(60, 4);
+            heap.pushOrDecrease(70, 2);
+            heap.pushOrDecrease(80, 5);
+
+            heap.pushOrDecrease(80, 1);
+
+            REQUIRE(heap.pop() == 80);
+            REQUIRE(heap.pop() == 70);
+            REQUIRE(heap.pop() == 50);
+            REQUIRE(heap.pop() == 60);
+        }
+    }
+
+    GIVEN("create queue with idT != keyT") {
+        min_id_heap<long, int> heap{100};
+
+        WHEN("block add and remove") {
+
+            heap.pushOrDecrease(50L, 3);
+            heap.pushOrDecrease(60L, 4);
+            heap.pushOrDecrease(70L, 2);
+            heap.pushOrDecrease(80L, 1);
+
+            REQUIRE(heap.pop() == 80L);
+            REQUIRE(heap.pop() == 70L);
+            REQUIRE(heap.pop() == 50L);
+            REQUIRE(heap.pop() == 60L);
+        }
+
+        WHEN("interleaved add and remove") {
+            heap.pushOrDecrease(50L, 3);
+            heap.pushOrDecrease(60L, 2);
+
+            REQUIRE(heap.pop() == 60L);
+
+            heap.pushOrDecrease(70L, 1);
+
+            REQUIRE(heap.pop() == 70L);
+            REQUIRE(heap.pop() == 50L);
+            REQUIRE(heap.isEmpty());
+        }
+
+        WHEN("revising element priority") {
+            heap.pushOrDecrease(50L, 3);
+            heap.pushOrDecrease(60L, 4);
+            heap.pushOrDecrease(70L, 2);
+            heap.pushOrDecrease(80L, 5);
+
+            heap.pushOrDecrease(80L, 1);
+
+            REQUIRE(heap.pop() == 80L);
+            REQUIRE(heap.pop() == 70L);
+            REQUIRE(heap.pop() == 50L);
+            REQUIRE(heap.pop() == 60L);
+        }
+    }
 }
 
 template <typename T>
