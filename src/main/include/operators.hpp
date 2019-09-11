@@ -13,6 +13,16 @@ std::ostream& operator << (std::ostream& ss, const std::pair<X,Y>& p) {
     return ss;
 }
 
+template <typename X>
+std::ostream& operator << (std::ostream& ss, const std::vector<X>& p) {
+    ss << "(size=" << p.size() <<")[";
+    for (auto el: p) {
+        ss << el << ", ";
+    }
+    ss << "]";
+    return ss;
+}
+
 }
 
 #endif
