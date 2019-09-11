@@ -1,11 +1,14 @@
 #ifndef _PRIORITYQUEUE_HEADER__
 #define _PRIORITYQUEUE_HEADER__
 
+#include <type_traits>
 #include <cassert>
 #include "imemory.hpp"
 #include "macros.hpp"
 #include "exceptions.hpp"
 #include "ICleanable.hpp"
+#include "commons.hpp"
+#include "IQueue.hpp"
 
 namespace cpp_utils {
 
@@ -14,6 +17,8 @@ typedef unsigned long priority_t;
 /**
  * @brief An item which has a priority which can be exploit by the queue to order the elements
  * 
+ * The item itself should see this priority as just a random number and nothing more.
+ * For sorting the elements in the queue, the item should implement the operator \f$<\f$
  */
 class HasPriority {
 public:
@@ -32,26 +37,77 @@ public:
 };
 
 /**
+ * @brief Simple defaut implementation of an object with priority
+ * 
+ * @tparam T type of the object involved
+ */
+template <typename T>
+class ValueWithPriority: public HasPriority {
+public:
+    friend bool operator ==(const ValueWithPriority<T>& a, const ValueWithPriority<T>& b) {
+        if (&a == &b) {
+            return true;
+        }
+        return a.value == b.value;
+    }
+    friend bool operator <(const ValueWithPriority<T>& a, const ValueWithPriority<T>& b) {
+        return a.value < b.value;
+    }
+    friend bool operator >(const ValueWithPriority<T>& a, const ValueWithPriority<T>& b) {
+        return a.value > b.value;
+    }
+    friend std::ostream& operator <<(std::ostream& out, const ValueWithPriority<T>& a) {
+        out << a.value;
+        return out;
+    }
+private:
+    T value;
+    priority_t priority;
+public:
+    ValueWithPriority(const T& value): value{value}, priority{0} {
+
+    }
+    ValueWithPriority(const ValueWithPriority<T>& other): value{other.value}, priority{other.value} {
+
+    }
+    ~ValueWithPriority() {
+
+    }
+    ValueWithPriority<T>& operator=(const ValueWithPriority<T>& other) {
+        this->value = other.value;
+        this->priority = other.priority;
+        return *this;
+    }
+public:
+    priority_t getPriority() const {
+        return this->priority;
+    }
+    void setPriority(priority_t p) {
+        this->priority = p;
+    }
+};
+
+/**
  * @brief a minimum priority queue based on Daniel Harabor one
  * 
  * The priority queue is implemented by a static heap with maximum size.
  * 
- * The priority represents the index
+ * The priority of an element represents the index. The heap uses this temporary value to quickly have access to the item in the
+ * queue from the item itself.
  * 
  * A min priority queue. Loosely based on an implementation from HOG
  * by Nathan Sturtevant.
+ * 
+ * The queue itself do **stores** only **pointers**, not actual values
+ * 
  * @author: dharabor
  * @created: 09/08/2012
+ * 
+ * @tpaqram ITEM of a type
  */
-template <typename ITEM, EXTENDS(ITEM, HasPriority)>
-class StaticPriorityQueue : public IMemorable, public ICleanable {
+template <typename ITEM>
+class StaticPriorityQueue : public IQueue<ITEM> {
     private:
-        /**
-         * @brief the maximum capacity of the queue
-         * 
-         * The queue won't be able to store more than the given amount of items
-         */
-		unsigned int capacity;
         /**
          * @brief true if the queue put as head the item with least priority 
          * 
@@ -67,6 +123,11 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
          */
 		unsigned int qsize;
         /**
+         * @brief maximum size of @c heap
+         * 
+         */
+        size_t heapCapacity;
+        /**
          * @brief an array of pointers representing a contiguous area where @c ITEM s are located
          * This is the actual heap.
          * 
@@ -78,13 +139,13 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
         ITEM** heap;
     public:
         friend std::ostream& operator << (std::ostream& ss, const StaticPriorityQueue<ITEM>& q) {
-            ss << "[queue ";
-                for(priority_t i=0; i < q.size(); i++) {
-                    ss << *q.heap[i];
-                    ss << ", ";
-                }
-                ss << "]";
-                return ss;
+            ss << "(size=" << q.size() << ")[";
+            for(priority_t i=0; i < q.size(); i++) {
+                ss << i <<": " << *q.heap[i];
+                ss << ", ";
+            }
+            ss << "]";
+            return ss;
         }
 	public:
         /**
@@ -94,7 +155,7 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
          * @param minqueue true if you want to have on the head of the queue the minimum item, false if you want as head
          *  of the queue the maximum item instead
          */
-		StaticPriorityQueue(unsigned int capacity, bool minqueue) : capacity{capacity}, minqueue{minqueue}, qsize{0}, heap{nullptr} {
+		StaticPriorityQueue(size_t capacity, bool minqueue) : minqueue{minqueue}, qsize{0}, heapCapacity{capacity}, heap{nullptr} {
             this->resize(capacity);
         }
 		~StaticPriorityQueue() {
@@ -107,9 +168,6 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
          * 
          */
 		void clear() {
-            for(unsigned int i=0; i < this->qsize; i++) {
-                heap[i] = nullptr;
-            }
             this->qsize = 0;
         }
 
@@ -122,18 +180,23 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
         bool isEmpty() const {
             return this->qsize == 0;
         }
-
 		
         /**
          * @brief reprioritise the specified element down
          * 
          * Use it when you know that the item @c val has modified its priority by lowering it.
          * 
-         * 
+         * @code
+         * Foo a{5};
+         * a.temp -= 6;
+         * //we know that "temp" field is involved in the outcome of "<" (priority in the openlist), hence we need to call
+         * //decrease_key
+         * priorityQueue.decrease_key(a);
+         * @endcode
          * 
          * @param val 
          */
-		void decrease_key(const ITEM& val) {
+		void decrease_key(ITEM& val) {
             assert(val.getPriority() < this->qsize);
             if(this->minqueue) {
                 heapify_up(val.getPriority());
@@ -142,8 +205,18 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
             }
         }
 
+        void pushOrDecreaseKey(ITEM& val) {
+            if (this->contains(val)) {
+                return this->decrease_key(val);
+            } else{
+                this->push(val);
+            }
+        }
+
         /**
          * @brief reprioreitize the specified element (up)
+         * 
+         * Use it when you know that the item @c val has modified its priority by lowering it.
          * 
          * @param val 
          */
@@ -166,12 +239,13 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
                 return;
             }
 
-            if((this->qsize + 1) > this->capacity) {
-                this->resize(2*this->capacity);
+            if((this->qsize + 1) > this->heapCapacity) {
+                this->resize(2 * this->heapCapacity);
             }
             priority_t priority = this->qsize;
             this->heap[priority] = &val; //since &(ref of obj) == &obj we can safely do this
             val.setPriority(priority);
+            
             this->qsize += 1;
             this->heapify_up(priority);
         }
@@ -187,7 +261,7 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
                 throw exceptions::EmptyObjectException<StaticPriorityQueue<ITEM>>{*this};
             }
 
-            ITEM* result = this->heap[0];
+            ITEM& result = *this->heap[0];
             this->qsize -= 1;
 
             if(this->qsize > 0) {
@@ -195,7 +269,7 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
                 this->heap[0]->setPriority(0);
                 heapify_down(0);
             }
-            return *result;
+            return result;
         }
 
         /**
@@ -209,10 +283,10 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
          * @return false if the element is not in the queue
          */
 		inline bool contains(const ITEM& n) const {
-			priority_t priority = n.getPriority();
+            priority_t priority = n.getPriority();
             //if((priority < this->size) && &*n == &*this->heap[priority])
             //&(const ref of obj) == &obj
-            if((priority < this->qsize) && &n == this->heap[priority]) {
+            if((priority < this->qsize) && (n == (*(this->heap[priority])))) {
 				return true;
 			}
 			return false;
@@ -222,7 +296,7 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
          * @brief retrieve the top element without removing it
          * 
          * @throw EmptyObjectException if the queue is empty
-         * @return ITEM* the item on the top of the queue
+         * @return PTR* the item on the top of the queue
          */
 		inline ITEM& peek() const {
 			if (this->qsize > 0) {
@@ -231,7 +305,7 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
 			throw exceptions::EmptyObjectException<StaticPriorityQueue<ITEM>>{*this};
 		}
 
-		inline unsigned int size() const {
+		inline size_t size() const {
 			return this->qsize;
 		}
 
@@ -244,7 +318,7 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
         }
     public:
 		virtual MemoryConsumption getByteMemoryOccupied() const {
-			return this->capacity * sizeof(ITEM*) + sizeof(*this);
+			return sizeof(*this);
 		}
     private:
         /**
@@ -255,8 +329,8 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
 		void heapify_up(priority_t index) {
             assert(index < this->qsize);
             while(index > 0) {
-                priority_t parent = (index-1) >> 1;
-                if(rotate(*this->heap[parent], *this->heap[index])) {
+                priority_t parent = (index - 1) >> 1;
+                if(shouldRotate(*this->heap[parent], *this->heap[index])) {
                     swap(parent, index);
                     index = parent;
                 } else {
@@ -277,12 +351,12 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
                 priority_t child1 = (index << 1) + 1;
                 priority_t child2 = (index << 1) + 2;
                 priority_t which = child1;
-                if ((child2 < this->qsize) && (*this->heap[child2] < *this->heap[child1])) {
+                if ((child2 < this->qsize) && (*(this->heap[child2]) < *(this->heap[child1]))) {
                     which = child2;
                 }
 
                 // swap child with parent if necessary
-                if(*this->heap[which] < *this->heap[index]) {
+                if(*(this->heap[which]) < *(this->heap[index])) {
                     swap(index, which);
                     index = which;
                 } else {
@@ -301,14 +375,14 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
                 throw exceptions::InvalidArgumentException{"queue resize new size < queuesize (%ld < %ld)", newcapacity, this->qsize};
             }
 
-            ITEM** tmp = new ITEM*[newcapacity];
-            for(unsigned int i=0; i < this->qsize; i++)
-            {
-                tmp[i] = this->heap[i];
+            ITEM** tmp = new ITEM*[sizeof(ITEM*) * newcapacity];
+            if (this->heap != nullptr) {
+                memcpy(tmp, this->heap, sizeof(ITEM*) * this->heapCapacity);
+                delete[] this->heap;
             }
-            delete [] this->heap;
+
             this->heap = tmp;
-            this->capacity = newcapacity;
+            this->heapCapacity = newcapacity;
         }
 	
         /**
@@ -319,15 +393,12 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
          * @return true minqueue is true and the priority of second < first or minqueue is false and the priority of second > first
          * @return false otherwise
          */
-		inline bool rotate(ITEM& first, ITEM& second) {
+		inline bool shouldRotate(const ITEM& first, const ITEM& second) const {
 			if(this->minqueue) {
-				if(second < first) {
-					return true;
-				}
-			} else if(first < second) {
-				return true;
+				return second < first;
+			} else {
+                return first < second;
 			}
-			return false;
 		}
 
         /**
@@ -339,11 +410,16 @@ class StaticPriorityQueue : public IMemorable, public ICleanable {
 		inline void swap(priority_t index1, priority_t index2) {
 			assert(index1 < this->qsize && index2 < this->qsize);
 
-			ITEM* tmp = this->heap[index1];
+            priority_t p1 = this->heap[index1]->getPriority();
+            priority_t p2 = this->heap[index2]->getPriority();
+
+            //swap positions
+            ITEM* tmp = this->heap[index1];
 			this->heap[index1] = this->heap[index2];
-			this->heap[index1]->setPriority(index1);
-			this->heap[index2] = tmp;
-			tmp->setPriority(index2);
+            this->heap[index2] = tmp;
+            //swap priorities: @ index1 we should put the priority of the old index1
+            this->heap[index1]->setPriority(p1);
+            this->heap[index2]->setPriority(p2);
 		}
 };
 
