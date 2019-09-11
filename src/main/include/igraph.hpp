@@ -194,19 +194,19 @@ public:
      * 
      * @return size_t the number of vertices in the graph
      */
-    virtual size_t size() const = 0;
+    virtual std::size_t size() const = 0;
     /**
      * @brief the number of vertices in the graph
      * 
      * @return size_t the number of vertices in the graph
      */
-    virtual size_t numberOfVertices() const = 0;
+    virtual std::size_t numberOfVertices() const = 0;
     /**
      * @brief the number of edges in the graph
      * 
      * @return size_t the number of edges in the graph
      */
-    virtual size_t numberOfEdges() const = 0;
+    virtual std::size_t numberOfEdges() const = 0;
     virtual IImmutableGraph<G,V,E>::const_vertex_iterator beginVertices() const = 0;
     virtual IImmutableGraph<G,V,E>::const_vertex_iterator endVertices() const = 0;
     virtual IImmutableGraph<G,V,E>::const_edge_iterator beginEdges() const = 0;
