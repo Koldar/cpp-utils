@@ -40,18 +40,18 @@
 #define _abstractLog(level, ...) __abstractLog(level, __FILE__, __func__, __LINE__, ## __VA_ARGS__)
 
 template <typename FIRST>
-void ___abstractLog(FIRST first) {
+void ___abstractLog(const FIRST& first) {
     std::cerr << first;
 }
 
 template <typename FIRST, typename... OTHER>
-void ___abstractLog(FIRST first, OTHER... args) {
+void ___abstractLog(const FIRST& first, const OTHER&... args) {
     std::cerr << first << " ";
     ___abstractLog(args...);
 }
 
 template <typename... OTHER>
-void __abstractLog(const char* level, const char* file, const char* func, int lineno, OTHER... args) {
+void __abstractLog(const char* level, const char* file, const char* func, int lineno, const OTHER&... args) {
     std::cerr 
         << "[" << level << "]" 
         << cpp_utils::getBaseNameAsString(file) 
