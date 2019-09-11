@@ -65,7 +65,7 @@ bool operator >=(const safe_inf_uint& a, const safe_inf_uint& b) {
     if (a.isInfinity() && b.isInfinity()) {
         throw cpp_utils::exceptions::NumericalOperationException{">=", a, b};
     }
-    return a.value > b.value;
+    return a.value >= b.value;
 }
 
 bool operator ==(const safe_inf_uint& a, const safe_inf_uint& b) {
