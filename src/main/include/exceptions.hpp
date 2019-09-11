@@ -1,6 +1,7 @@
 #ifndef _EXCEPTION_HEADER__
 #define _EXCEPTION_HEADER__
 
+#include <boost/stacktrace.hpp>
 #include <exception>
 #include <string>
 #include <cstdarg>
@@ -22,7 +23,7 @@ namespace cpp_utils::exceptions {
         vsnprintf(buffer, 1000, format, ap); \
         va_end(ap); \
         \
-        this->message = std::string{buffer}; \
+        this->updateMessage(buffer); \
     } \
 
 /**
@@ -30,26 +31,43 @@ namespace cpp_utils::exceptions {
  * 
  */
 class AbstractException: public std::exception {
+public:
+    typedef boost::error_info<struct tag_stacktrace, boost::stacktrace::stacktrace> traced;
 protected:
     std::string message;
+    boost::stacktrace::stacktrace stacktrace;
 public:
     ADD_STRING_CONSTRUCTOR(AbstractException)
-    AbstractException(const std::string& str): message{str}{
-        
+    AbstractException(const std::string& str): message{""}, stacktrace{boost::stacktrace::stacktrace()}{
+        std::stringstream ss;
+        ss << str << "\n" << this->stacktrace;
+        this->message = ss.str();
     }
-    AbstractException(const char* format, va_list ap): message{} {
+    AbstractException(const char* format, va_list ap): message{}, stacktrace{boost::stacktrace::stacktrace()} {
         char buffer[1000];
         vsnprintf(buffer, 1000, format, ap);
-        this->message = std::string{buffer};
-    }
-    AbstractException(): message{} {
 
+        this->updateMessage(buffer);
+    }
+    AbstractException(): message{}, stacktrace{boost::stacktrace::stacktrace()} {
+        this->updateMessage("");
     }
     virtual const char* what() const throw() {
         return this->getMessage().c_str();
     }
     const std::string& getMessage() const throw() {
         return this->message;
+    }
+protected:
+    void updateMessage(const char* cstr) {
+        std::stringstream ss;
+        ss << std::string{cstr} << "\n" << this->stacktrace;
+        this->message = ss.str();
+    }
+    void updateMessage(const std::string& str) {
+        std::stringstream ss;
+        ss << str << "\n" << this->stacktrace;
+        this->message = ss.str();
     }
 };
 
@@ -80,7 +98,7 @@ template <typename TYPE>
 class InvalidScenarioException: public AbstractException {
 public:
     InvalidScenarioException(TYPE t) : AbstractException{}, t{t} {
-        this->message = cpp_utils::sprintf("No matched scenario for value %s", t);
+        this->updateMessage(cpp_utils::sprintf("No matched scenario for value %s", t));
     }
 private:
     TYPE t;
@@ -107,7 +125,7 @@ public:
      * @param t2 the invalid value of the second parameter
      */
     InvalidPairScenarioException(T1 t1, T2 t2) : AbstractException{}, t1{t1}, t2{t2} {
-        this->message = cpp_utils::sprintf("No matched scenario for value %s-%s", t1, t2);
+        this->updateMessage(cpp_utils::sprintf("No matched scenario for value %s-%s", t1, t2));
     }
 };
 
@@ -121,7 +139,7 @@ private:
     const SELF& self;
 public:
     InvalidStateException(const SELF& self): AbstractException{}, self{self} {
-        this->message = cpp_utils::sprintf("%s is in an invalid state", self);
+        this->updateMessage(cpp_utils::sprintf("%s is in an invalid state", self));
     }
 };
 
@@ -137,7 +155,7 @@ template <typename T, typename U>
 class InvalidFormatException: public AbstractException {
 public:
     InvalidFormatException(T container, U element): AbstractException{} {
-        this->message = cpp_utils::sprintf("in %s the element %s cause a format invalidation!", container, element);
+        this->updateMessage(cpp_utils::sprintf("in %s the element %s cause a format invalidation!", container, element));
     }
 };
 
@@ -151,7 +169,7 @@ template <typename ITEM, typename CONTAINER>
 class ElementNotFoundException: public AbstractException {
 public:
     ElementNotFoundException(const ITEM& item, const CONTAINER& container) : AbstractException{} {
-        this->message = cpp_utils::scout("Item ", item, " not present in container ", container);
+        this->updateMessage(cpp_utils::scout("Item ", item, " not present in container ", container));
     }
 };
 
@@ -172,7 +190,7 @@ public:
 class InvalidArgumentException: public AbstractException {
 public:
     InvalidArgumentException(): AbstractException{} {
-        this->message = cpp_utils::scout("Invalid argument exception");
+        this->updateMessage(cpp_utils::scout("Invalid argument exception"));
     }
     InvalidArgumentException(const char* format, ...) : AbstractException{} {
         char buffer[1000];
@@ -188,7 +206,7 @@ public:
 class OperationFailedException: public AbstractException {
 public:
 	OperationFailedException(const char* operation): AbstractException{}, operation{operation} {
-		this->message = cpp_utils::sprintf("Operation %s failed", operation);
+		this->updateMessage(cpp_utils::sprintf("Operation %s failed", operation));
 	}
 private:
 	const char* operation;	
@@ -197,7 +215,7 @@ private:
 class CommandFailedException : public AbstractException {
 public:
     CommandFailedException(const std::string& command, int exitCode): AbstractException{}, command{command}, exitCode{exitCode} {
-        this->message = cpp_utils::scout("Command \"", command, "\" failed with exit status ", exitCode);
+        this->updateMessage(cpp_utils::scout("Command \"", command, "\" failed with exit status ", exitCode));
     }
 private:
     std::string command;
@@ -207,10 +225,10 @@ private:
 class FileOpeningException: public AbstractException {
 public:
     FileOpeningException(const std::string& filename): AbstractException{}, filename{filename} {
-        this->message = cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename);
+        this->updateMessage(cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename));
     }
     FileOpeningException(const char* filename): AbstractException{}, filename{filename} {
-        this->message = cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename);
+        this->updateMessage(cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename));
     }
 private:
     std::string filename;
@@ -264,7 +282,7 @@ template <typename CONTAINER>
 class EmptyObjectException: public AbstractException {
 public:
     EmptyObjectException(const CONTAINER& container) : AbstractException{}, container{container} {
-        this->message = cpp_utils::sprintf("Container %s is actually empty! Cannot fetch data from it!", container);
+        this->updateMessage(cpp_utils::sprintf("Container %s is actually empty! Cannot fetch data from it!", container));
     }
 private:
     const CONTAINER& container;
@@ -277,7 +295,7 @@ private:
 class AbstractMethodCalledException: public AbstractException {
 public:
     AbstractMethodCalledException(const char* methodName) : AbstractException{}, methodName{methodName} {
-        this->message = cpp_utils::sprintf("Cannot execute method \"%s\". The developer says it is abstract!", methodName);
+        this->updateMessage(cpp_utils::sprintf("Cannot execute method \"%s\". The developer says it is abstract!", methodName));
     }
 private:
     const std::string methodName;
