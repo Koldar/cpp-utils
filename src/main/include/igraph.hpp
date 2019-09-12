@@ -13,13 +13,31 @@
 #include <iostream>
 #include <sstream>
 
-namespace cpp_utils {
+namespace cpp_utils::graphs {
 
 /**
  * @brief an id identifying each vertex in the graph
  * 
  */
 typedef u_int64_t nodeid_t;
+
+/**
+ * @brief an id identifying the out (or the in) edge of a vertex
+ * 
+ * For instance:
+ * 
+ * @dot
+ * digraph {
+ *  A -> B [label="0"];
+ *  A -> C [label="1"];
+ *  A -> D [label="2"];
+ *  A -> E [label="3"];
+ * }
+ * @enddot
+ * 
+ * Given A, you can identify the outedge to "C" by the *moveid* 1
+ */
+typedef unsigned short moveid_t;
 
 template<typename E>
 class Edge;
@@ -32,6 +50,9 @@ class OutEdge;
 
 template<typename E>
 class InEdge;
+
+template <typename G, typename V, typename E>
+class ListGraph;
 
 /**
  * @brief an edge where it's specified both the source node and the sink one
@@ -276,6 +297,65 @@ public:
     virtual std::vector<InEdge<E>> getInEdges(nodeid_t id) const = 0;
     virtual std::vector<OutEdge<E>> getOutEdges(nodeid_t id) const = 0;
     virtual bool isEmpty() const = 0;
+public:
+    /**
+     * @brief apply a permutation of the vertex ids of this graph
+     * 
+     * @dot
+     *  A [label="0"];
+     *  B [label="1"];
+     *  C [label="2"];
+     * 
+     *  A -> B -> C;
+     * @enddot
+     * 
+     * if we specifiy:
+     * @li @c \f$ fromOldToNew = \{ 0 \rightarrow 1, 1 \rightarrow 2, 2 \rightarrow 0 \}\f$;
+     * @li @c \f$ fromNewToOld = \{ 0 \rightarrow 2, 1 \rightarrow 0, 2 \rightarrow 1 \}\f$;
+     * 
+     * the graph will be:
+     * 
+     * @dot
+     *  A [label="1"];
+     *  B [label="2"];
+     *  C [label="0"];
+     * 
+     *  A -> B -> C;
+     * @enddot
+     * 
+     * @pre
+     *  @li vertices ids are contiguous;
+     *  @li vertices starts from 0;
+     * 
+     * @note
+     * All payloads are copy by value
+     * 
+     * @param fromOldToNew a vector where each index is the id of a vertex in the old coordinate system while the associated cell represents the id of the same vertex in the new coordinate system.
+     * @param fromNewToOld a vector where each index is the id of a vertex in the new coordinate system while the associated cell represents the id of the same vertex in the old coordinate system
+     * @return a new graph where each vertex has been ordered as specified by the parameters
+     */
+    virtual std::unique_ptr<IImmutableGraph> reorderVertices(const std::vector<nodeid_t>& fromOldToNew, const std::vector<nodeid_t>& fromNewToOld) const {
+
+        ListGraph<G,V,E>* result = new ListGraph<G,V,E>{this->getPayload()};
+
+        //vertices
+        for (nodeid_t newId=0; newId<this->numberOfVertices(); ++newId) {
+            result->addVertex(this->getVertex(fromNewToOld[newId]));
+        }
+
+        //edges
+        for (nodeid_t oldSourceId=0; oldSourceId<this->numberOfVertices(); ++oldSourceId) {
+            for (auto outEdge: this->getOutEdges(oldSourceId)) {
+                result->addEdge(
+                    fromOldToNew[oldSourceId], 
+                    fromOldToNew[outEdge.getSinkId()], 
+                    outEdge.getPayload()
+                );
+            }
+        }
+
+        return std::unique_ptr<ListGraph<G,V,E>>{result};
+    }
     virtual const PPMImage* getPPM() const {
         callExternalProgram("rm -f /tmp/getPPM.png /tmp/getPPM.ppm /tmp/getPPM.dot");
 
@@ -286,7 +366,7 @@ public:
         info("iterate over vertices...");
         for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
             info("drawing vertex", it->first);
-            f << "N" << it->first << " [label=\"" << it->second << "\"];\n";
+            f << "N" << it->first << " [label=\"id:" << it->first << "\\n" << it->second << "\"];\n";
         }
 
         info("iterate over edges...");

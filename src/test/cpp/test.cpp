@@ -15,6 +15,8 @@
 #include "commons.hpp"
 #include "arrayHeap.hpp"
 #include "KHeaps.hpp"
+#include "Timer.hpp"
+#include <unistd.h>
 
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
@@ -525,6 +527,32 @@ SCENARIO("test graphs") {
             REQUIRE(g.getOutEdges(n0) == std::vector<OutEdge<bool>>{OutEdge<bool>{n1, true}, OutEdge<bool>{n2, true}});
             REQUIRE(g.getOutEdges(n2) == std::vector<OutEdge<bool>>{OutEdge<bool>{n3, true}});
             REQUIRE(g.getOutEdges(n4) == std::vector<OutEdge<bool>>{});
+        }
+
+        WHEN("testing reordering") {
+
+            std::vector<nodeid_t> fromOldToNew{1,2,3,4,0};
+            std::vector<nodeid_t> fromNewToOld{4,0,1,2,3};
+            auto g2 = g.reorderVertices(
+                fromOldToNew,
+                fromNewToOld
+            );
+            
+            g.saveBMP("listGraph_ordering_old");
+            g2->saveBMP("listGraph_ordering_new");
+
+            REQUIRE(g2->numberOfVertices() == g.numberOfVertices());
+            REQUIRE(g2->numberOfEdges() == g.numberOfEdges());
+            REQUIRE(g.getVertex(0) == g2->getVertex(1));
+            REQUIRE(g.getVertex(1) == g2->getVertex(2));
+            REQUIRE(g.getVertex(2) == g2->getVertex(3));
+            REQUIRE(g.getVertex(3) == g2->getVertex(4));
+            REQUIRE(g.getVertex(4) == g2->getVertex(0));
+
+            REQUIRE(g.getEdge(0, 1) == g2->getEdge(1,2));
+            REQUIRE(g.getEdge(0, 2) == g2->getEdge(1,3));
+            REQUIRE(g.getEdge(2, 3) == g2->getEdge(3,4));
+            REQUIRE(g.getEdge(3, 4) == g2->getEdge(4,0));
         }
         
     }
