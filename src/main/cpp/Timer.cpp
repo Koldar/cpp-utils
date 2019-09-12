@@ -52,6 +52,7 @@ bool operator == (const timing_t& a, const timing_t& b) {
     return isApproximatelyEqual(a.time, b.time, 1e6);
 }
 
+
 namespace internal {
 
 double getTimeUnitInSeconds(timeunit_e u) {

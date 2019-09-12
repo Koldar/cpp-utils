@@ -31,6 +31,11 @@ public:
 };
 
 SCENARIO("test timer") {
+
+    GIVEN("timing") {
+        timing_t t{100, timeunit_e::MICRO};
+        REQUIRE((t * 5) == timing_t{500, timeunit_e::MICRO});
+    }
     
     GIVEN("a timer") {
         Timer t{};

@@ -54,6 +54,14 @@ class timing_t {
 public:
     friend std::ostream& operator << (std::ostream& out, const timing_t& t);
     friend bool operator == (const timing_t& a, const timing_t& b);
+    template <typename NUM>
+    friend timing_t operator +(const timing_t& a, NUM n);
+    template <typename NUM>
+    friend timing_t operator -(const timing_t& a, NUM n);
+    template <typename NUM>
+    friend timing_t operator *(const timing_t& a, NUM n);
+    template <typename NUM>
+    friend timing_t operator /(const timing_t& a, NUM n);
 private:
     /**
      * @brief number of unit elapsed
@@ -96,6 +104,26 @@ private:
         return timing_t{(this->time * internal::getTimeUnitInSeconds(this->unit))/internal::getTimeUnitInSeconds(other), other};
     }
 };
+
+template <typename NUM>
+timing_t operator +(const timing_t& a, NUM n) {
+    return timing_t{a.time + n, a.unit};
+}
+
+template <typename NUM>
+timing_t operator -(const timing_t& a, NUM n) {
+    return timing_t{a.time - n, a.unit};
+}
+
+template <typename NUM>
+timing_t operator *(const timing_t& a, NUM n) {
+    return timing_t{a.time * n, a.unit};
+}
+
+template <typename NUM>
+timing_t operator /(const timing_t& a, NUM n) {
+    return timing_t{a.time / n, a.unit};
+}
 
 
 
