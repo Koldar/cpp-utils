@@ -230,6 +230,9 @@ public:
     FileOpeningException(const char* filename): AbstractException{}, filename{filename} {
         this->updateMessage(cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename));
     }
+    FileOpeningException(FILE* f): AbstractException{}, filename{recoverFilename(f)} {
+        this->updateMessage(cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename));
+    }
 private:
     std::string filename;
 };
