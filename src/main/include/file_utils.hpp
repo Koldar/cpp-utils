@@ -13,7 +13,12 @@
 
 namespace cpp_utils {
 
-
+/**
+ * @brief recover the filename of the file open
+ * 
+ * @param f the file involved
+ * @return std::string the filename of @c f
+ */
 std::string recoverFilename(FILE* f);
 
 /**
