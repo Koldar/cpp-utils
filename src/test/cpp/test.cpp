@@ -295,6 +295,11 @@ SCENARIO("test safe inf uint") {
         safe_inf_uint ac = 100;
 
         REQUIRE((ab + bc) >= ac);
+
+        safe_inf_uint a = 100;
+        safe_inf_uint b = safe_inf_uint::INFTY;
+
+        REQUIRE(a < b);
     }
 }
 
@@ -506,6 +511,14 @@ SCENARIO("test graphs") {
         g.addEdge(n0, n2, true);
         g.addEdge(n2, n3, true);
         g.addEdge(n3, n4, true);
+
+        WHEN("copy listgraph") {
+            ListGraph<int, int, bool> g2{g};
+
+            REQUIRE(g == g2);
+            REQUIRE(g.numberOfVertices() == g2.numberOfVertices());
+            REQUIRE(g.numberOfEdges() == g2.numberOfEdges());
+        }
 
         WHEN("testing density") {
             REQUIRE(g.getMaximumNumberOfEdges() == 20);
@@ -964,6 +977,6 @@ SCENARIO("test log.h") {
     //normal
     critical("this is a test!", 20);
 
-    
+
     
 }
