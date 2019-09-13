@@ -126,7 +126,7 @@ public:
         }
         return false;
     }
-    virtual OutEdge<E> getOutEdge(nodeid_t id, int index) const {
+    virtual OutEdge<E> getOutEdge(nodeid_t id, moveid_t index) const {
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
             if (it->getSourceId() == id) {
                 if (index == 0) {
@@ -168,6 +168,17 @@ public:
     virtual bool isEmpty() const {
         return this->size() == 0;
     }
+    virtual bool containsVertex(nodeid_t id) const {
+        return id < this->size();
+    }
+    virtual bool containsEdge(nodeid_t sourceId, nodeid_t sinkId, const E& payload) const {
+        for (auto i=0; i<this->edges.size(); ++i) {
+            if (this->edges[i].isCompliant(sourceId, sinkId) && this->edges[i].getPayload() == payload) {
+                return true;
+            }
+        }
+        return false;
+    }
 public:
     virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) {
         for (auto i=0; i<this->edges.size(); ++i) {
@@ -176,7 +187,7 @@ public:
             }
         }
     }
-    virtual void changeWeightOutEdge(nodeid_t sourceId, int index, const E& newPayload) {
+    virtual void changeWeightOutEdge(nodeid_t sourceId, moveid_t index, const E& newPayload) {
         for (auto i=0; i<this->edges.size(); ++i) {
             if (this->edges[i].hasSource(sourceId)) {
                 if (index == 0) {

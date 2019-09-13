@@ -2,6 +2,7 @@
 #define _EXCEPTION_HEADER__
 
 #include <boost/stacktrace.hpp>
+#include <boost/filesystem.hpp>
 #include <exception>
 #include <string>
 #include <cstdarg>
@@ -223,7 +224,12 @@ private:
 };
 
 class FileOpeningException: public AbstractException {
+private:
+    std::string filename;
 public:
+    FileOpeningException(const boost::filesystem::path& p): AbstractException{}, filename{p.native()} {
+        this->updateMessage(cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename));
+    }
     FileOpeningException(const std::string& filename): AbstractException{}, filename{filename} {
         this->updateMessage(cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename));
     }
@@ -233,8 +239,6 @@ public:
     FileOpeningException(FILE* f): AbstractException{}, filename{recoverFilename(f)} {
         this->updateMessage(cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename));
     }
-private:
-    std::string filename;
 };
 
 /**

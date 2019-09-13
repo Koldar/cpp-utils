@@ -3,9 +3,60 @@
 
 #include <vector>
 #include "igraph.hpp"
+#include "serializers.hpp"
 
 namespace cpp_utils::graphs {
 
+template <typename G, typename V, typename E>
+class AdjacentGraph;
+
+}
+
+namespace cpp_utils::serializers {
+
+/**
+ * Save the current graph into a file
+ *
+ * @pre
+ *  @li @c f open with "wb";
+ * @post
+ *  @li @c f modified;
+ *  @li @c f cursor modified;
+ *
+ * @param[in] f the file to save the graph into
+ */
+template <typename G, typename V, typename E>
+void saveInFile(FILE* f, const cpp_utils::graphs::AdjacentGraph<G,V,E>& g)  {
+    saveInFile(f, g.payload);
+    saveInFile<V>(f, g.vertexPayload);
+    saveInFile<cpp_utils::graphs::OutEdge<E>>(f, g.edges);
+    saveInFile<int>(f, g.outEdgesOfvertexBegin);
+}
+
+/**
+ * Load a graph from a file in the filesystem
+ *
+ * @pre
+ *  @li @c f open in "rb";
+ * @post
+ *  @li @c f cursor modified;
+ *
+ * @param[in] f the file to read the graph from;
+ * @return the graph loaded
+ */
+template <typename G, typename V, typename E>
+cpp_utils::graphs::AdjacentGraph<G,V,E>& loadFromFile(FILE* f, cpp_utils::graphs::AdjacentGraph<G,V,E>& result) {
+    loadFromFile(f, result.payload);
+    loadFromFile(f, result.vertexPayload);
+    loadFromFile<cpp_utils::graphs::OutEdge<E>>(f, result.edges);
+    loadFromFile<int>(f, result.outEdgesOfvertexBegin);
+
+    return result;
+}
+
+}
+
+namespace cpp_utils::graphs {
 
 /**
  * @brief A graph which encodes its edges in an adjacent vector
@@ -22,6 +73,10 @@ class AdjacentGraph: public INonExtendableGraph<G, V, E> {
     using const_vertex_iterator = PairNumberContainerBasedConstIterator<std::vector<V>, nodeid_t, V>;
     using const_edge_iterator = MapNumberContainerBasedConstIterator<std::vector<OutEdge<E>>, OutEdge<E>, Edge<E>>;
 private:
+    /**
+     * @brief the value attached to the whole graph. Owned by the graph itself
+     * 
+     */
     G payload;
     std::vector<V> vertexPayload;
     std::vector<OutEdge<E>> edges;
@@ -32,6 +87,12 @@ private:
      */
     std::vector<int> outEdgesOfvertexBegin;
 public:
+    friend void cpp_utils::serializers::saveInFile<>(FILE* f, const AdjacentGraph<G,V,E>& g);
+    friend AdjacentGraph<G,V,E>& cpp_utils::serializers::loadFromFile<>(FILE* f, AdjacentGraph<G,V,E>& result);
+public:
+    AdjacentGraph<G,V,E>(): payload{}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
+
+    }
     /**
      * @brief create an empty graph
      * 
@@ -45,12 +106,11 @@ public:
      * 
      * @param other another graph. It's mandatory that the ids of `other` are **contiguous** and they start from 0!
      */
-    AdjacentGraph<G,V,E>(const IImmutableGraph<G,V,E>& other) : payload{}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
-        this->payload = other.getPayload();
+    AdjacentGraph<G,V,E>(const IImmutableGraph<G,V,E>& other) : payload{other.getPayload()}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
+        info("the payload is ", this->payload);
         init(other);
     }
     AdjacentGraph<G,V,E>(const IImmutableGraph<G,V,E>&& other) : payload{other.getPayload()}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
-        this->payload = other.getPayload();
         this->init(other);
     }
     virtual ~AdjacentGraph<G,V,E>() {
@@ -151,7 +211,7 @@ public:
         }
         return false;
     }
-    virtual OutEdge<E> getOutEdge(nodeid_t id, int index) const {
+    virtual OutEdge<E> getOutEdge(nodeid_t id, moveid_t index) const {
         return this->edges[this->outEdgesOfvertexBegin[id] + index];
     }
     virtual bool hasEdge(nodeid_t sourceId, nodeid_t sinkId) const {
@@ -188,6 +248,20 @@ public:
     virtual bool isEmpty() const {
         return this->vertexPayload.size() == 0;
     }
+    virtual OutEdge<E>& getOutEdge(nodeid_t id, int index) {
+        return this->edges[this->outEdgesOfvertexBegin[id] + index];
+    }
+    virtual bool containsVertex(nodeid_t id) const {
+        return id < this->vertexPayload.size();
+    }
+    virtual bool containsEdge(nodeid_t sourceId, nodeid_t sinkId, const E& payload) const {
+        for (auto i=this->outEdgesOfvertexBegin[sourceId]; i<this->outEdgesOfvertexBegin[sourceId+1]; ++i) {
+            if (this->edges[i].getSinkId() == sinkId && this->edges[i].getPayload() == payload) {
+                return true;
+            }
+        }
+        return false;
+    }
 public:
     virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) {
         for (auto i=this->outEdgesOfvertexBegin[sourceId]; i<this->outEdgesOfvertexBegin[sourceId+1]; ++i) {
@@ -198,16 +272,12 @@ public:
         }
         throw cpp_utils::exceptions::ElementNotFoundException<nodeid_t, AdjacentGraph<G,V,E>>{sinkId, *this};
     }
-    virtual void changeWeightOutEdge(nodeid_t sourceId, int index, const E& newPayload) {
+    virtual void changeWeightOutEdge(nodeid_t sourceId, moveid_t index, const E& newPayload) {
         this->edges[this->outEdgesOfvertexBegin[sourceId] + index].getPayload() = newPayload;
     }
 public:
     virtual MemoryConsumption getByteMemoryOccupied() const {
         return MemoryConsumption{sizeof(*this), MemoryConsumptionEnum::BYTE};
-    }
-public:
-    virtual OutEdge<E>& getOutEdge(nodeid_t id, int index) {
-        return this->edges[this->outEdgesOfvertexBegin[id] + index];
     }
 protected:
     /**

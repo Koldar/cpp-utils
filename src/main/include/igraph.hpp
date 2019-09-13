@@ -160,6 +160,7 @@ private:
 template<typename E>
 class OutEdge {
 public:
+    OutEdge<E>(): payload{}, sinkId{0} {}
     OutEdge<E>(nodeid_t sinkId, const E& payload) : payload{payload}, sinkId{sinkId} {};
     OutEdge<E>(const OutEdge<E>& other) : payload{other.payload}, sinkId{other.sinkId} {};
     OutEdge<E>(const Edge<E>& other) : payload{other.getPayload()}, sinkId{other.getSinkId()} {};
@@ -198,6 +199,38 @@ public:
     friend std::ostream& operator << (std::ostream& ss, const IImmutableGraph<G,V,E>& g) {
         ss << g.getPayload();
         return ss;
+    }
+    friend bool operator ==(const IImmutableGraph<G,V,E>& a, const IImmutableGraph<G,V,E>& b) {
+        if (&a == &b) {
+            return true;
+        }
+        if (a.numberOfVertices() != b.numberOfVertices()) {
+            return false;
+        }
+        if (a.numberOfEdges() != b.numberOfEdges()) {
+            return false;
+        }
+
+        //vertices
+        for (auto it=a.beginVertices(); it!= a.endVertices(); ++it) {
+            nodeid_t id1 = it->first;
+            if (!b.containsVertex(id1)) {
+                return false;
+            }
+            if (a.getVertex(id1) != b.getVertex(id1)) {
+                return false;
+            }
+        }
+
+        //edges
+        for (auto it=a.beginEdges(); it!= a.endEdges(); ++it) {
+            Edge<E> e = *it;
+            if (!b.containsEdge(e.getSourceId(), e.getSinkId(), e.getPayload())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 public:
     using const_vertex_iterator = ProxyConstIterator<std::pair<nodeid_t, const V&>, std::pair<nodeid_t, const V&>*>;
@@ -278,6 +311,14 @@ public:
      */
     virtual const V& getVertex(nodeid_t id) const = 0;
     /**
+     * @brief check if the graph has a vertex with the given id
+     * 
+     * @param id the id to check
+     * @return true if there exists a vertgex which id is @c id
+     * @return false otherwise
+     */
+    virtual bool containsVertex(nodeid_t id) const = 0;
+    /**
      * @brief Get an edge
      * 
      * @param sourceId the id of the vertex which is the source of the edge to retrieve
@@ -285,6 +326,16 @@ public:
      * @return const E& the payload of such edge
      */
     virtual const E& getEdge(nodeid_t sourceId, nodeid_t sinkId) const = 0;
+    /**
+     * @brief check if the graph has declared an edge as structure in the parameters
+     * 
+     * @param sourceId the id of the source of the edge
+     * @param sinkId  the id of the sink of the edge
+     * @param payload the payload of the edge
+     * @return true if the graph has declare such an edge
+     * @return false otherwise
+     */
+    virtual bool containsEdge(nodeid_t sourceId, nodeid_t sinkId, const E& payload) const = 0;
     /**
      * @brief Get the Payload object
      * 
@@ -329,7 +380,7 @@ public:
      * @param index index of the out edge to retrieve. index starts from 0 (inclusive)
      * @return const OutEdge<E>& 
      */
-    virtual OutEdge<E> getOutEdge(nodeid_t id, int index) const = 0;
+    virtual OutEdge<E> getOutEdge(nodeid_t id, moveid_t index) const = 0;
     virtual bool hasEdge(nodeid_t sourceId, nodeid_t sinkId) const = 0;
     virtual std::vector<InEdge<E>> getInEdges(nodeid_t id) const = 0;
     virtual std::vector<OutEdge<E>> getOutEdges(nodeid_t id) const = 0;
@@ -443,7 +494,7 @@ template <typename G, typename V, typename E>
 class INonExtendableGraph: public IImmutableGraph<G,V,E> {
 public:
     virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) = 0;
-    virtual void changeWeightOutEdge(nodeid_t sourceId, int index, const E& newPayload) = 0;
+    virtual void changeWeightOutEdge(nodeid_t sourceId, moveid_t index, const E& newPayload) = 0;
 };
 
 /**

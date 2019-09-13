@@ -400,6 +400,30 @@ SCENARIO("test adjacent graph") {
         lg.addEdge(n3, n4, true);
 
         AdjacentGraph<int, int, bool> ag{lg};
+        REQUIRE(ag.getPayload() == 20);
+
+        WHEN("saving and loading") {
+            boost::filesystem::path p{"./save.dat"};
+            FILE* f = fopen(p.native().c_str(), "wb");
+
+            //save
+            cpp_utils::serializers::saveInFile(f, ag);
+            fclose(f);
+            REQUIRE(boost::filesystem::exists(p));
+
+            //load
+            AdjacentGraph<int, int, bool> ag2;
+            f = fopen(p.native().c_str(), "rb");
+            cpp_utils::serializers::loadFromFile(f, ag2);
+            fclose(f);
+
+            ag.saveBMP("ag1");
+            ag2.saveBMP("ag2");
+
+            REQUIRE(ag == ag2);
+            REQUIRE(ag.numberOfVertices() == ag2.numberOfVertices());
+            
+        }
 
         WHEN("testing indexOf") {
             REQUIRE(ag.idOfVertex(1) == n0);
