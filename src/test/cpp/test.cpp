@@ -483,6 +483,13 @@ SCENARIO("test graphs") {
         g.addEdge(n2, n3, true);
         g.addEdge(n3, n4, true);
 
+        WHEN("testing density") {
+            REQUIRE(g.getMaximumNumberOfEdges() == 20);
+            info("density", g.getDensity());
+            REQUIRE(cpp_utils::isApproximatelyEqual(g.getDensity(), 0.2, 1e-3));
+            REQUIRE(g.getNumberOfEdgesFromDensity(0.2) == 4);
+        }
+
         WHEN("testing indexOf") {
             REQUIRE(g.idOfVertex(1) == n0);
             REQUIRE(g.idOfVertex(3) == n2);

@@ -232,7 +232,44 @@ public:
     virtual IImmutableGraph<G,V,E>::const_vertex_iterator endVertices() const = 0;
     virtual IImmutableGraph<G,V,E>::const_edge_iterator beginEdges() const = 0;
     virtual IImmutableGraph<G,V,E>::const_edge_iterator endEdges() const = 0;
-public:
+    /**
+     * @brief the maximum number of edges you can have in this graph
+     * 
+     * e.g., when the graph is complete, namely when every **ordered** pair of vertices has associated a single direct edge
+     * 
+     * for example, if the graph has 4 vertices the function will return 12:
+     * @dot
+     *  A -> B; B -> A;
+     *  B -> C; C -> B;
+     *  C -> D; D -> C;
+     *  D -> A; A -> D;
+     *  A -> C; C -> A;
+     *  B -> D; D -> B;
+     * @enddot
+     * 
+     * @return std::size_t \f$ n(n-1)\f$
+     */
+    virtual std::size_t getMaximumNumberOfEdges() const {
+        auto n = this->numberOfVertices();
+        return (n*(n-1));
+    }
+    /**
+     * @brief the number of edges over the total number of possible edges
+     * 
+     * @return double number between 0 and 1.
+     */
+    virtual double getDensity() const {
+        return (this->numberOfEdges() + 0.0)/(this->getMaximumNumberOfEdges());
+    }
+    /**
+     * @brief the number of edges in the graph from graph density
+     * 
+     * @param ratio number between 0 and 1. Output of ::getDensity
+     * @return number of edges in the graph
+     */
+    virtual std::size_t getNumberOfEdgesFromDensity(double density) const {
+        return density * this->getMaximumNumberOfEdges();
+    }
     /**
      * @brief Get the Vertex payload
      * 
