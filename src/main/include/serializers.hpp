@@ -2,11 +2,17 @@
  * @file
  * @brief set of functions to save and load elements
  * 
+ * Rationale
+ * =========
+ * 
  * I've decided not to create an interface "ISerliazable" because everything can be serialized:
  * not only classes or structs (which might exploit the ineritance of ISerializable) but also
  * classes which I cannot change (e.g., std::vector) or primitive types (e.g., int).
  * 
  * By using `saveInFile` I can cover all these use cases.
+ * 
+ * Preconditions
+ * =============
  * 
  * All `saveInFile` and `loadFromFile` functions needs to be positioned in `cpp_utils::serializers`
  * 
