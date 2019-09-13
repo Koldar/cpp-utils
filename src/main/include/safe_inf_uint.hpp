@@ -28,7 +28,13 @@ bool operator ==(const safe_inf_uint& a, const safe_inf_uint& b);
  * if an overflow or an underflow is detected the value is automatically trimmed to the border value.
  * Once the value is set to infinity, all operations will treat an operator as inifity (hence infinity minus something is still infinity).
  * 
- * Ambiguous operations will lead to a runtime error.
+ * Ambiguous operations (infinities against infinities) will lead to a runtime error. However, there are some exceptions that go "against" the mathematical view. This because we treat "infinity" as a pseudo value:
+ * @li \f$ \infty \geq \infty  \f$ should be ambiguous, but here it lead to `true`;
+ * @li \f$ \infty > \infty  \f$ should be ambiguous, but here it lead to `false`;
+ * @li \f$ \infty \leq \infty  \f$ should be ambiguous, but here it lead to `true`;
+ * @li \f$ \infty < \infty  \f$ should be ambiguous, but here it lead to `false`;
+ * @li \f$ \infty = \infty  \f$ should be ambiguous, but here it lead to `true`;
+ * @li \f$ \infty \not =  \infty  \f$ should be ambiguous, but here it lead to `false`;
  * 
  * @note
  * I wanted to code this struct because this is normally the base case when dealing with A* search (f, g and h usually may be infinite, but never be below 0)
