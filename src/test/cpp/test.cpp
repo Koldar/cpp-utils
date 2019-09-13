@@ -958,3 +958,12 @@ SCENARIO("test safe number") {
          REQUIRE(safe_int{2} * safe_int{6} == safe_int{10});
      }
  }
+
+SCENARIO("test log.h") {
+
+    //normal
+    critical("this is a test!", 20);
+
+    
+    
+}

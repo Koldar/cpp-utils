@@ -19,11 +19,11 @@
 #include <iostream>
 #include "macros.hpp"
 #include "file_utils.hpp"
+#include "ansiColors.hpp"
 
 #ifndef QUICK_LOG
 #define QUICK_LOG 0
 #endif
-
 
 /**
  * always log an entry via std cio
@@ -37,7 +37,7 @@
  * @param[in] level the name of the log level
  * @param[in] ... the entries to put on stream
  */
-#define _abstractLog(level, ...) __abstractLog(level, __FILE__, __func__, __LINE__, ## __VA_ARGS__)
+#define _abstractLog(levelNo, level, ...) __abstractLog(levelNo, level, __FILE__, __func__, __LINE__, ## __VA_ARGS__)
 
 template <typename FIRST>
 void ___abstractLog(const FIRST& first) {
@@ -51,9 +51,24 @@ void ___abstractLog(const FIRST& first, const OTHER&... args) {
 }
 
 template <typename... OTHER>
-void __abstractLog(const char* level, const char* file, const char* func, int lineno, const OTHER&... args) {
+void __abstractLog(int levelNo, const char* level, const char* file, const char* func, int lineno, const OTHER&... args) {
     std::cerr 
-        << "[" << level << "]" 
+        << "[";
+    switch(levelNo) {
+        case 0: std::cerr << cpp_utils::fbCyan; break;
+        case 1: std::cerr << cpp_utils::fbBlue; break;
+        case 2: std::cerr << cpp_utils::fbBlue; break;
+        case 3: std::cerr << cpp_utils::fbBlue; break;
+        case 5: std::cerr << cpp_utils::fbWhite; break;
+        case 6: std::cerr << cpp_utils::fbYellow; break;
+        case 7: std::cerr << cpp_utils::fbRed; break;
+        case 8: std::cerr << cpp_utils::fbRed; break;
+    }
+
+    std::cerr
+        << level 
+        << cpp_utils::reset
+        << "]" 
         << cpp_utils::getBaseNameAsString(file) 
         << "@" 
         << func 
@@ -76,7 +91,7 @@ void __abstractLog(const char* level, const char* file, const char* func, int li
  *
  * @param[in] ... the entries to put on stream
  */
-#define debug(...) _abstractLog("DEBUG", __VA_ARGS__)
+#define debug(...) _abstractLog(0, "DEBUG", __VA_ARGS__)
 #else
 #define debug(...) ;
 #endif
@@ -93,7 +108,7 @@ void __abstractLog(const char* level, const char* file, const char* func, int li
  *
  * @param[in] ... the entries to put on stream
  */
-#define finest(...) _abstractLog("FINEST", __VA_ARGS__)
+#define finest(...) _abstractLog(1, "FINEST", __VA_ARGS__)
 #else
 #define finest(...) ;
 #endif
@@ -110,7 +125,7 @@ void __abstractLog(const char* level, const char* file, const char* func, int li
  *
  * @param[in] ... the entries to put on stream
  */
-#define finer(...) _abstractLog("FINER", __VA_ARGS__)
+#define finer(...) _abstractLog(2, "FINER", __VA_ARGS__)
 #else
 #define finer(...) ;
 #endif
@@ -127,7 +142,7 @@ void __abstractLog(const char* level, const char* file, const char* func, int li
  *
  * @param[in] ... the entries to put on stream
  */
-#define fine(...) _abstractLog("FINE", __VA_ARGS__)
+#define fine(...) _abstractLog(3, "FINE", __VA_ARGS__)
 #else
 #define fine(...) ;
 #endif
@@ -144,7 +159,7 @@ void __abstractLog(const char* level, const char* file, const char* func, int li
  *
  * @param[in] ... the entries to put on stream
  */
-#define info(...) _abstractLog("INFO ", __VA_ARGS__)
+#define info(...) _abstractLog(5, "INFO ", __VA_ARGS__)
 #else
 #define info(...) ;
 #endif
@@ -161,7 +176,7 @@ void __abstractLog(const char* level, const char* file, const char* func, int li
  *
  * @param[in] ... the entries to put on stream
  */
-#define warning(...) _abstractLog("WARN ", __VA_ARGS__)
+#define warning(...) _abstractLog(6, "WARN ", __VA_ARGS__)
 #else
 #define warning(...) ;
 #endif
@@ -178,7 +193,7 @@ void __abstractLog(const char* level, const char* file, const char* func, int li
  *
  * @param[in] ... the entries to put on stream
  */
-#define error(...) _abstractLog("ERROR", __VA_ARGS__)
+#define error(...) _abstractLog(7, "ERROR", __VA_ARGS__)
 #else
 #define error(...) ;
 #endif
@@ -195,7 +210,7 @@ void __abstractLog(const char* level, const char* file, const char* func, int li
  *
  * @param[in] ... the entries to put on stream
  */
-#define critical(...) _abstractLog("CRTCL", __VA_ARGS__)
+#define critical(...) _abstractLog(8, "CRTCL", __VA_ARGS__)
 #else
 #define critical(...) ;
 #endif
