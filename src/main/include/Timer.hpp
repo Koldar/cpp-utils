@@ -142,7 +142,15 @@ private:
     timespec start_time;
 #endif
     bool running;
-
+public:
+    friend std::ostream& operator <<(std::ostream& out, const Timer& t) {
+        if (t.isRunning()) {
+            out << t.getCurrentElapsedMicroSeconds();
+        } else {
+            out << "timer stopped";
+        }
+        return out;
+    }
 public:
     /**
      * @brief Construct a new Timer object

@@ -128,7 +128,8 @@ timing_t Timer::getCurrentMicroSeconds() const {
 
 timing_t Timer::getCurrentElapsedMicroSeconds() const {
     if (!this->isRunning()) {
-        throw cpp_utils::exceptions::InvalidStateException<Timer>{"timer is not running!"};
+        error("timer is not running!");
+        throw cpp_utils::exceptions::InvalidStateException<Timer>{*this};
     }
 #ifdef OS_MAC
 	uint64_t elapsed_time = mach_absolute_time() - start_time;
