@@ -20,12 +20,15 @@ public:
     ListGraph(const G& g): edges{}, vertexPayload{}, payload{g} {
 
     }
-    ListGraph(const IImmutableGraph<G,V,E>& other) : ListGraph{} {
+    ListGraph(const IImmutableGraph<G,V,E>& other) : ListGraph{other.getPayload()} {
         for (auto it=other.beginVertices(); it!=other.endVertices(); ++it) {
-            this->addVertex(it->first, it->second);
+            nodeid_t id = this->addVertex(it->second);
+            if (id != it->first) {
+                throw cpp_utils::exceptions::InvalidArgumentException{"other graph do not start from node 0 or its ids are not contiguous!"};
+            }
         }
         for (auto it=other.beginEdges(); it!=other.endEdges(); ++it) {
-            this->addEdge(it->getSourceid(), it->getSinkId(), it->getPayload());
+            this->addEdge(it->getSourceId(), it->getSinkId(), it->getPayload());
         }
     }
     virtual ~ListGraph() {
