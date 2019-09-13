@@ -140,7 +140,7 @@ private:
     const SELF& self;
 public:
     InvalidStateException(const SELF& self): AbstractException{}, self{self} {
-        this->updateMessage(cpp_utils::sprintf("%s is in an invalid state", self));
+        this->updateMessage(cpp_utils::scout(self, "is in an invalid state"));
     }
 };
 
