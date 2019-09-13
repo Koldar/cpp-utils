@@ -9,7 +9,8 @@
 #include <vector>
 #include "exceptions.hpp"
 
-namespace cpp_utils {
+//define the overloading of operators in the namespace of its argument
+namespace std {
 
 template <typename X, typename Y>
 std::ostream& operator << (std::ostream& ss, const std::pair<X,Y>& p) {
