@@ -21,12 +21,17 @@ std::ostream& operator << (std::ostream& out, const vectorplus<EL>& vec);
  * @tparam EL 
  */
 template<typename EL>
-class vectorplus : public std::vector<EL> {
+class vectorplus : public std::vector<EL>, ICleanable {
     friend std::ostream& operator << <>(std::ostream& out, const vectorplus<EL>& vec);
 public:
     vectorplus(): std::vector<EL>{} {
     }
+    vectorplus(const EL& el): std::vector<EL>(20, el) {
+    }
     vectorplus(const std::vector<EL>& other): std::vector<EL>{other} {
+
+    }
+    vectorplus(std::size_t size, const EL& el): std::vector<EL>(size, el) {
 
     }
 public:
@@ -162,6 +167,34 @@ public:
         }
         return result;
     }
+    /**
+     * @brief set all the cell in the vector with the given value
+     * 
+     * @param el the value each cell will have after the completition of this method
+     * @return this
+     */
+    vectorplus<EL>& fill(const EL& el) {
+        std::fill(this->begin(), this->end(), el);
+        return *this;
+    }
+    /**
+     * @brief reverse the entire vector
+     * 
+     * @post
+     *  @li the elements of the vector are reversed
+     * 
+     * @code
+     *  {1,2,3,4}
+     *  //reversed vector
+     *  {4,3,2,1}
+     * @endcode
+     * 
+     * @return this
+     */
+    vectorplus<EL>& reverse() {
+        std::reverse(this->begin(), this->end());
+        return *this;
+    }
 public:
     template <typename... OTHER>
     static vectorplus<EL> make(OTHER... other) {
@@ -179,6 +212,10 @@ public:
     static vectorplus<EL>& make(vectorplus<EL>& vec, FIRST f, OTHER... other) {
         vec.add(f);
         return make(vec, other...);
+    }
+public:
+    virtual void cleanup() {
+        this->clear();
     }
 private:
     int toAbsolute(int index) const {
