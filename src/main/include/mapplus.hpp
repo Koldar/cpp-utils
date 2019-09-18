@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
+#include "ICleanable.hpp"
 
 namespace cpp_utils {
 
@@ -23,7 +24,8 @@ template <typename K, typename V,
 	typename PRED = std::equal_to<K>,
 	typename ALLOC = std::allocator<std::pair<const K, V>>
 >
-class MapPlus: public std::unordered_map<K, V, HASH, PRED, ALLOC> {
+class MapPlus: public std::unordered_map<K, V, HASH, PRED, ALLOC>, public ICleanable {
+public:
     friend std::ostream& operator <<(std::ostream& out, const MapPlus<K, V, HASH, PRED, ALLOC>& a) {
         out << "{";
         for (auto it=a.cbegin(); it!=a.cend(); ++it) {
@@ -33,6 +35,25 @@ class MapPlus: public std::unordered_map<K, V, HASH, PRED, ALLOC> {
         return out;
     }
 public:
+    MapPlus(): std::unordered_map<K, V, HASH, PRED, ALLOC>{} {
+
+    }
+    virtual ~MapPlus() {
+
+    }
+    MapPlus(const MapPlus<K, V, HASH, PRED, ALLOC>& other): std::unordered_map<K, V, HASH, PRED, ALLOC>{other} {
+
+    }
+public:
+    void put(const K& k, const V& v) {
+        (*this)[k] = v;
+    }
+    const V& get(const K& k) const {
+        return (*this)[k];
+    }
+    V& get(const K& k) {
+        return (*this)[k];
+    }
     /**
      * @brief check if the map contains a specific key
      * 
@@ -58,6 +79,10 @@ public:
             }
         }
         throw cpp_utils::exceptions::ElementNotFoundException<V, MapPlus<K, V, HASH, PRED, ALLOC>>{v, *this};
+    }
+public:
+    virtual void cleanup() {
+        this->clear();
     }
 };
 
