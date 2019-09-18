@@ -248,7 +248,7 @@ public:
     virtual bool isEmpty() const {
         return this->vertexPayload.size() == 0;
     }
-    virtual OutEdge<E>& getOutEdge(nodeid_t id, int index) {
+    virtual OutEdge<E>& getOutEdge(nodeid_t id, moveid_t index) {
         return this->edges[this->outEdgesOfvertexBegin[id] + index];
     }
     virtual bool containsVertex(nodeid_t id) const {
