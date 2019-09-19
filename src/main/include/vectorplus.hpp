@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <functional>
 #include <type_traits>
+#include "ICleanable.hpp"
 
 namespace cpp_utils {
 
