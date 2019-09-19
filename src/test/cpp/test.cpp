@@ -377,6 +377,25 @@ SCENARIO("test vector plus") {
             REQUIRE(a.size() == 2L);
          }
 
+         WHEN("first and last index on singleton") {
+            a.add(5);
+
+            REQUIRE(a.firstIndex() == 0);
+            REQUIRE(a.lastIndex() == 0);
+            REQUIRE(a.getHead() == 5);
+            REQUIRE(a.getTail() == 5);
+         }
+
+         WHEN("first and last on size=2") {
+            a.add(5);
+            a.add(6);
+
+            REQUIRE(a.firstIndex() == 0);
+            REQUIRE(a.lastIndex() == 1);
+            REQUIRE(a.getHead() == 5);
+            REQUIRE(a.getTail() == 6);
+         }
+
          WHEN("reverse") {
              a.add(5);
              a.add(6);

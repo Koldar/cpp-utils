@@ -387,6 +387,25 @@ public:
     virtual bool isEmpty() const = 0;
 public:
     /**
+     * @brief lots of graph implementation require that the ids starts from 0 and are contiguous
+     * 
+     * @return true if such assertion is true
+     * @return false otherwise
+     */
+    virtual bool areVertexIdsContiguous() const {
+        std::unordered_set<int> result{};
+        for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
+            result.insert(it->first);
+        }
+        //check
+        for (nodeid_t id=0; id<this->numberOfVertices(); ++id) {
+            if (result.find(id) == result.end()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
      * @brief apply a permutation of the vertex ids of this graph
      * 
      * @dot

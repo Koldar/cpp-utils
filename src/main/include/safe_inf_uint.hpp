@@ -131,9 +131,105 @@ public:
     }
 
 public:
+    /**
+     * @brief check if \f$ a < b \f$
+     * 
+     * when playing with algorithms, sometimes it happen you need to compute \f$ +\infty < +\infty \f$.
+     * Maths says that this operation is ambiguous, but sometimes you would like to have a result nethertheless. When @c strict is set to @c false \f$ \infty \f$ is treated like a number which you can compare against itself. Hence when @c strict is set to @c false the operation will return @c false (since for every number \f$ x < x \f$ is false.
+     * If @c strict is set to @c true we will use the mathematical viewpoint and return an exception, since the operation is indetermined.
+     * 
+     * @param other the other number to compare
+     * @param strict true if you want to use the mathematical definition of tyhe operation for \f$ \infty \f$; false otherwise
+     * @return true 
+     * @return false 
+     */
+    bool lessThan(const safe_inf_uint& other, bool strict=true) const {
+        if (this->isInfinity() && other.isInfinity()) {
+            if (strict) {
+                throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{"<", this->value, other.value};
+            }
+            return false;
+        }
+        return this->value < other.value;
+    }
+    /**
+     * @brief check if \f$ a \leq b \f$
+     * 
+     * when playing with algorithms, sometimes it happen you need to compute \f$ +\infty \leq +\infty \f$.
+     * Maths says that this operation is ambiguous, but sometimes you would like to have a result nethertheless. When @c strict is set to @c false \f$ \infty \f$ is treated like a number which you can compare against itself. Hence when @c strict is set to @c false the operation will return @c true (since for every number \f$ x \leq x \f$ is true.
+     * If @c strict is set to @c true we will use the mathematical viewpoint and return an exception, since the operation is indetermined.
+     * 
+     * @param other the other number to compare
+     * @param strict true if you want to use the mathematical definition of tyhe operation for \f$ \infty \f$; false otherwise
+     * @return true 
+     * @return false 
+     */
+    bool lessOrEqualThan(const safe_inf_uint& other, bool strict) const {
+        if (this->isInfinity() && other.isInfinity()) {
+            if (strict) {
+                throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{"<=", this->value, other.value};
+            }
+            return true;
+        }
+        return this->value <= other.value;
+    }
+    /**
+     * @brief check if \f$ a > b \f$
+     * 
+     * when playing with algorithms, sometimes it happen you need to compute \f$ +\infty > +\infty \f$.
+     * Maths says that this operation is ambiguous, but sometimes you would like to have a result nethertheless. When @c strict is set to @c false \f$ \infty \f$ is treated like a number which you can compare against itself. Hence when @c strict is set to @c false the operation will return @c false (since for every number \f$ x > x \f$ is false.
+     * If @c strict is set to @c true we will use the mathematical viewpoint and return an exception, since the operation is indetermined.
+     * 
+     * @param other the other number to compare
+     * @param strict true if you want to use the mathematical definition of tyhe operation for \f$ \infty \f$; false otherwise
+     * @return true 
+     * @return false 
+     */
+    bool greaterThan(const safe_inf_uint& other, bool strict) const {
+        if (this->isInfinity() && other.isInfinity()) {
+            if (strict) {
+                throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{">", this->value, other.value};
+            }
+            return false;
+        }
+        return this->value > other.value;
+    }
+    /**
+     * @brief check if \f$ a \geq b \f$
+     * 
+     * when playing with algorithms, sometimes it happen you need to compute \f$ +\infty \geq +\infty \f$.
+     * Maths says that this operation is ambiguous, but sometimes you would like to have a result nethertheless. When @c strict is set to @c false \f$ \infty \f$ is treated like a number which you can compare against itself. Hence when @c strict is set to @c false the operation will return @c true (since for every number \f$ x \geq x \f$ is true.
+     * If @c strict is set to @c true we will use the mathematical viewpoint and return an exception, since the operation is indetermined.
+     * 
+     * @param other the other number to compare
+     * @param strict true if you want to use the mathematical definition of tyhe operation for \f$ \infty \f$; false otherwise
+     * @return true 
+     * @return false 
+     */
+    bool greaterOrEqualThan(const safe_inf_uint& other, bool strict) const {
+        if (this->isInfinity() && other.isInfinity()) {
+            if (strict) {
+                throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{">=", this->value, other.value};
+            }
+            return true;
+        }
+        return this->value >= other.value;
+    }
+    /**
+     * @brief true if the number is infinity
+     * 
+     * @return true 
+     * @return false 
+     */
     bool isInfinity() const {
         return this->value == UINT64_MAX;
     }
+    /**
+     * @brief true if the number is not infinity
+     * 
+     * @return true 
+     * @return false 
+     */
     bool isNotInfinity() const {
         return this->value != UINT64_MAX;
     }

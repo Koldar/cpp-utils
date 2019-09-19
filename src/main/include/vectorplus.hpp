@@ -195,6 +195,72 @@ public:
         std::reverse(this->begin(), this->end());
         return *this;
     }
+    /**
+     * @brief the first element of this vector
+     * 
+     * @pre
+     *  @li vector is not empty
+     * 
+     * @return EL& 
+     */
+    const EL& getHead() const {
+        return (*this)[0];
+    }
+    /**
+     * @brief the first element of this vector
+     * 
+     * @pre
+     *  @li vector is not empty
+     * 
+     * @return EL& 
+     */
+    EL& getHead() {
+        return (*this)[0];
+    }
+    /**
+     * @brief the last element of this vector
+     * 
+     * @pre
+     *  @li vector is not empty
+     * 
+     * @return EL& 
+     */
+    const EL& getTail() const {
+        return (*this)[this->size() - 1];
+    }
+    /**
+     * @brief the last element of this vector
+     * 
+     * @pre
+     *  @li vector is not empty
+     * 
+     * @return EL& 
+     */
+    EL& getTail() {
+        return (*this)[this->size() - 1];
+    }
+    /**
+     * @brief the first index of this vector
+     * 
+     * @pre
+     *  @li vector is not empty
+     * 
+     * @return int always 0
+     */
+    int firstIndex() const {
+        return 0;
+    }
+    /**
+     * @brief the last index of this vector
+     * 
+     * @pre
+     *  @li vector is not empty
+     * 
+     * @return int 
+     */
+    int lastIndex() const {
+        return this->size() - 1;
+    }
 public:
     template <typename... OTHER>
     static vectorplus<EL> make(OTHER... other) {

@@ -126,6 +126,16 @@ public:
     virtual size_t numberOfEdges() const {
         return this->edges.size();
     }
+    /**
+     * @brief 
+     * 
+     * @code
+     *  it->first id of vertex
+     *  it->second payload of vertex
+     * @endcode
+     * 
+     * @return IImmutableGraph<G,V,E>::const_vertex_iterator 
+     */
     virtual typename IImmutableGraph<G,V,E>::const_vertex_iterator beginVertices() const {
         auto it = new AdjacentGraph<G,V,E>::const_vertex_iterator{0, this->vertexPayload};
         return typename IImmutableGraph<G,V,E>::const_vertex_iterator{it};
