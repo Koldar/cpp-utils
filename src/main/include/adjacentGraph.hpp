@@ -126,6 +126,16 @@ public:
     virtual size_t numberOfEdges() const {
         return this->edges.size();
     }
+    /**
+     * @brief 
+     * 
+     * @code
+     *  it->first id of vertex
+     *  it->second payload of vertex
+     * @endcode
+     * 
+     * @return IImmutableGraph<G,V,E>::const_vertex_iterator 
+     */
     virtual typename IImmutableGraph<G,V,E>::const_vertex_iterator beginVertices() const {
         auto it = new AdjacentGraph<G,V,E>::const_vertex_iterator{0, this->vertexPayload};
         return typename IImmutableGraph<G,V,E>::const_vertex_iterator{it};
@@ -248,7 +258,7 @@ public:
     virtual bool isEmpty() const {
         return this->vertexPayload.size() == 0;
     }
-    virtual OutEdge<E>& getOutEdge(nodeid_t id, int index) {
+    virtual OutEdge<E>& getOutEdge(nodeid_t id, moveid_t index) {
         return this->edges[this->outEdgesOfvertexBegin[id] + index];
     }
     virtual bool containsVertex(nodeid_t id) const {

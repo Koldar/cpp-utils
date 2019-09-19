@@ -29,6 +29,39 @@ public:
     }
 };
 
+class UncopiableClass {
+public:
+    int a;
+public:
+    UncopiableClass(int a): a{a} {
+
+    }
+    ~UncopiableClass() {
+
+    }
+    UncopiableClass(const UncopiableClass& other) = delete;
+    UncopiableClass& operator =(const UncopiableClass& other) = delete;
+    friend std::ostream& operator <<(std::ostream& out, const UncopiableClass& other) {
+        out << other.a;
+        return out;
+    }
+};
+
+SCENARIO("test scout") {
+    GIVEN("scout on primitives") {
+        REQUIRE(scout("the basic is ", 5) == "the basic is 5");
+
+        char c = 'a';
+        REQUIRE(scout("additional is ", c) == "additional is a");
+    }
+
+    GIVEN("scout on uncopiable class") {
+        UncopiableClass foo{5};
+
+        REQUIRE(scout("uncopiable class is ", "the actual ", foo) == "uncopiable class is the actual 5");
+    }
+}
+
 SCENARIO("test timer") {
 
     GIVEN("timing") {
@@ -304,8 +337,16 @@ SCENARIO("test safe inf uint") {
 
 SCENARIO("test vector plus") {
 
-     GIVEN("a vector plus") {
-         vectorplus<int> a;
+    GIVEN("testing constructors") {
+        cpp_utils::vectorplus<int> a{2};
+        cpp_utils::vectorplus<int> b{100, 2};
+
+        REQUIRE(a.size() == 20);
+        REQUIRE(b.size() == 100);
+    }
+
+    GIVEN("a vector plus") {
+         vectorplus<int> a{};
 
          WHEN("basics") {
 
@@ -333,6 +374,66 @@ SCENARIO("test vector plus") {
 
             REQUIRE(a.contains(7) == false);
             REQUIRE(a.size() == 2L);
+         }
+
+         WHEN("first and last index on singleton") {
+            a.add(5);
+
+            REQUIRE(a.firstIndex() == 0);
+            REQUIRE(a.lastIndex() == 0);
+            REQUIRE(a.getHead() == 5);
+            REQUIRE(a.getTail() == 5);
+         }
+
+         WHEN("first and last on size=2") {
+            a.add(5);
+            a.add(6);
+
+            REQUIRE(a.firstIndex() == 0);
+            REQUIRE(a.lastIndex() == 1);
+            REQUIRE(a.getHead() == 5);
+            REQUIRE(a.getTail() == 6);
+         }
+
+         WHEN("reverse") {
+             a.add(5);
+             a.add(6);
+             a.add(7);
+
+             a.reverse();
+
+             REQUIRE(a[0] == 7);
+             REQUIRE(a[1] == 6);
+             REQUIRE(a[2] == 5);
+             REQUIRE(a.size() == 3);
+         }
+
+         WHEN("reverse empty vector") {
+             a.reverse();
+
+             REQUIRE(a.size() == 0);
+         }
+
+         WHEN("reverse singleton vector") {
+             a.add(5);
+
+             a.reverse();
+
+             REQUIRE(a[0] == 5);
+             REQUIRE(a.size() == 1);
+         }
+
+         WHEN("fill") {
+             a.add(5);
+             a.add(6);
+             a.add(7);
+
+             a.fill(10);
+
+             REQUIRE(a.size() == 3);
+             REQUIRE(a[0] == 10);
+             REQUIRE(a[1] == 10);
+             REQUIRE(a[2] == 10);
          }
 
          WHEN("adding eleemnts") {

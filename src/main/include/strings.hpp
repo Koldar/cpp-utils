@@ -16,7 +16,7 @@ std::string _scout(std::stringstream& ss, const FIRST& s) {
 }
 
 template <typename FIRST, typename... OTHERs>
-std::string _scout(std::stringstream& ss, const FIRST& s, OTHERs... args) {
+std::string _scout(std::stringstream& ss, const FIRST& s, const OTHERs&... args) {
     ss << s;
     return _scout(ss, args...);
 }
@@ -29,7 +29,7 @@ std::string _scout(std::stringstream& ss, const FIRST& s, OTHERs... args) {
  * @return std::string a string obtained by iteratively "<<" the parameters
  */
 template <typename... OTHERs>
-std::string scout(OTHERs... args) {
+std::string scout(const OTHERs&... args) {
     std::stringstream ss;
     return _scout(ss, args...);
 }
@@ -42,7 +42,7 @@ std::string _swcout(std::stringstream& ss, const FIRST& s) {
 
 //TODO swcout and scout can be written as join!
 template <typename FIRST, typename... OTHERs>
-std::string _swcout(std::stringstream& ss, const FIRST& s, OTHERs... args) {
+std::string _swcout(std::stringstream& ss, const FIRST& s, const OTHERs&... args) {
     ss << s << " ";
     return _swcout(ss, args...);
 }
@@ -61,26 +61,26 @@ std::string _swcout(std::stringstream& ss, const FIRST& s, OTHERs... args) {
  * @return std::string a string obtained by iteratively "<<" the parameters
  */
 template <typename... OTHERs>
-std::string swcout(OTHERs... args) {
+std::string swcout(const OTHERs&... args) {
     std::stringstream ss;
     return _swcout(ss, args...);
 }
 
 template <typename SEP>
-std::string _join(std::stringstream& ss, SEP sep) {
+std::string _join(std::stringstream& ss, const SEP& sep) {
     debug("in nothing!");
     return ss.str();
 }
 
 template <typename SEP, typename FIRST>
-std::string _join(std::stringstream& ss, SEP sep, FIRST first) {
+std::string _join(std::stringstream& ss, const SEP& sep, const FIRST& first) {
     debug("in base! first is", first);
     ss << first;
     return ss.str();
 }
 
 template <typename SEP, typename FIRST, typename... OTHERS>
-std::string _join(std::stringstream& ss, SEP sep, FIRST first, OTHERS... args) {
+std::string _join(std::stringstream& ss, const SEP& sep, const FIRST& first, const OTHERS&... args) {
     debug("in recursion! first is", first);
     ss << first << sep;
     return _join(ss, sep, args...);
@@ -100,14 +100,14 @@ std::string _join(std::stringstream& ss, SEP sep, FIRST first, OTHERS... args) {
  * @return std::string string representation
  */
 template <typename SEP, typename... OTHERS>
-std::string join(SEP separator, OTHERS... args) {
+std::string join(const SEP& separator, const OTHERS&... args) {
     debug("call join!");
     std::stringstream ss;
     return _join(ss, separator, args...);
 }
 
 template <typename SEP, typename CONTAINER>
-std::string joinOn(SEP& separator, CONTAINER& c) {
+std::string joinOn(const SEP& separator, const CONTAINER& c) {
     std::stringstream ss;
     bool first = true;
     for (auto x : c) {

@@ -82,7 +82,7 @@ protected:
  */
 class ImpossibleException: public AbstractException {
 public:
-    ImpossibleException() : AbstractException{} {
+    ImpossibleException() : AbstractException{"the impossible has sadly happened!"} {
 
     }
     ADD_STRING_CONSTRUCTOR(ImpossibleException)
