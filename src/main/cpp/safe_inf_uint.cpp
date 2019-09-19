@@ -42,28 +42,28 @@ safe_inf_uint operator /(const safe_inf_uint& a, const safe_inf_uint& b) {
 
 bool operator <(const safe_inf_uint& a, const safe_inf_uint& b) {
     if (a.isInfinity() && b.isInfinity()) {
-        throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{"<", a.value, b.value};
+        throw cpp_utils::exceptions::NumericalOperationException{"<", a.value, b.value};
     }
     return a.value < b.value;
 }
 
 bool operator <=(const safe_inf_uint& a, const safe_inf_uint& b) {
     if (a.isInfinity() && b.isInfinity()) {
-        throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{"<=", a.value, b.value};
+        throw cpp_utils::exceptions::NumericalOperationException{"<=", a.value, b.value};
     }
     return a.value <= b.value;
 }
 
 bool operator >(const safe_inf_uint& a, const safe_inf_uint& b) {
     if (a.isInfinity() && b.isInfinity()) {
-        throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{">", a.value, b.value};
+        throw cpp_utils::exceptions::NumericalOperationException{">", a.value, b.value};
     }
     return a.value > b.value;
 }
 
 bool operator >=(const safe_inf_uint& a, const safe_inf_uint& b) {
     if (a.isInfinity() && b.isInfinity()) {
-        throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{">=", a.value, b.value};
+        throw cpp_utils::exceptions::NumericalOperationException{">=", a.value, b.value};
     }
     return a.value >= b.value;
 }

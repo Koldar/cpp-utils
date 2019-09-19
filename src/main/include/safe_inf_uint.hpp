@@ -28,8 +28,31 @@ bool operator ==(const safe_inf_uint& a, const safe_inf_uint& b);
  * if an overflow or an underflow is detected the value is automatically trimmed to the border value.
  * Once the value is set to infinity, all operations will treat an operator as inifity (hence infinity minus something is still infinity).
  * 
- * Ambiguous operations (infinities against infinities) will lead to a runtime error. However, there are some exceptions that go "against" the mathematical view. This because we treat "infinity" as a pseudo value:
- * @li \f$ \infty \geq \infty  \f$ should be ambiguous, but here it lead to `true`;
+ * Dealing with infinities
+ * =======================
+ * 
+ * Suppose you encounter this operation:
+ * 
+ * \f$ x = \infty \geq \infty \f$
+ * 
+ * What is its result? You have 2 roads:
+ * @li mathematically this is an undeterminable expression since it's the same of \f$ \infty - \infty \geq 0 \f$
+ * @li for some algorithms you might want to consider \f$ \infty \f$ as a real big value. For instance in Dijkstra you need to perform the check the triangular inqeuality
+ *  when 2 of the 3 triangular sides are \f$ \infty \f$: in this case it would be best to consider (for algorithm simplicity) infinity as jsut a big value. Hence \f$ \infty \geq \infty \f$ should
+ *  be true; Note that even here expressions like \f$ \infty - NUM = \infty \f$. This concepts applies only for comparisons!
+ * 
+ * Since we cannot decide which operation outcome you want, the library offers you 2 ways to perform operations:
+ * 
+ * @li **strict mode** where we perform operation using the mathematic point of view: if we have an undeterminable operation, we will generate an error.
+ *  This operation is used in every operator overloading;
+ * @li **non strict mode** where we perform operation using the algorithmic point of this. here we will consider infinity as a really big number.
+ *  This operation can be used in methods like lessThan, greaterThan and so on;
+ * 
+ * List of **non strict mode**
+ * ---------------------------
+ * 
+ * Ambiguous operations (infinities against infinities) will lead to a runtime error. 
+ * @li \f$ \infty \geq \infty  \f$ should be ambiguous but here it lead to `true`;
  * @li \f$ \infty > \infty  \f$ should be ambiguous, but here it lead to `false`;
  * @li \f$ \infty \leq \infty  \f$ should be ambiguous, but here it lead to `true`;
  * @li \f$ \infty < \infty  \f$ should be ambiguous, but here it lead to `false`;
@@ -143,10 +166,10 @@ public:
      * @return true 
      * @return false 
      */
-    bool lessThan(const safe_inf_uint& other, bool strict=true) const {
+    bool lessThan(const safe_inf_uint& other, bool strict=false) const {
         if (this->isInfinity() && other.isInfinity()) {
             if (strict) {
-                throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{"<", this->value, other.value};
+                throw cpp_utils::exceptions::NumericalOperationException{"<", this->value, other.value};
             }
             return false;
         }
@@ -164,10 +187,10 @@ public:
      * @return true 
      * @return false 
      */
-    bool lessOrEqualThan(const safe_inf_uint& other, bool strict) const {
+    bool lessOrEqualThan(const safe_inf_uint& other, bool strict=false) const {
         if (this->isInfinity() && other.isInfinity()) {
             if (strict) {
-                throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{"<=", this->value, other.value};
+                throw cpp_utils::exceptions::NumericalOperationException{"<=", this->value, other.value};
             }
             return true;
         }
@@ -185,10 +208,10 @@ public:
      * @return true 
      * @return false 
      */
-    bool greaterThan(const safe_inf_uint& other, bool strict) const {
+    bool greaterThan(const safe_inf_uint& other, bool strict=false) const {
         if (this->isInfinity() && other.isInfinity()) {
             if (strict) {
-                throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{">", this->value, other.value};
+                throw cpp_utils::exceptions::NumericalOperationException{">", this->value, other.value};
             }
             return false;
         }
@@ -206,14 +229,58 @@ public:
      * @return true 
      * @return false 
      */
-    bool greaterOrEqualThan(const safe_inf_uint& other, bool strict) const {
+    bool greaterOrEqualThan(const safe_inf_uint& other, bool strict=false) const {
         if (this->isInfinity() && other.isInfinity()) {
             if (strict) {
-                throw cpp_utils::exceptions::NumericalOperationException<uint64_t, uint64_t>{">=", this->value, other.value};
+                throw cpp_utils::exceptions::NumericalOperationException{">=", this->value, other.value};
             }
             return true;
         }
         return this->value >= other.value;
+    }
+    /**
+     * @brief check if \f$ a = b \f$
+     * 
+     * when playing with algorithms, sometimes it happen you need to compute \f$ +\infty = +\infty \f$.
+     * Maths says that this operation is ambiguous, but sometimes you would like to have a result nethertheless. When @c strict is set to @c false \f$ \infty \f$ is treated like a number which you can compare against itself. 
+     * Hence when @c strict is set to @c false the operation will return @c true (since for every number \f$ x = x \f$ is true.
+     * If @c strict is set to @c true we will use the mathematical viewpoint and return an exception, since the operation is indetermined.
+     * 
+     * @param other the other number to compare
+     * @param strict true if you want to use the mathematical definition of tyhe operation for \f$ \infty \f$; false otherwise
+     * @return true 
+     * @return false 
+     */
+    bool equalTo(const safe_inf_uint& other, bool strict = false) const {
+        if (this->isInfinity() && other.isInfinity()) {
+            if (strict) {
+                throw cpp_utils::exceptions::NumericalOperationException{"=", this->value, other.value};
+            }
+            return true;
+        }
+        return this->value == other.value;
+    }
+    /**
+     * @brief check if \f$ a \not = b \f$
+     * 
+     * when playing with algorithms, sometimes it happen you need to compute \f$ +\infty \not = +\infty \f$.
+     * Maths says that this operation is ambiguous, but sometimes you would like to have a result nethertheless. When @c strict is set to @c false \f$ \infty \f$ is treated like a number which you can compare against itself. 
+     * Hence when @c strict is set to @c false the operation will return @c false (since for every number \f$ x \not = x \f$ is false.
+     * If @c strict is set to @c true we will use the mathematical viewpoint and return an exception, since the operation is indetermined.
+     * 
+     * @param other the other number to compare
+     * @param strict true if you want to use the mathematical definition of tyhe operation for \f$ \infty \f$; false otherwise
+     * @return true 
+     * @return false 
+     */
+    bool notEqualTo(const safe_inf_uint& other, bool strict=false) const {
+        if (this->isInfinity() && other.isInfinity()) {
+            if (strict) {
+                throw cpp_utils::exceptions::NumericalOperationException{"!=", this->value, other.value};
+            }
+            return false;
+        }
+        return this->value != other.value;
     }
     /**
      * @brief true if the number is infinity
