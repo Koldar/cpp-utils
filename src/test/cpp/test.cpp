@@ -13,7 +13,6 @@
 #include "adjacentGraph.hpp"
 #include "pool.hpp"
 #include "commons.hpp"
-#include "arrayHeap.hpp"
 #include "KHeaps.hpp"
 #include "Timer.hpp"
 #include <unistd.h>
@@ -132,32 +131,32 @@ SCENARIO("test ceil power") {
 
 SCENARIO("test log") {
     GIVEN("integer") {
-        REQUIRE(log2(1) == 0);
-        REQUIRE(log2(2) == 1);
-        REQUIRE(log2(4) == 2);
-        REQUIRE(log2(8) == 3);
-        REQUIRE(log2(64) == 6);
+        REQUIRE(cpp_utils::log2(1) == 0);
+        REQUIRE(cpp_utils::log2(2) == 1);
+        REQUIRE(cpp_utils::log2(4) == 2);
+        REQUIRE(cpp_utils::log2(8) == 3);
+        REQUIRE(cpp_utils::log2(64) == 6);
 
-        REQUIRE(log2(6) == 2);
+        REQUIRE(cpp_utils::log2(6) == 2);
     }
 
     GIVEN("float") {
-        REQUIRE(isApproximatelyEqual(log2(1.f), 0.f, 0.01f));
-        REQUIRE(isApproximatelyEqual(log2(2.f), 1.f, 0.01f));
-        REQUIRE(isApproximatelyEqual(log2(4.f), 2.f, 0.01f));
+        REQUIRE(isApproximatelyEqual(cpp_utils::log2(1.f), 0.f, 0.01f));
+        REQUIRE(isApproximatelyEqual(cpp_utils::log2(2.f), 1.f, 0.01f));
+        REQUIRE(isApproximatelyEqual(cpp_utils::log2(4.f), 2.f, 0.01f));
     }
 
     GIVEN("double") {
-        REQUIRE(isApproximatelyEqual(log2(1.), 0., 0.01));
-        REQUIRE(isApproximatelyEqual(log2(2.), 1., 0.01));
-        REQUIRE(isApproximatelyEqual(log2(4.), 2., 0.01));
+        REQUIRE(isApproximatelyEqual(cpp_utils::log2(1.), 0., 0.01));
+        REQUIRE(isApproximatelyEqual(cpp_utils::log2(2.), 1., 0.01));
+        REQUIRE(isApproximatelyEqual(cpp_utils::log2(4.), 2., 0.01));
     }
 
     GIVEN("operations") {
         uint32_t n = 64;
-        REQUIRE(log2(n) == 6);
-        REQUIRE((0xFFFFFFFF << (log2(n)+ 1)) == 0xFFFFFF80);
-        REQUIRE((0xFFFFFFFF << (log2(n) + 1) ^ ~n) == 63);
+        REQUIRE(cpp_utils::log2(n) == 6);
+        REQUIRE((0xFFFFFFFF << (cpp_utils::log2(n)+ 1)) == 0xFFFFFF80);
+        REQUIRE((0xFFFFFFFF << (cpp_utils::log2(n) + 1) ^ ~n) == 63);
     }
 }
 
@@ -604,45 +603,6 @@ SCENARIO("test graphs") {
             REQUIRE(g.getEdge(3, 4) == g2->getEdge(4,0));
         }
         
-    }
-}
-
-SCENARIO("arrayHeap") {
-
-    GIVEN("array heap unitialized") {
-
-        WHEN("array is initialized") {
-            ArrayHeap<int, false> array{10, 0};
-
-            REQUIRE(array[0] == 0);
-            REQUIRE(array[3] == 0);
-
-            array[0] = 5;
-
-            REQUIRE(array[0] == 5);
-            REQUIRE(array.getSize() == 10);
-        }
-
-        WHEN("array is unitialized") {
-            ArrayHeap<int, false> array{10};
-
-            array[0] = 5;
-
-            REQUIRE(array[0] == 5);
-            REQUIRE(array.getSize() == 10);
-        }
-    }
-
-    GIVEN("array heap itialized") {
-        ArrayHeap<int, true> array{10};
-
-        REQUIRE(array[0] == 0);
-        REQUIRE(array[3] == 0);
-
-        array[0] = 5;
-
-        REQUIRE(array[0] == 5);
-        REQUIRE(array.getSize() == 10);
     }
 }
 
