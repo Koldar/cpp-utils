@@ -442,16 +442,106 @@ SCENARIO("test vector plus") {
              a.add(6,7,8);
              REQUIRE(a == vectorplus<int>::make(5,6,7,8));
          }
+        
+        WHEN("sorting empty") {
+            a.cleanup();
+            a.sort([&](int a, int b) { return a < b;});
 
-         WHEN("functional") {
-             a.add(5);
-             a.add(6);
-             a.add(7);
-             a.add(8);
+            REQUIRE(a.isEmpty());
+        }
 
-             REQUIRE(a.map<long>([](int x) { return 2*x; }) == vectorplus<long>::make(10,12,14,16));
-             REQUIRE(a.filter([](int x) {return x > 6; }).map<int>([](int x) { return 2*x; }) == vectorplus<int>::make(14,16));
-         }
+        WHEN("sorting with size=1") {
+            a.add(4);
+            a.sort([&](int a, int b) { return a < b;});
+
+            REQUIRE(a == vectorplus<int>::make(4));
+        }
+
+        WHEN("sorting with size>1") {
+            a.add(4);
+            a.add(3);
+            a.add(5);
+
+            a.sort([&](int a, int b) { return a < b;});
+            REQUIRE(a == vectorplus<int>::make(3,4,5));
+        }
+
+        WHEN("functional with empty vector") {
+            a.cleanup();
+
+            REQUIRE(a.map<long>([](int x) { return 2*x; }) == vectorplus<long>{});
+            REQUIRE(a.filter([](int x) {return x > 6; }).map<int>([](int x) { return 2*x; }) == vectorplus<int>{});
+            REQUIRE(a.reject([](int x) {return x > 5; }) == vectorplus<int>{});
+            REQUIRE(a.lreduce<std::string>(std::string{""},  [&](int x, std::string tmp) { 
+                std::stringstream ss;
+                ss << tmp << x;
+                return ss.str();
+            }) == std::string{""});
+            REQUIRE(a.rreduce<std::string>(std::string{""},  [&](int x, std::string tmp) { 
+                std::stringstream ss;
+                ss << tmp << x;
+                return ss.str();
+            }) == std::string{""});
+        }
+
+        WHEN("functional with size=1") {
+            a.add(5);
+
+            REQUIRE(a.map<long>([](int x) { return 2*x; }) == vectorplus<long>::make(10));
+            REQUIRE(a.filter([](int x) {return x > 6; }).map<int>([](int x) { return 2*x; }) == vectorplus<int>{});
+            REQUIRE(a.reject([](int x) {return x > 5; }) == vectorplus<int>::make(5));
+            REQUIRE(a.lreduce<std::string>(std::string{""},  [&](int x, std::string tmp) { 
+                std::stringstream ss;
+                ss << tmp << x;
+                return ss.str();
+            }) == std::string{"5"});
+            REQUIRE(a.rreduce<std::string>(std::string{""},  [&](int x, std::string tmp) { 
+                std::stringstream ss;
+                ss << tmp << x;
+                return ss.str();
+            }) == std::string{"5"});
+        }
+
+        WHEN("functional with size=2") {
+            a.add(5);
+            a.add(6);
+
+            REQUIRE(a.map<long>([](int x) { return 2*x; }) == vectorplus<long>::make(10,12));
+            REQUIRE(a.filter([](int x) {return x > 6; }).map<int>([](int x) { return 2*x; }) == vectorplus<int>{});
+            REQUIRE(a.reject([](int x) {return x > 5; }) == vectorplus<int>::make(5));
+            REQUIRE(a.lreduce<std::string>(std::string{""},  [&](int x, std::string tmp) { 
+                std::stringstream ss;
+                ss << tmp << x;
+                return ss.str();
+            }) == std::string{"56"});
+            REQUIRE(a.rreduce<std::string>(std::string{""},  [&](int x, std::string tmp) { 
+                std::stringstream ss;
+                ss << tmp << x;
+                return ss.str();
+            }) == std::string{"65"});
+        }
+
+        WHEN("functional with size>=2") {
+            a.add(5);
+            a.add(6);
+            a.add(7);
+            a.add(8);
+
+            REQUIRE(a.map<long>([](int x) { return 2*x; }) == vectorplus<long>::make(10,12,14,16));
+            REQUIRE(a.filter([](int x) {return x > 6; }).map<int>([](int x) { return 2*x; }) == vectorplus<int>::make(14,16));
+            REQUIRE(a.reject([](int x) {return x > 5; }) == vectorplus<int>::make(5));
+            REQUIRE(a.lreduce<std::string>(std::string{""},  [&](int x, std::string tmp) { 
+                std::stringstream ss;
+                ss << tmp << x;
+                return ss.str();
+            }) == std::string{"5678"});
+            REQUIRE(a.rreduce<std::string>(std::string{""},  [&](int x, std::string tmp) { 
+                std::stringstream ss;
+                ss << tmp << x;
+                return ss.str();
+            }) == std::string{"8765"});
+        }
+        
      }
 
      GIVEN("constant vector plus") {

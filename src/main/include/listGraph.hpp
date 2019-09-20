@@ -182,6 +182,15 @@ public:
         }
         return false;
     }
+    //FIXME remove HasEdge from the interface... containsEdge is the same!
+    virtual bool containsEdge(nodeid_t sourceId, nodeid_t sinkid) const {
+        for (auto i=0; i<this->edges.size(); ++i) {
+            if (this->edges[i].isCompliant(sourceId, sinkid)) {
+                return true;
+            }
+        }
+        return false;
+    }
 public:
     virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) {
         for (auto i=0; i<this->edges.size(); ++i) {

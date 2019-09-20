@@ -83,8 +83,9 @@ public:
      * 
      * @param el the element to add
      */
-    void add(const EL& el) {
+    cpp_utils::vectorplus<EL>& add(const EL& el) {
         this->push_back(el);
+        return *this;
     }
 
     /**
@@ -92,8 +93,9 @@ public:
      * 
      * @param el the element to add
      */
-    void addTail(const EL& el) {
+    cpp_utils::vectorplus<EL>& addTail(const EL& el) {
         this->push_back(el);
+        return *this;
     }
 
     /**
@@ -101,8 +103,9 @@ public:
      * 
      * @param el the element to add
      */
-    void addHead(const EL& el) {
+    cpp_utils::vectorplus<EL>& addHead(const EL& el) {
         this->insert(this->begin(), el);
+        return *this;
     }
 
     /**
@@ -112,16 +115,17 @@ public:
      * @param other the other container
      */
     template <template<typename> typename CONTAINER>
-    void addAll(const CONTAINER<EL>& other) {
+    cpp_utils::vectorplus<EL>& addAll(const CONTAINER<EL>& other) {
         for (auto x : other) {
             this->add(x);
         }
+        return *this;
     }
 
     template <typename... OTHER>
-    void add(EL first, OTHER... args) {
+    cpp_utils::vectorplus<EL>& add(EL first, OTHER... args) {
         this->add(first);
-        this->add(args...);
+        return this->add(args...);
     }
 
     /**
@@ -151,6 +155,21 @@ public:
         auto position = std::find(this->begin(), this->end(), el);
         return position != this->end();
     }
+
+    /**
+     * @brief alter the current vector by sorting it according a specific comparator
+     * 
+     * @post
+     *  @li the vector is sorted
+     * 
+     * @param sorter the function used to sort. It accept 2 parameters which are 2 elements in the array. 
+     *  If the first element is "less than" the other, return true, otherwise return false
+     * 
+     */
+    void sort(std::function<bool(EL,EL)> sorter) {
+        std::sort(this->begin(), this->end(), sorter);
+    }
+
     template<typename OUTPUT>
     vectorplus<OUTPUT> map(std::function<OUTPUT(EL)> lambda) const {
         vectorplus<OUTPUT> result{};
@@ -159,6 +178,13 @@ public:
         }
         return result;
     }
+
+    /**
+     * @brief generates a **new** vector only with the elements satisfying the filter
+     * 
+     * @param lambda the filter
+     * @return vectorplus<EL> a new vector
+     */
     vectorplus<EL> filter(std::function<bool(EL)> lambda) const {
         vectorplus<EL> result{};
         for (auto el: *this) {
@@ -168,6 +194,70 @@ public:
         }
         return result;
     }
+
+    /**
+     * @brief generates a **new** vector only with the elements that **don't satisfy** the filter
+     * 
+     * @param lambda the filter
+     * @return vectorplus<EL> a new vector
+     */
+    vectorplus<EL> reject(std::function<bool(EL)> lambda) const {
+        vectorplus<EL> result{};
+        for (auto el: *this) {
+            if (!lambda(el)) {
+                result.add(el);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @brief left reduce operation
+     * 
+     * @code
+     * vector={1,2,3,4};
+     * first=0;
+     * lambda=+
+     * (((((0) + 1) + 2) + 3) + 4)
+     * @endcode
+     * 
+     * @tparam OUTPUT the type of the result of this operation
+     * @param first first value used to combine to the head of the vector
+     * @param lambda function to apply
+     * @return OUTPUT value obtained by the reduction
+     */
+    template <typename OUTPUT>
+    OUTPUT lreduce(const OUTPUT first, std::function<OUTPUT(EL, OUTPUT)> lambda) const {
+        OUTPUT result = first;
+        for (auto i=0; i<this->size(); ++i) {
+            result = lambda((*this)[i], result);
+        }
+        return result;
+    }
+    /**
+     * @brief right reduce operation
+     * 
+     * @code
+     * vector={1,2,3,4};
+     * first=0;
+     * lambda=+
+     * (1 + (2 + (3 + (4 + (0)))))
+     * @endcode
+     * 
+     * @tparam OUTPUT the type of the result of this operation
+     * @param first first value used to combine to the tail of the vector
+     * @param lambda function to apply
+     * @return OUTPUT value obtained by the reduction
+     */
+    template <typename OUTPUT>
+    OUTPUT rreduce(const OUTPUT& first, std::function<OUTPUT(EL, OUTPUT)> lambda) const {
+        OUTPUT result = first;
+        for (auto i=this->lastIndex(); i>=0; --i) {
+            result = lambda((*this)[i], result);
+        }
+        return result;
+    }
+
     /**
      * @brief set all the cell in the vector with the given value
      * 

@@ -272,6 +272,14 @@ public:
         }
         return false;
     }
+    virtual bool containsEdge(nodeid_t sourceId, nodeid_t sinkId) const {
+        for (auto i=this->outEdgesOfvertexBegin[sourceId]; i<this->outEdgesOfvertexBegin[sourceId+1]; ++i) {
+            if (this->edges[i].getSinkId() == sinkId) {
+                return true;
+            }
+        }
+        return false;
+    }
 public:
     virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) {
         for (auto i=this->outEdgesOfvertexBegin[sourceId]; i<this->outEdgesOfvertexBegin[sourceId+1]; ++i) {

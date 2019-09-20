@@ -337,6 +337,15 @@ public:
      */
     virtual bool containsEdge(nodeid_t sourceId, nodeid_t sinkId, const E& payload) const = 0;
     /**
+     * @brief check if the graph has declared an edge as structure in the parameters
+     * 
+     * @param sourceId the id of the source of the edge
+     * @param sinkId  the id of the sink of the edge
+     * @return true if the graph has declare such an edge
+     * @return false otherwise
+     */
+    virtual bool containsEdge(nodeid_t sourceId, nodeid_t sinkid) const = 0;
+    /**
      * @brief Get the Payload object
      * 
      * @return const G& the payload of the entire graph
