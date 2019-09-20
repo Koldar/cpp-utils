@@ -15,7 +15,9 @@
 #include "commons.hpp"
 #include "KHeaps.hpp"
 #include "Timer.hpp"
+#include "operators.hpp"
 #include <unistd.h>
+#include <functional>
 
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
@@ -46,6 +48,24 @@ public:
         return out;
     }
 };
+
+SCENARIO("test hash") {
+
+    GIVEN("hashing pair") {
+        WHEN("simple hashing") {
+            std::pair<int, char> p{5, 'a'};
+            //hash value
+            REQUIRE(std::hash<std::pair<int, char>>{}(p) == 5473661158804778096);
+        }
+
+        WHEN("using hash inside container") {
+            std::unordered_set<std::pair<int, char>> a{};
+
+            a.insert(std::pair<int, char>{5, 'a'});
+            REQUIRE(a.size() == 1);
+        }
+    }
+}
 
 SCENARIO("test scout") {
     GIVEN("scout on primitives") {
@@ -340,9 +360,16 @@ SCENARIO("test vector plus") {
     GIVEN("testing constructors") {
         cpp_utils::vectorplus<int> a{2};
         cpp_utils::vectorplus<int> b{100, 2};
+        cpp_utils::vectorplus<int> c{1,2,3,4,5};
 
         REQUIRE(a.size() == 20);
         REQUIRE(b.size() == 100);
+        REQUIRE(c.size() == 5);
+        REQUIRE(c[0] == 1);
+        REQUIRE(c[1] == 2);
+        REQUIRE(c[2] == 3);
+        REQUIRE(c[3] == 4);
+        REQUIRE(c[4] == 5);
     }
 
     GIVEN("a vector plus") {

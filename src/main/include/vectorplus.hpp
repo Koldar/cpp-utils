@@ -35,6 +35,22 @@ public:
     vectorplus(std::size_t size, const EL& el): std::vector<EL>(size, el) {
 
     }
+    template <typename... OTHER>
+    vectorplus(const EL& first, const EL& second, const EL& third, const OTHER&... args) : std::vector<EL>{} {
+        this->add(first);
+        this->add(second);
+        this->add(third);
+        this->add(args...);
+    }
+protected:
+    /**
+     * @brief dummy add. Needed by resource unpacking
+     * 
+     * @return cpp_utils::vectorplus<EL>& 
+     */
+    cpp_utils::vectorplus<EL>& add() {
+        return *this;
+    }
 public:
     /**
      * @brief check if the vector is actually empty
@@ -123,7 +139,7 @@ public:
     }
 
     template <typename... OTHER>
-    cpp_utils::vectorplus<EL>& add(EL first, OTHER... args) {
+    cpp_utils::vectorplus<EL>& add(const EL& first, const OTHER&... args) {
         this->add(first);
         return this->add(args...);
     }
@@ -166,8 +182,9 @@ public:
      *  If the first element is "less than" the other, return true, otherwise return false
      * 
      */
-    void sort(std::function<bool(EL,EL)> sorter) {
+    cpp_utils::vectorplus<EL>& sort(std::function<bool(EL,EL)> sorter) {
         std::sort(this->begin(), this->end(), sorter);
+        return *this;
     }
 
     template<typename OUTPUT>
