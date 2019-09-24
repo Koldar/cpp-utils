@@ -115,7 +115,7 @@ constexpr void* elvis(PTR* ptr, ELSE* pelse) {
 //     pair(const pair<>& other): first{other.first}, second{other.second} {
 
 //     }
-//     pair(const pair<>&& other): first{other.first}, second{other.second} {
+//     pair(pair<>&& other): first{other.first}, second{other.second} {
 //     }
 //     operator =(const pair<>& other) {
 //         this->first = other.first;

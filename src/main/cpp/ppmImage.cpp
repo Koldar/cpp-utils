@@ -29,7 +29,7 @@ PPMImage::PPMImage(const PPMImage& other) : width{other.width}, height{other.hei
 	memcpy(this->image, other.image, sizeof(color_t) * this->width * this->height);
 }
 
-PPMImage::PPMImage(const PPMImage&& other): width{other.width}, height{other.height}, image{other.image} {
+PPMImage::PPMImage(PPMImage&& other): width{other.width}, height{other.height}, image{other.image} {
 	
 }
 
@@ -75,7 +75,7 @@ PPMImage& PPMImage::operator =(const PPMImage& other) {
 	return *this;
 }
 
-PPMImage& PPMImage::operator =(const PPMImage&& other) {
+PPMImage& PPMImage::operator =(PPMImage&& other) {
 	PPMImage::checkDimensions(*this, other);
 	this->image = other.image;
 	return *this;

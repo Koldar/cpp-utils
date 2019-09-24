@@ -42,6 +42,27 @@ public:
         this->add(third);
         this->add(args...);
     }
+    vectorplus(std::vector<EL>&& other): std::vector<EL>{::std::move(other)} {
+
+    }
+    vectorplus(const cpp_utils::vectorplus<EL>& other): std::vector<EL>{} {
+        for (auto el : other) {
+            this->add(el);
+        }
+    }
+    //TODO implement
+    vectorplus(cpp_utils::vectorplus<EL>&& other) : std::vector<EL>{::std::move(other)} {
+    }
+
+    vectorplus<EL>& operator=(const vectorplus<EL>& other) {
+        ::std::vector<EL>::operator =(other);
+    }
+
+    vectorplus<EL>& operator=(const vectorplus<EL>&& other) {
+        ::std::vector<EL>::operator =(std::move(other));
+    }
+
+
 protected:
     /**
      * @brief dummy add. Needed by resource unpacking

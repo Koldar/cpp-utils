@@ -75,6 +75,7 @@ class Edge {
 public:
     Edge<E>(nodeid_t sourceId, nodeid_t sinkId, const E& payload) : payload{payload}, sourceId{sourceId}, sinkId{sinkId} {};
     Edge<E>(const Edge<E>& other) : payload{other.payload}, sourceId{other.sourceId}, sinkId{other.sinkId} {};
+    Edge<E>(Edge<E>&& other) : payload{std::move(other.payload)}, sourceId{other.sourceId}, sinkId{other.sinkId} {};
     Edge<E>(nodeid_t sourceId, const OutEdge<E>& other): Edge<E>{sourceId, other.getSinkId(), other.getPayload()} {
 
     }
@@ -83,10 +84,16 @@ public:
     }
     virtual ~Edge<E>() {};
 public:
-    Edge<E>& operator =(const Edge<E> other) {
+    Edge<E>& operator =(const Edge<E>& other) {
         this->sourceId = other.sourceId;
         this->sinkId = other.sinkId;
         this->payload = other.payload;
+        return *this;
+    }
+    Edge<E>& operator = (Edge<E>&& other) {
+        this->sourceId = other.sourceId;
+        this->sinkId = other.sinkId;
+        this->payload = std::move(other.payload);
         return *this;
     }
 public:
@@ -132,10 +139,22 @@ class InEdge {
 public:
     InEdge<E>(nodeid_t sourceId, const E& payload) : payload{payload}, sourceId{sourceId} {};
     InEdge<E>(const InEdge<E>& other) : payload{other.payload}, sourceId{other.sourceId} {};
+    InEdge<E>(InEdge<E>&& other) : payload{std::move(other.payload)}, sourceId{other.sourceId} {};
     InEdge<E>(const Edge<E>& other) : payload{other.getPayload()}, sourceId{other.getSourceId()} {};
+    InEdge<E>(Edge<E>&& other) : payload{std::move(other.getPayload())}, sourceId{other.getSourceId()} {};
     virtual ~InEdge<E>() {};
 public:
-    InEdge<E>& operator =(const InEdge<E>& other);
+    InEdge<E>& operator =(const InEdge<E>& other) {
+        this->payload = other.payload;
+        this->sourceId = other.sourceId;
+        return *this;
+    }
+    InEdge<E>& operator =(InEdge<E>&& other) {
+        this->payload = std::move(other.payload);
+        this->sourceId = other.sourceId;
+        return *this;
+    }
+
     friend bool operator ==(const InEdge<E>& a, const InEdge<E>& b) {
         return a.sourceId == b.sourceId && a.payload == b.payload;
     }
@@ -162,12 +181,19 @@ class OutEdge {
 public:
     OutEdge<E>(): payload{}, sinkId{0} {}
     OutEdge<E>(nodeid_t sinkId, const E& payload) : payload{payload}, sinkId{sinkId} {};
+    OutEdge<E>(OutEdge<E>&& other) : payload{std::move(other.payload)}, sinkId{other.sinkId} {};
     OutEdge<E>(const OutEdge<E>& other) : payload{other.payload}, sinkId{other.sinkId} {};
     OutEdge<E>(const Edge<E>& other) : payload{other.getPayload()}, sinkId{other.getSinkId()} {};
+    OutEdge<E>(Edge<E>&& other) : payload{std::move(other.getPayload())}, sinkId{other.getSinkId()} {};
     virtual ~OutEdge() {};
 public:
     OutEdge<E>& operator =(const OutEdge<E>& other) {
         this->payload = other.payload;
+        this->sinkId = other.sinkId;
+        return *this;
+    }
+    OutEdge<E>& operator =(OutEdge<E>&& other) {
+        this->payload = std::move(other.payload);
         this->sinkId = other.sinkId;
         return *this;
     }

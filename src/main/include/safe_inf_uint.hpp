@@ -104,9 +104,6 @@ public:
     constexpr safe_inf_uint(): value{0UL} {
     }
 
-    constexpr safe_inf_uint(const safe_inf_uint& other): value{other.value} {
-    }
-
     safe_inf_uint(int n): value{static_cast<uint64_t>(n)} {
         if (n < 0) {
             throw cpp_utils::exceptions::NumericalOperationException{"cast from int to unsigned", n};
@@ -130,6 +127,7 @@ public:
             throw cpp_utils::exceptions::NumericalOperationException{"cast from float(overflow) to unsigned", n};
         }
     }
+    
     safe_inf_uint(double n): value{static_cast<uint64_t>(n)} {
         if (n < 0) {
             throw cpp_utils::exceptions::NumericalOperationException{"cast from double to unsigned", n};
@@ -137,6 +135,27 @@ public:
         if (n > UINT64_MAX) {
             throw cpp_utils::exceptions::NumericalOperationException{"cast from double(overflow) to unsigned", n};
         }
+    }
+
+    constexpr safe_inf_uint(const safe_inf_uint& other): value{other.value} {
+
+    }
+
+    constexpr safe_inf_uint(safe_inf_uint&& other): value{other.value} {
+
+    }
+
+    safe_inf_uint& operator = (const safe_inf_uint& other) {
+        this->value = other.value;
+        return *this;
+    }
+    safe_inf_uint& operator = (safe_inf_uint&& other) {
+        this->value = other.value;
+        return *this;
+    }
+
+    ~safe_inf_uint() {
+        
     }
 
 public:

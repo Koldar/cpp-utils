@@ -114,13 +114,13 @@ public:
 		this->image = new color_t[this->totalPixels()];
 	}
 	PPMImage(const PPMImage& other);
-	PPMImage(const PPMImage&& other);
+	PPMImage(PPMImage&& other);
 	PPMImage(const char* filename);
 	~PPMImage() {
 		this->deleteImage();
 	}
 	PPMImage& operator =(const PPMImage& other);
-	PPMImage& operator =(const PPMImage&& other);
+	PPMImage& operator =(PPMImage&& other);
 protected:
 	virtual const PPMImage* getPPM() const;
 public:
