@@ -49,6 +49,50 @@ public:
     }
 };
 
+class RefClass {
+private:
+    int& a;  
+public:
+    RefClass(int& a): a{a} {
+
+    }
+    RefClass(const RefClass& o): a{o.a} {
+
+    }
+    RefClass& operator =(const RefClass& o) {
+        this->a = o.a;
+        return *this;
+    }
+public:
+    int getA() const {
+        return this->a;
+    }
+    static RefClass make() {
+        int refGoingToDie = 5;
+        return RefClass{refGoingToDie};
+    }
+};
+
+
+SCENARIO("test reference dying lead to UB", "[cpp-tests]") {
+    int uselessRef = 6;
+    RefClass refClassMain{uselessRef};
+
+    REQUIRE(refClassMain.getA() == 6);
+    refClassMain = RefClass::make();
+    //refGoingToDie went out of scope
+
+    //REQUIRE((refClassMain.getA() == 5));
+}
+
+SCENARIO("test operators") {
+    std::tuple<int, char, long> t{5, 'a', 57};
+
+    std::stringstream ss;
+    ss << t;
+    REQUIRE(ss.str() == std::string{"<5, a, 57>"});
+}
+
 SCENARIO("test hash") {
 
     GIVEN("hashing pair") {
