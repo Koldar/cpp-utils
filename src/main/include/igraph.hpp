@@ -441,6 +441,35 @@ public:
         return true;
     }
     /**
+     * @brief check if the 2 graphs have the same vertices
+     * 
+     * we will chekc not only vertices ids, but payloads as well.
+     * Payloads are checked via "==" operator
+     * 
+     * @tparam G2 type of the payload of the whole graph of `other
+     * @tparam E2 type of the payload of each edge of `other` graph
+     * @param other the second graph to analyze
+     * @return true if the 2 graphs share the same vertices (ids and payload)
+     * @return false otherwise
+     */
+    template<typename G2, typename E2>
+    bool haveSameVertices(const IImmutableGraph<G2,V,E2>& other) const {
+        if (this->numberOfVertices() != other.numberOfVertices()) {
+            return false;
+        }
+        for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
+            nodeid_t id =it->first;
+            V payload = it->second;
+            if (!other.containsVertex(id)) {
+                return false;
+            }
+            if (other.getVertex(id) != payload) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
      * @brief apply a permutation of the vertex ids of this graph
      * 
      * @dot
