@@ -6,6 +6,7 @@
 #include <functional>
 #include <type_traits>
 #include "ICleanable.hpp"
+#include "imemory.hpp"
 
 namespace cpp_utils {
 
@@ -22,7 +23,7 @@ std::ostream& operator << (std::ostream& out, const vectorplus<EL>& vec);
  * @tparam EL 
  */
 template<typename EL>
-class vectorplus : public std::vector<EL>, ICleanable {
+class vectorplus : public std::vector<EL>, ICleanable, IMemorable {
     friend std::ostream& operator << <>(std::ostream& out, const vectorplus<EL>& vec);
 public:
     vectorplus(): std::vector<EL>{} {
@@ -407,6 +408,10 @@ public:
     static vectorplus<EL>& make(vectorplus<EL>& vec, FIRST f, OTHER... other) {
         vec.add(f);
         return make(vec, other...);
+    }
+public:
+    MemoryConsumption getByteMemoryOccupied() const {
+        return sizeof(EL) * this->size();
     }
 public:
     virtual void cleanup() {
