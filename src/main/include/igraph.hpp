@@ -6,6 +6,7 @@
 #include "iterator.hpp"
 #include "operators.hpp"
 #include "ppmImage.hpp"
+#include "log.hpp"
 #include <climits>
 #include <vector>
 #include <utility>
@@ -576,8 +577,38 @@ public:
 template <typename G, typename V, typename E>
 class INonExtendableGraph: public IImmutableGraph<G,V,E> {
 public:
+    /**
+     * @brief Change the label of the single edge
+     * 
+     * the opposite edge (if any) **won't be touched**
+     * 
+     * @param sourceId source of the edge to alter
+     * @param sinkId sink of the edge to alter
+     * @param newPayload new value of the edge
+     */
     virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) = 0;
     virtual void changeWeightOutEdge(nodeid_t sourceId, moveid_t index, const E& newPayload) = 0;
+
+    /**
+     * @brief Change the label of at most 2 edges
+     * 
+     * The opposite edge (if any) **will be touched**
+     * 
+     * @post
+     *  @li `source -> sink` label updated;
+     *  @li `sink -> source` label updated;
+     *  @li both edges have the same @c newPayload value;
+     * 
+     * @param sourceId source of the edge to alter
+     * @param sinkId sink of the edge to alter
+     * @param newPayload new value of the edge
+     */
+    virtual void changeWeightUndirectedEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) {
+        debug("from", sourceId, "to", sinkId);
+        this->changeWeightEdge(sourceId, sinkId, newPayload);
+        debug("from", sinkId, "to", sourceId);
+        this->changeWeightEdge(sinkId, sourceId, newPayload);
+    }
 };
 
 /**

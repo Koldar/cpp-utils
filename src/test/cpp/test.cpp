@@ -664,6 +664,7 @@ SCENARIO("test adjacent graph") {
         lg.addEdge(n0, n2, true);
         lg.addEdge(n2, n3, true);
         lg.addEdge(n3, n4, true);
+        lg.addEdge(n2, n0, true);
 
         AdjacentGraph<int, int, bool> ag{lg};
         REQUIRE(ag.getPayload() == 20);
@@ -711,7 +712,9 @@ SCENARIO("test adjacent graph") {
             REQUIRE(ag.hasEdge(n0, n3) == false);
             REQUIRE(ag.hasEdge(n0, n4) == false);
             REQUIRE(ag.getEdge(n2, n3) == true);
-            REQUIRE(ag.getEdge(n3, n4) == true);
+            REQUIRE(ag.getEdge(n2, n0) == true);
+
+            REQUIRE(ag.containsEdge(n4, n3) == false);
         }
 
         WHEN("testing saving image") {
@@ -724,29 +727,63 @@ SCENARIO("test adjacent graph") {
 
             REQUIRE(ag.getOutDegree(n0) == 2);
             REQUIRE(ag.getOutDegree(n4) == 0);
-            REQUIRE(ag.getOutDegree(n2) == 1);
+            REQUIRE(ag.getOutDegree(n2) == 2);
+            REQUIRE(ag.getOutDegree(n3) == 1);
             
             REQUIRE(ag.hasSuccessors(n0));
             REQUIRE(ag.hasSuccessors(n2));
             REQUIRE(ag.hasSuccessors(n4) == false);
 
-            REQUIRE_FALSE(ag.hasPredecessors(n0));
+            REQUIRE(ag.hasPredecessors(n0));
             REQUIRE(ag.hasPredecessors(n2));
             REQUIRE(ag.hasPredecessors(n4));
 
             REQUIRE(ag.numberOfVertices() == 5);
-            REQUIRE(ag.numberOfEdges() == 4);
+            REQUIRE(ag.numberOfEdges() == 5);
 
-            REQUIRE(ag.getInDegree(n0) == 0);
+            REQUIRE(ag.getInDegree(n0) == 1);
             REQUIRE(ag.getInDegree(n2) == 1);
             REQUIRE(ag.getInDegree(n4) == 1);
 
             REQUIRE(ag.getInEdges(n4) == std::vector<InEdge<bool>>{InEdge<bool>{n3, true}});
-            REQUIRE(ag.getInEdges(n0) == std::vector<InEdge<bool>>{});
+            REQUIRE(ag.getInEdges(n0) == std::vector<InEdge<bool>>{InEdge<bool>{n2, true}});
 
             REQUIRE(ag.getOutEdges(n0) == std::vector<OutEdge<bool>>{OutEdge<bool>{n1, true}, OutEdge<bool>{n2, true}});
-            REQUIRE(ag.getOutEdges(n2) == std::vector<OutEdge<bool>>{OutEdge<bool>{n3, true}});
+            REQUIRE(ag.getOutEdges(n2) == std::vector<OutEdge<bool>>{OutEdge<bool>{n3, true}, OutEdge<bool>{n0, true}});
             REQUIRE(ag.getOutEdges(n4) == std::vector<OutEdge<bool>>{});
+            REQUIRE(ag.getOutEdges(n3) == std::vector<OutEdge<bool>>{OutEdge<bool>{n4, true}});
+        }
+
+        WHEN("testing change edges in single way") {
+            //no change
+            ag.changeWeightEdge(n2, n3, true);
+            REQUIRE(ag.getEdge(n2, n3) == true);
+
+            //change
+            ag.changeWeightEdge(n2, n3, false);
+            REQUIRE(ag.getEdge(n2, n3) == false);
+        }
+
+        WHEN("testing change edges in both way") {
+            ag.saveBMP("adjacentGraph_bothways");
+            //change undirect
+            debug("test frst");
+            REQUIRE(ag.containsEdge(n0, n2) == true);
+            REQUIRE(ag.containsEdge(n2, n0) == true);
+            ag.changeWeightUndirectedEdge(n0, n2, true);
+            debug("checkin");
+            REQUIRE(ag.getEdge(n0, n2) == true);
+            debug("checkin");
+            REQUIRE(ag.getEdge(n2, n0) == true);
+            debug("test second");
+            ag.changeWeightUndirectedEdge(n0, n2, false);
+            REQUIRE(ag.getEdge(n0, n2) == false);
+            REQUIRE(ag.getEdge(n2, n0) == false);
+
+            //change undirect but in opposite direction
+            ag.changeWeightUndirectedEdge(n2, n0, true);
+            REQUIRE(ag.getEdge(n0, n2) == true);
+            REQUIRE(ag.getEdge(n2, n0) == true);
         }
     }
 }
