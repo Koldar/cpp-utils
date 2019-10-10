@@ -423,6 +423,29 @@ public:
     virtual bool isEmpty() const = 0;
 public:
     /**
+     * @brief create a new copy of the whole graph but perform a mapping function over the edges
+     * 
+     * @tparam OUT type of the edge payload in the output graph
+     * @param edgeMapper 
+     * @return std::unique_ptr<IImmutableGraph<G, V, OUT>> 
+     */
+    template<typename OUT>
+    std::unique_ptr<IImmutableGraph<G, V, OUT>> mapEdges(std::function<OUT(E)> edgeMapper) const {
+        ListGraph<G, V, OUT>* result = new ListGraph<G, V, OUT>{this->getPayload()};
+
+        //vertices
+        for (nodeid_t sourceId=0; sourceId<this->numberOfVertices(); ++sourceId) {
+            result->addVertex(this->getVertex(sourceId));
+        }
+
+        //edges
+        for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+            result->addEdge(it->getSourceId(), it->getSinkId(), edgeMapper(it->getPayload()));
+        }
+
+        return std::unique_ptr<IImmutableGraph<G, V, OUT>>{result};
+    }
+    /**
      * @brief lots of graph implementation require that the ids starts from 0 and are contiguous
      * 
      * @return true if such assertion is true

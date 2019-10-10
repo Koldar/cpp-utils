@@ -16,6 +16,7 @@
 #include "KHeaps.hpp"
 #include "Timer.hpp"
 #include "operators.hpp"
+#include "functional.hpp"
 #include <unistd.h>
 #include <functional>
 
@@ -72,6 +73,19 @@ public:
         return RefClass{refGoingToDie};
     }
 };
+
+SCENARIO("functional test") {
+
+    identity<int> x{};
+    identity<int*> y;
+
+    REQUIRE(identity<int>{}(5) == 5);
+
+    REQUIRE(x(5) == 5);
+    REQUIRE(identity<int>::value(5) == 5);
+    REQUIRE(y(nullptr) == nullptr);
+    REQUIRE(identity<int*>::value(nullptr) == nullptr);
+}
 
 
 SCENARIO("test reference dying lead to UB", "[cpp-tests]") {
@@ -785,6 +799,21 @@ SCENARIO("test adjacent graph") {
             REQUIRE(ag.getEdge(n0, n2) == true);
             REQUIRE(ag.getEdge(n2, n0) == true);
         }
+
+        WHEN("testing mapper") {
+            AdjacentGraph<int, int, int> ag3{*ag.mapEdges<int>([&](bool b) { return b? 10: 5;})};
+
+            REQUIRE(ag3.getPayload() == ag.getPayload());
+            REQUIRE(ag3.numberOfVertices() == ag.numberOfVertices());
+            REQUIRE(ag3.numberOfEdges() == ag.numberOfEdges());
+
+            REQUIRE(ag3.getEdge(n0, n1) == 10);
+            REQUIRE(ag3.getEdge(n0, n2) == 10);
+            REQUIRE(ag3.getEdge(n2, n3) == 10);
+            REQUIRE(ag3.getEdge(n2, n0) == 10);
+
+            REQUIRE(ag.containsEdge(n4, n3) == false);
+        }
     }
 }
 
@@ -937,16 +966,15 @@ class Foo: public HasPriority {
 
         }
         Foo& operator =(const Foo& other) {
-            this->content = 
-            other.content;
+            this->content = other.content;
             this->value = other.value;
             this->p = other.p;
             return *this;
         }
-        priority_t getPriority() const {
+        priority_t getPriority(const void* q) const {
             return this->p;
         }
-        void setPriority(priority_t p) {
+        void setPriority(const void* q, priority_t p) {
             this->p = p;
         }
     };

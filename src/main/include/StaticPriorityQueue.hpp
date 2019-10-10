@@ -19,21 +19,27 @@ typedef unsigned long priority_t;
  * 
  * The item itself should see this priority as just a random number and nothing more.
  * For sorting the elements in the queue, the item should implement the operator \f$<\f$
+ * 
+ * The class is not templated with the context type because the interface reprsents that the object has a priority,
+ * but it does say who is going to exploit the priority. Hence the `void*` in the methods: everyone can potentially use
+ * the same getPriority and setPriority methods.
  */
 class HasPriority {
 public:
     /**
      * @brief Get the Priority object
      * 
+     * @param context the queue whose priority you need to retrieve. Essential if the item belong to multiple queues.
      * @return priority_t thew priority of the object
      */
-    virtual priority_t getPriority() const = 0;
+    virtual priority_t getPriority(const void* context) const = 0;
     /**
      * @brief Set the Priority object
      * 
+     * @param context the queue whose priority you need to retrieve. Essential if the item belong to multiple queues.
      * @param p the priority to set
      */
-    virtual void setPriority(priority_t p) = 0;
+    virtual void setPriority(const void* context, priority_t p) = 0;
 };
 
 /**
@@ -79,10 +85,10 @@ public:
         return *this;
     }
 public:
-    priority_t getPriority() const {
+    priority_t getPriority(const void* context) const {
         return this->priority;
     }
-    void setPriority(priority_t p) {
+    void setPriority(const void* context, priority_t p) {
         this->priority = p;
     }
 };
@@ -111,15 +117,13 @@ class StaticPriorityQueue : public IQueue<ITEM> {
         /**
          * @brief true if the queue put as head the item with least priority 
          * 
-         * false if the queue puts the item with highest priority
-         * 
+         * @c false if the queue puts the item with highest priority
          */
 		bool minqueue;
         /**
          * @brief number of elements in the queue
          * 
          * It is always less of ::capacity
-         * 
          */
 		unsigned int qsize;
         /**
@@ -197,11 +201,11 @@ class StaticPriorityQueue : public IQueue<ITEM> {
          * @param val 
          */
 		void decrease_key(ITEM& val) {
-            assert(val.getPriority() < this->qsize);
+            assert(val.getPriority(this) < this->qsize);
             if(this->minqueue) {
-                heapify_up(val.getPriority());
+                heapify_up(val.getPriority(this));
             } else {
-                heapify_down(val.getPriority());
+                heapify_down(val.getPriority(this));
             }
         }
 
@@ -221,11 +225,11 @@ class StaticPriorityQueue : public IQueue<ITEM> {
          * @param val 
          */
 		void increase_key(ITEM& val) {
-            assert(val.getPriority() < this->qsize);
+            assert(val.getPriority(this) < this->qsize);
             if(this->minqueue) {
-                heapify_down(val.getPriority());
+                heapify_down(val.getPriority(this));
             } else {
-                heapify_up(val.getPriority());
+                heapify_up(val.getPriority(this));
             }
         }
 
@@ -244,7 +248,7 @@ class StaticPriorityQueue : public IQueue<ITEM> {
             }
             priority_t priority = this->qsize;
             this->heap[priority] = &val; //since &(ref of obj) == &obj we can safely do this
-            val.setPriority(priority);
+            val.setPriority(this, priority);
             
             this->qsize += 1;
             this->heapify_up(priority);
@@ -266,7 +270,7 @@ class StaticPriorityQueue : public IQueue<ITEM> {
 
             if(this->qsize > 0) {
                 this->heap[0] = this->heap[this->qsize];
-                this->heap[0]->setPriority(0);
+                this->heap[0]->setPriority(this, 0);
                 heapify_down(0);
             }
             return result;
@@ -283,7 +287,7 @@ class StaticPriorityQueue : public IQueue<ITEM> {
          * @return false if the element is not in the queue
          */
 		inline bool contains(const ITEM& n) const {
-            priority_t priority = n.getPriority();
+            priority_t priority = n.getPriority(this);
             //if((priority < this->size) && &*n == &*this->heap[priority])
             //&(const ref of obj) == &obj
             if((priority < this->qsize) && (n == (*(this->heap[priority])))) {
@@ -410,16 +414,16 @@ class StaticPriorityQueue : public IQueue<ITEM> {
 		inline void swap(priority_t index1, priority_t index2) {
 			assert(index1 < this->qsize && index2 < this->qsize);
 
-            priority_t p1 = this->heap[index1]->getPriority();
-            priority_t p2 = this->heap[index2]->getPriority();
+            priority_t p1 = this->heap[index1]->getPriority(this);
+            priority_t p2 = this->heap[index2]->getPriority(this);
 
             //swap positions
             ITEM* tmp = this->heap[index1];
 			this->heap[index1] = this->heap[index2];
             this->heap[index2] = tmp;
             //swap priorities: @ index1 we should put the priority of the old index1
-            this->heap[index1]->setPriority(p1);
-            this->heap[index2]->setPriority(p2);
+            this->heap[index1]->setPriority(this, p1);
+            this->heap[index2]->setPriority(this, p2);
 		}
 };
 
