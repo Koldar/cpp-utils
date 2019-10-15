@@ -8,6 +8,7 @@
 #include <cstdarg>
 #include "strings.hpp"
 #include "log.hpp"
+#include "file_utils.hpp"
 
 namespace cpp_utils::exceptions {
 

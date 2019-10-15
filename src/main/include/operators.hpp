@@ -93,6 +93,39 @@ namespace std {
 			return seed;
 		}
 	};
+
+	template <typename T0>
+	struct hash<tuple<T0>> {
+		size_t operator() (const std::tuple<T0>& t) const {
+			size_t seed = 0;
+
+			boost::hash_combine(seed, std::get<0>(t));
+			return seed;
+		}
+	};
+
+	template <typename T0, typename T1>
+	struct hash<tuple<T0, T1>> {
+		size_t operator() (const std::tuple<T0, T1>& t) const {
+			size_t seed = 0;
+
+			boost::hash_combine(seed, std::get<0>(t));
+			boost::hash_combine(seed, std::get<1>(t));
+			return seed;
+		}
+	};
+
+	template <typename T0, typename T1, typename T2>
+	struct hash<tuple<T0, T1, T2>> {
+		size_t operator() (const std::tuple<T0, T1, T2>& t) const {
+			size_t seed = 0;
+
+			boost::hash_combine(seed, std::get<0>(t));
+			boost::hash_combine(seed, std::get<1>(t));
+			boost::hash_combine(seed, std::get<2>(t));
+			return seed;
+		}
+	};
 }
 
 

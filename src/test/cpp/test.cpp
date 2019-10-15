@@ -17,8 +17,11 @@
 #include "Timer.hpp"
 #include "operators.hpp"
 #include "functional.hpp"
+#include "Interval.hpp"
 #include <unistd.h>
 #include <functional>
+#include "CSVWriter.hpp"
+#include "Random.hpp"
 
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
@@ -73,6 +76,151 @@ public:
         return RefClass{refGoingToDie};
     }
 };
+
+SCENARIO("test random") {
+
+    timespec seed;
+    clock_gettime(CLOCK_MONOTONIC , &seed);
+
+    Random rnd{(unsigned int)seed.tv_nsec};
+
+    GIVEN("random") {
+        // REQUIRE(rnd.next(5, 6, false) == 5);
+
+        for (int i=0; i<1000; ++i) {
+            auto x = rnd.next(5, 6, true);
+            if (x != 5 && x != 6) {
+                REQUIRE(false);
+            }
+        }
+
+        for (int i=0; i<1000; ++i) {
+            auto x = rnd.next(5, 10, false);
+            if (x != 5 && x != 6 && x != 7 && x!= 8 && x != 9) {
+                REQUIRE(false);
+            }
+        }
+        
+    }
+
+    GIVEN("flip") {
+        
+
+        int trials = 10000;
+        int okNum = 0;
+        int koNum = 0;
+        int fairDiff = 500;
+
+        WHEN("fair coin") {
+            for (int i=0; i<trials; ++i) {
+                if (rnd.flip(0.5)) {
+                    okNum += 1;
+                } else {
+                    koNum += 1;
+                }
+            }
+
+            REQUIRE(Interval<int>{static_cast<int>(trials*0.5 - fairDiff), static_cast<int>(trials*0.5 + fairDiff), true, true}.contains(okNum));
+        }
+
+        WHEN("not fair coin") {
+            for (int i=0; i<trials; ++i) {
+                if (rnd.flip(0.8)) {
+                    okNum += 1;
+                } else {
+                    koNum += 1;
+                }
+            }
+
+            REQUIRE(Interval<int>{static_cast<int>(trials*0.8 - fairDiff), static_cast<int>(trials*0.8 + fairDiff), true, true}.contains(okNum));
+        }
+    }
+}
+
+SCENARIO("test csv") {
+    vectorplus<std::string> header{};
+    header.add("int_field");
+    header.add("bool_field");
+    boost::filesystem::path p{"./test.csv"};
+    CSVWriter<int, bool> writer{p, ',', header};
+    writer.writeRow(5, true);
+    writer.writeRow(6, false);
+}
+
+SCENARIO("test system interface") {
+
+    GIVEN("isProgramInstalled") {
+
+        REQUIRE(isProgramInstalled("echo"));
+        REQUIRE_FALSE(isProgramInstalled("echobooo"));
+    }
+
+    GIVEN("callPyEval") {
+
+        REQUIRE(callPyEval("100*{V}", false, "V", 50) == "100*50");
+        REQUIRE(callPyEvalWithEval("100*{V}", "V", 50) == "5000");
+        REQUIRE(callPyEvalWithEval("100*{V}+{E}", "V", 50, "E", 100) == "5100");
+    }
+}
+
+SCENARIO("test Interval") {
+
+    GIVEN("testing methods") {
+
+        Interval<int> a{4, 6, true, false};
+
+        REQUIRE(a.getLB() == 4);
+        REQUIRE(a.getUB() == 5);
+    }
+
+    GIVEN("parse interval") {
+
+        WHEN("both exclusive") {
+            auto a = Interval<int>::fromMath("(5,16)");
+
+            REQUIRE(a.getLB() == 6);
+            REQUIRE(a.getUB() == 15);
+
+            a = Interval<int>::fromMath("]5,16[");
+
+            REQUIRE(a.getLB() == 6);
+            REQUIRE(a.getUB() == 15);
+        }
+
+        WHEN("lb inclusive") {
+            auto a = Interval<int>::fromMath("[5,16)");
+
+            REQUIRE(a.getLB() == 5);
+            REQUIRE(a.getUB() == 15);
+
+            a = Interval<int>::fromMath("[5,16[");
+
+            REQUIRE(a.getLB() == 5);
+            REQUIRE(a.getUB() == 15);
+        }
+
+        WHEN("ub inclusive") {
+            auto a = Interval<int>::fromMath("(5,16]");
+
+            REQUIRE(a.getLB() == 6);
+            REQUIRE(a.getUB() == 16);
+
+            a = Interval<int>::fromMath("]5,16]");
+
+            REQUIRE(a.getLB() == 6);
+            REQUIRE(a.getUB() == 16);
+        }
+
+        WHEN("both inclusive") {
+            auto a = Interval<int>::fromMath("[5,16]");
+
+            REQUIRE(a.getLB() == 5);
+            REQUIRE(a.getUB() == 16);
+        }
+
+    }
+    
+}
 
 SCENARIO("functional test") {
 
@@ -682,6 +830,13 @@ SCENARIO("test adjacent graph") {
 
         AdjacentGraph<int, int, bool> ag{lg};
         REQUIRE(ag.getPayload() == 20);
+
+        WHEN("test getEdgeSet") {
+            auto set = ag.getEdgeSet(false);
+
+            critical("set is", set);
+            REQUIRE(set.contains(std::make_tuple<nodeid_t, nodeid_t>(::std::move(n0), ::std::move(n1))));
+        }
 
         WHEN("saving and loading") {
             boost::filesystem::path p{"./save.dat"};

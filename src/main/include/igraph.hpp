@@ -6,7 +6,10 @@
 #include "iterator.hpp"
 #include "operators.hpp"
 #include "ppmImage.hpp"
+#include "SetPlus.hpp"
 #include "log.hpp"
+#include "Random.hpp"
+#include <tuple>
 #include <climits>
 #include <vector>
 #include <utility>
@@ -422,6 +425,60 @@ public:
     virtual std::vector<OutEdge<E>> getOutEdges(nodeid_t id) const = 0;
     virtual bool isEmpty() const = 0;
 public:
+    /**
+     * @brief Get a random vertex id of the graph
+     * 
+     * @return nodeid_t 
+     */
+    nodeid_t getRandomVertex() const {
+        int node = Random::nextNum(0, this->numberOfVertices());
+        for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
+            if (node == 0) {
+                return it->first;
+            } else {
+                node -= 1;
+            }
+        }
+    }
+
+    /**
+     * @brief generate a set containing all the 
+     * 
+     * @param ignore_opposites true if you want to generate `a->b` but not `b->a`. false otherwise
+     * @return unordered_set<tuple<nodeid_t, nodeid_t>> set containing tuple specifying edges
+     */
+    SetPlus<std::tuple<nodeid_t, nodeid_t>> getEdgeSet(bool ignore_opposites) const {
+        SetPlus<std::tuple<nodeid_t, nodeid_t>> result{};
+        for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+            nodeid_t sourceId = it->getSourceId();
+            nodeid_t sinkId = it->getSinkId();
+            if (ignore_opposites) {
+                auto oppositeTuple = std::make_tuple<nodeid_t, nodeid_t>(std::move(sinkId), std::move(sourceId));
+                if (!result.contains(oppositeTuple)) {
+                    result.add(std::make_tuple<nodeid_t, nodeid_t>(::std::move(sourceId), ::std::move(sinkId)));
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @brief Get a random edge id in the graph
+     * 
+     * @param sourceId 
+     * @param sinkId 
+     */
+    void getRandomEdge(nodeid_t& sourceId, nodeid_t sinkId) const {
+        int edge = Random::nextNum(0, this->numberOfEdges());
+        for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+            if (edge == 0) {
+                sourceId = it->getSourceId();
+                sinkId = it->getSinkId();
+            } else {
+                edge -= 1;
+            }
+        }
+    }
     /**
      * @brief create a new copy of the whole graph but perform a mapping function over the edges
      * 
