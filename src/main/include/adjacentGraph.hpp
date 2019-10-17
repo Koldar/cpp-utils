@@ -14,45 +14,45 @@ class AdjacentGraph;
 
 namespace cpp_utils::serializers {
 
-/**
- * Save the current graph into a file
- *
- * @pre
- *  @li @c f open with "wb";
- * @post
- *  @li @c f modified;
- *  @li @c f cursor modified;
- *
- * @param[in] f the file to save the graph into
- */
-template <typename G, typename V, typename E>
-void saveInFile(FILE* f, const cpp_utils::graphs::AdjacentGraph<G,V,E>& g)  {
-    saveInFile(f, g.payload);
-    saveInFile<V>(f, g.vertexPayload);
-    saveInFile<cpp_utils::graphs::OutEdge<E>>(f, g.edges);
-    saveInFile<int>(f, g.outEdgesOfvertexBegin);
-}
+    /**
+     * Save the current graph into a file
+     *
+     * @pre
+     *  @li @c f open with "wb";
+     * @post
+     *  @li @c f modified;
+     *  @li @c f cursor modified;
+     *
+     * @param[in] f the file to save the graph into
+     */
+    template <typename G, typename V, typename E>
+    void saveToFile(FILE* f, const cpp_utils::graphs::AdjacentGraph<G,V,E>& g)  {
+        saveToFile(f, g.payload);
+        saveToFile<V>(f, g.vertexPayload);
+        saveToFile<cpp_utils::graphs::OutEdge<E>>(f, g.edges);
+        saveToFile<int>(f, g.outEdgesOfvertexBegin);
+    }
 
-/**
- * Load a graph from a file in the filesystem
- *
- * @pre
- *  @li @c f open in "rb";
- * @post
- *  @li @c f cursor modified;
- *
- * @param[in] f the file to read the graph from;
- * @return the graph loaded
- */
-template <typename G, typename V, typename E>
-cpp_utils::graphs::AdjacentGraph<G,V,E>& loadFromFile(FILE* f, cpp_utils::graphs::AdjacentGraph<G,V,E>& result) {
-    loadFromFile(f, result.payload);
-    loadFromFile(f, result.vertexPayload);
-    loadFromFile<cpp_utils::graphs::OutEdge<E>>(f, result.edges);
-    loadFromFile<int>(f, result.outEdgesOfvertexBegin);
+    /**
+     * Load a graph from a file in the filesystem
+     *
+     * @pre
+     *  @li @c f open in "rb";
+     * @post
+     *  @li @c f cursor modified;
+     *
+     * @param[in] f the file to read the graph from;
+     * @return the graph loaded
+     */
+    template <typename G, typename V, typename E>
+    cpp_utils::graphs::AdjacentGraph<G,V,E>& loadFromFile(FILE* f, cpp_utils::graphs::AdjacentGraph<G,V,E>& result) {
+        loadFromFile(f, result.payload);
+        loadFromFile(f, result.vertexPayload);
+        loadFromFile<cpp_utils::graphs::OutEdge<E>>(f, result.edges);
+        loadFromFile<int>(f, result.outEdgesOfvertexBegin);
 
-    return result;
-}
+        return result;
+    }
 
 }
 
@@ -87,7 +87,7 @@ private:
      */
     std::vector<int> outEdgesOfvertexBegin;
 public:
-    friend void cpp_utils::serializers::saveInFile<>(FILE* f, const AdjacentGraph<G,V,E>& g);
+    friend void cpp_utils::serializers::saveToFile<>(FILE* f, const AdjacentGraph<G,V,E>& g);
     friend AdjacentGraph<G,V,E>& cpp_utils::serializers::loadFromFile<>(FILE* f, AdjacentGraph<G,V,E>& result);
 public:
     AdjacentGraph<G,V,E>(): payload{}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {

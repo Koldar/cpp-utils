@@ -7,6 +7,38 @@
 namespace cpp_utils {
 
     /**
+     * @brief parse a number from a string
+     * 
+     * @tparam T the type of the number to parse
+     * @param s the string representing a number
+     * @return T the parsed number
+     */
+    template <typename T>
+    T parseFromString(const std::string& s) {
+  
+        // object from the class stringstream 
+        std::stringstream converter(s); 
+    
+        // The object has the value 12345 and stream 
+        // it to the integer x 
+        T x; 
+        converter >> x; 
+        return x; 
+    }
+
+    /**
+     * @brief parse a number from a string
+     * 
+     * @tparam T the type of the number to parse
+     * @param s the string representing a number
+     * @return T the parsed number
+     */
+    template <typename T>
+    T parseFromString(const char* s) {
+        return parseFromString<T>(std::string{s});
+    }
+
+    /**
      * @brief check if 2 decimal numbers are more or less equal
      * 
      * @tparam T either float or double

@@ -137,6 +137,34 @@ SCENARIO("test random") {
     }
 }
 
+SCENARIO("test SetPlus") {
+
+    GIVEN("a set") {
+
+        SetPlus<int> set{};
+
+        set.add(5);
+        set.add(7);
+        set.add(9);
+
+        WHEN("saving an loading") {
+            boost::filesystem::path p{"./saveSet.dat"};
+            FILE* f = fopen(p.native().c_str(), "wb");
+            serializers::saveToFile(f, set);
+            fclose(f);
+
+            f = nullptr;
+
+            f = fopen(p.native().c_str(), "rb");
+            SetPlus<int> set2{};
+            serializers::loadFromFile(f, set2);
+            fclose(f);
+
+            REQUIRE(set2 == set);
+        }
+    }
+}
+
 SCENARIO("test csv") {
     vectorplus<std::string> header{};
     header.add("int_field");
@@ -160,6 +188,8 @@ SCENARIO("test system interface") {
         REQUIRE(callPyEval("100*{V}", false, "V", 50) == "100*50");
         REQUIRE(callPyEvalWithEval("100*{V}", "V", 50) == "5000");
         REQUIRE(callPyEvalWithEval("100*{V}+{E}", "V", 50, "E", 100) == "5100");
+        REQUIRE((callPyEvalAndCastNumberTo<int>("100*{V}+{E}", "V", 50, "E", 100) == 5100));
+        REQUIRE((callPyEvalAndCastNumberTo<int>("100*{V}+log({E}, 10)", "V", 50, "E", 100) == 5002));
     }
 }
 
@@ -386,6 +416,24 @@ SCENARIO("test ceil power") {
     REQUIRE(pow2GreaterThan(3) == 4);
     REQUIRE(pow2GreaterThan(4) == 4);
     REQUIRE(pow2GreaterThan(5) == 8);
+}
+
+SCENARIO("test number parsing") {
+
+    GIVEN("testnig int") {
+        REQUIRE(parseFromString<int>("0") == 0);
+        REQUIRE(parseFromString<int>("12") == 12);
+        REQUIRE(parseFromString<int>("-12") == -12);
+    }
+
+    GIVEN("testing double") {
+        REQUIRE(isApproximatelyEqual(parseFromString<double>("0"), 0., 1e-3));
+        REQUIRE(isApproximatelyEqual(parseFromString<double>("12"), 12., 1e-3));
+        REQUIRE(isApproximatelyEqual(parseFromString<double>("-12"), -12., 1e-3));
+        REQUIRE(isApproximatelyEqual(parseFromString<double>("12.33"), 12.33, 1e-3));
+        REQUIRE(isApproximatelyEqual(parseFromString<double>("-12.33"), -12.33, 1e-3));
+    }
+
 }
 
 SCENARIO("test log") {
@@ -803,6 +851,32 @@ SCENARIO("test MapPlus") {
     }
 }
 
+SCENARIO("test edges") {
+
+    GIVEN("an edge") {
+        Edge<bool> edge{0, 5, true};
+
+        WHEN("save edge") {
+            boost::filesystem::path p{"./saveEdge.dat"};
+            FILE* f = fopen(p.native().c_str(), "wb");
+
+            cpp_utils::serializers::saveToFile(f, edge);
+            fclose(f);
+
+            f = nullptr;
+
+            Edge<bool> edge2;
+            f = fopen(p.native().c_str(), "rb");
+            cpp_utils::serializers::loadFromFile(f, edge2);
+            fclose(f);
+
+            REQUIRE(edge == edge2);
+        }
+    }
+    
+
+}
+
 SCENARIO("test adjacent graph") {
     GIVEN("an empty graph") {
         ListGraph<int, int, int> lg{20};
@@ -835,7 +909,20 @@ SCENARIO("test adjacent graph") {
             auto set = ag.getEdgeSet(false);
 
             critical("set is", set);
-            REQUIRE(set.contains(std::make_tuple<nodeid_t, nodeid_t>(::std::move(n0), ::std::move(n1))));
+            REQUIRE(set.contains(Edge<bool>{n0, n1, true}));
+            REQUIRE_FALSE(set.contains(Edge<bool>{n0, n1, false}));
+            REQUIRE_FALSE(set.contains(Edge<bool>{n0, n4, false}));
+            REQUIRE(set.contains(Edge<bool>{n0, n2, true}));
+            REQUIRE(set.contains(Edge<bool>{n2, n0, true}));
+            REQUIRE(set.size() == 5);
+
+            set = ag.getEdgeSet(true);
+
+            REQUIRE(set.contains(Edge<bool>{n0, n1, true}));
+            REQUIRE_FALSE(set.contains(Edge<bool>{n0, n1, false}));
+            REQUIRE_FALSE(set.contains(Edge<bool>{n0, n4, false}));
+            REQUIRE(set.contains(Edge<bool>{n0, n2, true}) != set.contains(Edge<bool>{n2, n0, true})); //XOR
+            REQUIRE(set.size() == 4);
         }
 
         WHEN("saving and loading") {
@@ -843,7 +930,7 @@ SCENARIO("test adjacent graph") {
             FILE* f = fopen(p.native().c_str(), "wb");
 
             //save
-            cpp_utils::serializers::saveInFile(f, ag);
+            cpp_utils::serializers::saveToFile(f, ag);
             fclose(f);
             REQUIRE(boost::filesystem::exists(p));
 

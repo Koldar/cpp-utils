@@ -210,7 +210,7 @@ public:
     }
 
     template<typename OUTPUT>
-    vectorplus<OUTPUT> map(std::function<OUTPUT(EL)> lambda) const {
+    vectorplus<OUTPUT> map(std::function<OUTPUT(const EL&)> lambda) const {
         vectorplus<OUTPUT> result{};
         for (auto el: *this) {
             result.add(lambda(el));
@@ -224,7 +224,7 @@ public:
      * @param lambda the filter
      * @return vectorplus<EL> a new vector
      */
-    vectorplus<EL> filter(std::function<bool(EL)> lambda) const {
+    vectorplus<EL> filter(std::function<bool(const EL&)> lambda) const {
         vectorplus<EL> result{};
         for (auto el: *this) {
             if (lambda(el)) {

@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sstream>
 #include "exceptions.hpp"
+#include "math.hpp"
 
 namespace cpp_utils {
 
@@ -84,7 +85,7 @@ namespace cpp_utils {
      * 
      * @tparam OTHERS 
      * @param template template string to pass to pyEval
-     * @parma python flag to pass to pyEval
+     * @param python flag to pass to pyEval
      * @param args arguments to pass to pyEval
      * @return std::string output of pyEval
      */
@@ -108,8 +109,18 @@ namespace cpp_utils {
     }
 
     template <typename... OTHERS>
+    std::string callPyEvalWithoutEval(const std::string& templateString, const OTHERS&... args) {
+        return callPyEval(templateString, false, args...);
+    }
+
+    template <typename... OTHERS>
     std::string callPyEvalWithEval(const std::string& templateString, const OTHERS&... args) {
         return callPyEval(templateString, true, args...);
+    }
+
+    template <typename OUT, typename... OTHERS>
+    OUT callPyEvalAndCastNumberTo(const std::string& templateString, const OTHERS&... args) {
+        return parseFromString<OUT>(callPyEval(templateString, true, args...));
     }
 
 };
