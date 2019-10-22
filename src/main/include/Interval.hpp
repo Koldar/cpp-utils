@@ -82,11 +82,12 @@ namespace cpp_utils {
          * @return the Interval structure generated
          */
         static Interval<int> fromMath(const std::string& mathInterval) {
-            std::regex re{"^([\\[\\]\\(])(\\d+),(\\d+)([\\[\\]\\)])$"};
+            std::regex re{"^([\\[\\]\\(])(\\d+)\\s*,\\s*(\\d+)([\\[\\]\\)])$"};
             std::smatch matches;
             bool canMatch = std::regex_match(mathInterval, matches, re);
             if (!canMatch) {
-                throw std::invalid_argument{"retgex didn't match"};
+                error("interval was \"", mathInterval, "\"");
+                throw std::invalid_argument{"regex didn't match"};
             }
 
             Interval<int> result{0, 0, true, true};

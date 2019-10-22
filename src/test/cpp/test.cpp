@@ -22,6 +22,7 @@
 #include <functional>
 #include "CSVWriter.hpp"
 #include "Random.hpp"
+#include "profiling.hpp"
 
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
@@ -77,6 +78,17 @@ public:
     }
 };
 
+SCENARIO("test open file descriptors") {
+
+    GIVEN("testing pid") {
+
+        REQUIRE(cpp_utils::getCurrentPID() > 0);
+
+        info("open files: ", cpp_utils::getOpenFileDescriptors());
+        REQUIRE(cpp_utils::getOpenFileDescriptors().size() >= 6);
+    }
+}
+
 SCENARIO("test random") {
 
     timespec seed;
@@ -100,6 +112,12 @@ SCENARIO("test random") {
                 REQUIRE(false);
             }
         }
+
+        WHEN("testing empty range") {
+            REQUIRE(rnd.next(5,6, false) == 5);
+            REQUIRE(rnd.next(5,5, true) == 5);
+        }
+
         
     }
 
@@ -249,6 +267,13 @@ SCENARIO("test Interval") {
         }
 
     }
+
+    GIVEN("interval with one value") {
+        auto a = Interval<int>::fromMath("[5,5]");
+
+        REQUIRE(a.getLB() == 5);
+        REQUIRE(a.getUB() == 5);
+    }
     
 }
 
@@ -355,6 +380,16 @@ SCENARIO("test timer") {
             t.stop();
             REQUIRE(t.isRunning() == false);
         }
+    }
+
+    GIVEN("PROFILE_TIME") {
+        timing_t timeGap;
+        PROFILE_TIME(timeGap) {
+            usleep(5000); //microseconds
+        }
+
+
+        REQUIRE(timeGap >= 4950);
     }
 }
 
@@ -899,11 +934,28 @@ SCENARIO("test adjacent graph") {
         lg.addEdge(n0, n1, true);
         lg.addEdge(n0, n2, true);
         lg.addEdge(n2, n3, true);
-        lg.addEdge(n3, n4, true);
         lg.addEdge(n2, n0, true);
+        lg.addEdge(n3, n4, true);
+
+        REQUIRE(lg.containsEdge(n0, n2));
+        REQUIRE(lg.containsEdge(n2, n0));
 
         AdjacentGraph<int, int, bool> ag{lg};
+
+        // ag.saveBMP("adj_nonempty");
+        // lg.saveBMP("list_nonempty");
+        REQUIRE(lg == ag);
         REQUIRE(ag.getPayload() == 20);
+        REQUIRE(ag.containsEdge(n0, n2));
+        REQUIRE(ag.containsEdge(n2, n0));
+
+        WHEN("testing iterator") {
+            int i= 0;
+            for (auto it=ag.beginEdges(); it!=ag.endEdges(); ++it) {
+                i += 1;
+            }
+            REQUIRE(i == 5);
+        }
 
         WHEN("test getEdgeSet") {
             auto set = ag.getEdgeSet(false);
@@ -1080,6 +1132,14 @@ SCENARIO("test graphs") {
         g.addEdge(n0, n2, true);
         g.addEdge(n2, n3, true);
         g.addEdge(n3, n4, true);
+
+        WHEN("iterate over graph edges") {
+            int i= 0;
+            for (auto it=g.beginEdges(); it!=g.endEdges(); ++it) {
+                i += 1;
+            }
+            REQUIRE(i == 4);
+        }
 
         WHEN("copy listgraph") {
             ListGraph<int, int, bool> g2{g};

@@ -7,11 +7,22 @@
 
 namespace cpp_utils::graphs {
 
+/**
+ * @brief A list graph is a graph where each vertex and edges are stored in a vector
+ * 
+ * vertex index is the id of the vertex.
+ * edges are sorted in a vector such that:
+ *  - edges with sourceId comes first
+ *  - edges with the same sourceId are unsorted;
+ * 
+ * @tparam G 
+ * @tparam V 
+ * @tparam E 
+ */
 template <typename G, typename V, typename E>
 class ListGraph : public IVertexExtendableGraph<G,V,E> {
 public:
     using const_vertex_iterator = PairNumberContainerBasedConstIterator<std::vector<V>, nodeid_t, V>;
-    using const_edge_iterator = DefaultNumberContainerBasedConstIterator<std::vector<Edge<E>>, Edge<E>>;
 private:
     std::vector<V> vertexPayload;
     std::vector<Edge<E>> edges;
@@ -59,19 +70,22 @@ public:
 
     virtual typename IImmutableGraph<G,V,E>::const_edge_iterator beginEdges() const {
         debug("calling beginEdges...");
-        const_edge_iterator* it = new const_edge_iterator{const_edge_iterator::cbegin(this->edges)};
-        return typename IImmutableGraph<G,V,E>::const_edge_iterator{it};
+        return typename IImmutableGraph<G,V,E>::const_edge_iterator{new DefaultNumberContainerBasedConstIterator<std::vector<Edge<E>>, Edge<E>>{0, this->edges}};
     }
     virtual typename IImmutableGraph<G,V,E>::const_edge_iterator endEdges() const {
         debug("calling endEdges...");
-        const_edge_iterator* it = new const_edge_iterator{const_edge_iterator::cend(this->edges)};
-        return typename IImmutableGraph<G,V,E>::const_edge_iterator{it};
+        return typename IImmutableGraph<G,V,E>::const_edge_iterator{new DefaultNumberContainerBasedConstIterator<std::vector<Edge<E>>, Edge<E>>{-1, this->edges}};
     }
     virtual const V& getVertex(nodeid_t id) const {
         return this->vertexPayload[id];
     }
     virtual const E& getEdge(nodeid_t sourceId, nodeid_t sinkId) const {
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+            if (it->getSourceId() > sourceId) {
+                //since in the list graph the edges are sorted from sourceId, as soon we find an edge which sourceId is greater than id
+                // we can safely stop
+                break;
+            }
             if (it->isCompliant(sourceId, sinkId)) {
                 return (*it).getPayload();
             }
@@ -98,6 +112,11 @@ public:
     virtual size_t getOutDegree(nodeid_t id) const {
         size_t result = 0;
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+            if (it->getSourceId() > id) {
+                //since in the list graph the edges are sorted from sourceId, as soon we find an edge which sourceId is greater than id
+                // we can safely stop
+                break;
+            }
             if (it->getSourceId() == id) {
                 result += 1;
             }
@@ -115,6 +134,11 @@ public:
     }
     virtual bool hasSuccessors(nodeid_t id) const {
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+            if (it->getSourceId() > id) {
+                //since in the list graph the edges are sorted from sourceId, as soon we find an edge which sourceId is greater than id
+                // we can safely stop
+                break;
+            }
             if (it->getSourceId() == id) {
                 return true;
             }
@@ -131,6 +155,11 @@ public:
     }
     virtual OutEdge<E> getOutEdge(nodeid_t id, moveid_t index) const {
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+            if (it->getSourceId() > id) {
+                //since in the list graph the edges are sorted from sourceId, as soon we find an edge which sourceId is greater than id
+                // we can safely stop
+                break;
+            }
             if (it->getSourceId() == id) {
                 if (index == 0) {
                     return OutEdge<E>{it->getSinkId(), it->getPayload()};
@@ -144,6 +173,11 @@ public:
     
     virtual bool hasEdge(nodeid_t sourceId, nodeid_t sinkId) const {
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+            if (it->getSourceId() > sourceId) {
+                //since in the list graph the edges are sorted from sourceId, as soon we find an edge which sourceId is greater than id
+                // we can safely stop
+                break;
+            }
             if (it->isCompliant(sourceId, sinkId)) {
                 return true;
             }
@@ -162,6 +196,11 @@ public:
     virtual std::vector<OutEdge<E>> getOutEdges(nodeid_t id) const {
         std::vector<OutEdge<E>> result{};
         for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+            if (it->getSourceId() > id) {
+                //since in the list graph the edges are sorted from sourceId, as soon we find an edge which sourceId is greater than id
+                // we can safely stop
+                break;
+            }
             if (it->hasSource(id)) {
                 result.push_back(OutEdge<E>{*it});
             }
@@ -176,6 +215,11 @@ public:
     }
     virtual bool containsEdge(nodeid_t sourceId, nodeid_t sinkId, const E& payload) const {
         for (auto i=0; i<this->edges.size(); ++i) {
+            if (this->edges[i].getSourceId() > sourceId) {
+                //since in the list graph the edges are sorted from sourceId, as soon we find an edge which sourceId is greater than id
+                // we can safely stop
+                break;
+            }
             if (this->edges[i].isCompliant(sourceId, sinkId) && this->edges[i].getPayload() == payload) {
                 return true;
             }
@@ -185,6 +229,11 @@ public:
     //FIXME remove HasEdge from the interface... containsEdge is the same!
     virtual bool containsEdge(nodeid_t sourceId, nodeid_t sinkid) const {
         for (auto i=0; i<this->edges.size(); ++i) {
+            if (this->edges[i].getSourceId() > sourceId) {
+                //since in the list graph the edges are sorted from sourceId, as soon we find an edge which sourceId is greater than id
+                // we can safely stop
+                break;
+            }
             if (this->edges[i].isCompliant(sourceId, sinkid)) {
                 return true;
             }
@@ -194,6 +243,11 @@ public:
 public:
     virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) {
         for (auto i=0; i<this->edges.size(); ++i) {
+            if (this->edges[i].getSourceId() > sourceId) {
+                //since in the list graph the edges are sorted from sourceId, as soon we find an edge which sourceId is greater than id
+                // we can safely stop
+                break;
+            }
             if (this->edges[i].isCompliant(sourceId, sinkId)) {
                 this->edges[i].setPayload(newPayload);
             }
@@ -201,6 +255,11 @@ public:
     }
     virtual void changeWeightOutEdge(nodeid_t sourceId, moveid_t index, const E& newPayload) {
         for (auto i=0; i<this->edges.size(); ++i) {
+            if (this->edges[i].getSourceId() > sourceId) {
+                //since in the list graph the edges are sorted from sourceId, as soon we find an edge which sourceId is greater than id
+                // we can safely stop
+                break;
+            }
             if (this->edges[i].hasSource(sourceId)) {
                 if (index == 0) {
                     this->edges[i].setPayload(newPayload);
@@ -216,6 +275,10 @@ public:
         return this->vertexPayload.size() - 1;
     }
     virtual void addEdge(nodeid_t sourceId, nodeid_t sinkId, const E& payload) {
+        if ((this->edges.size() > 0) && (this->edges.back().getSourceId() > sourceId)) {
+            error("trying to add edge ", sourceId, "->", sinkId, "on graph with #edges=", this->edges.size(), "but the last edge has source", this->edges.back().getSourceId());
+            throw cpp_utils::exceptions::ImpossibleException{"source ids are not compliant with ListGraph invariant"};
+        }
         this->edges.push_back(Edge<E>{sourceId, sinkId, payload});
     }
     virtual void removeEdge(nodeid_t sourceId, nodeid_t sinkId) {

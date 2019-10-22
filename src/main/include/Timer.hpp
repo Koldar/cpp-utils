@@ -28,186 +28,207 @@
 
 namespace cpp_utils {
 
-enum class timeunit_e {
-    NANO,
-    MICRO,
-    MILLI,
-    SECOND,
-    MINUTE,
-    HOUR,
-    DAY
-};
+    enum class timeunit_e {
+        NANO,
+        MICRO,
+        MILLI,
+        SECOND,
+        MINUTE,
+        HOUR,
+        DAY
+    };
 
-namespace internal {
+    namespace internal {
 
-double getTimeUnitInSeconds(timeunit_e u);
+        double getTimeUnitInSeconds(timeunit_e u);
 
-}
+    }
 
-/**
- * @brief class containing a timing
- * 
- * this class follows value object design pattern
- * 
- */
-class timing_t {
-public:
-    friend std::ostream& operator << (std::ostream& out, const timing_t& t);
-    friend bool operator == (const timing_t& a, const timing_t& b);
-    template <typename NUM>
-    friend timing_t operator +(const timing_t& a, NUM n);
-    template <typename NUM>
-    friend timing_t operator -(const timing_t& a, NUM n);
-    template <typename NUM>
-    friend timing_t operator *(const timing_t& a, NUM n);
-    template <typename NUM>
-    friend timing_t operator /(const timing_t& a, NUM n);
-private:
     /**
-     * @brief number of unit elapsed
+     * @brief class containing a timing
+     * 
+     * this class follows value object design pattern
      * 
      */
-    double time;
-    /**
-     * @brief unit of @c time
-     * 
-     */
-    timeunit_e unit;
-public:
-    constexpr timing_t(double t, timeunit_e unit): time{t}, unit{unit} {
+    class timing_t {
+    public:
+        friend std::ostream& operator << (std::ostream& out, const timing_t& t);
+        
+        friend bool operator == (const timing_t& a, const timing_t& b);
+        friend bool operator != (const timing_t& a, const timing_t& b);
+        friend bool operator < (const timing_t& a, const timing_t& b);
+        friend bool operator <= (const timing_t& a, const timing_t& b);
+        friend bool operator > (const timing_t& a, const timing_t& b);
+        friend bool operator >= (const timing_t& a, const timing_t& b);
 
-    }
-    timing_t toNanos() const {
-        return this->convert(timeunit_e::NANO);
-    }
-    timing_t toMicros() const {
-        return this->convert(timeunit_e::MICRO);
-    }
-    timing_t toMillis() const {
-        return this->convert(timeunit_e::MILLI);
-    }
-    timing_t toSeconds() const {
-        return this->convert(timeunit_e::SECOND);
-    }
-    timing_t toMinutes() const {
-        return this->convert(timeunit_e::MINUTE);
-    }
-    timing_t toHour() const {
-        return this->convert(timeunit_e::HOUR);
-    }
-    timing_t toDays() const {
-        return this->convert(timeunit_e::DAY);
-    }
-private:
-    timing_t convert(timeunit_e other) const {
-        //t * unit: number of seconds
-        return timing_t{(this->time * internal::getTimeUnitInSeconds(this->unit))/internal::getTimeUnitInSeconds(other), other};
-    }
-};
+        template <typename NUM>
+        friend timing_t operator +(const timing_t& a, NUM n);
+        template <typename NUM>
+        friend timing_t operator -(const timing_t& a, NUM n);
+        template <typename NUM>
+        friend timing_t operator *(const timing_t& a, NUM n);
+        template <typename NUM>
+        friend timing_t operator /(const timing_t& a, NUM n);
+    private:
+        /**
+         * @brief number of unit elapsed
+         * 
+         */
+        double time;
+        /**
+         * @brief unit of @c time
+         * 
+         */
+        timeunit_e unit;
+    public:
+        constexpr timing_t(): time{0}, unit{timeunit_e::MICRO} {
 
-template <typename NUM>
-timing_t operator +(const timing_t& a, NUM n) {
-    return timing_t{a.time + n, a.unit};
-}
-
-template <typename NUM>
-timing_t operator -(const timing_t& a, NUM n) {
-    return timing_t{a.time - n, a.unit};
-}
-
-template <typename NUM>
-timing_t operator *(const timing_t& a, NUM n) {
-    return timing_t{a.time * n, a.unit};
-}
-
-template <typename NUM>
-timing_t operator /(const timing_t& a, NUM n) {
-    return timing_t{a.time / n, a.unit};
-}
-
-
-
-/**
- * @brief class to time things
- * 
- */
-class Timer : public ICleanable {
-private:
-#ifdef OS_MAC
-    uint64_t start_time;
-    uint64_t stop_time;
-    mach_timebase_info_data_t timebase;
-#else
-    timespec stop_time;
-    timespec start_time;
-#endif
-    bool running;
-public:
-    friend std::ostream& operator <<(std::ostream& out, const Timer& t) {
-        if (t.isRunning()) {
-            out << t.getCurrentElapsedMicroSeconds();
-        } else {
-            out << "timer stopped";
         }
-        return out;
+        constexpr timing_t(int t): time{static_cast<double>(t)}, unit{timeunit_e::MICRO} {
+        }
+        constexpr timing_t(unsigned int t): time{static_cast<double>(t)}, unit{timeunit_e::MICRO} {
+        }
+        constexpr timing_t(long t): time{static_cast<double>(t)}, unit{timeunit_e::MICRO} {
+        }
+        constexpr timing_t(unsigned long t): time{static_cast<double>(t)}, unit{timeunit_e::MICRO} {
+        }
+        constexpr timing_t(double t): time{t}, unit{timeunit_e::MICRO} {
+
+        }
+        constexpr timing_t(double t, timeunit_e unit): time{t}, unit{unit} {
+
+        }
+        timing_t toNanos() const {
+            return this->convert(timeunit_e::NANO);
+        }
+        timing_t toMicros() const {
+            return this->convert(timeunit_e::MICRO);
+        }
+        timing_t toMillis() const {
+            return this->convert(timeunit_e::MILLI);
+        }
+        timing_t toSeconds() const {
+            return this->convert(timeunit_e::SECOND);
+        }
+        timing_t toMinutes() const {
+            return this->convert(timeunit_e::MINUTE);
+        }
+        timing_t toHour() const {
+            return this->convert(timeunit_e::HOUR);
+        }
+        timing_t toDays() const {
+            return this->convert(timeunit_e::DAY);
+        }
+    private:
+        timing_t convert(timeunit_e other) const {
+            //t * unit: number of seconds
+            return timing_t{(this->time * internal::getTimeUnitInSeconds(this->unit))/internal::getTimeUnitInSeconds(other), other};
+        }
+    };
+
+    template <typename NUM>
+    timing_t operator +(const timing_t& a, NUM n) {
+        return timing_t{a.time + n, a.unit};
     }
-public:
-    /**
-     * @brief Construct a new Timer object
-     * 
-     * @param start if true, we will immediately start the time
-     */
-	Timer(bool start=false);
-public:
-	void cleanup();
-public:
-    /**
-     * @brief start the timer
-     * 
-     * Do nothing if the timer is alerady started
-     * 
-     */
-	void start();
-    /**
-     * @brief stop the timer
-     * 
-     * Do nothing if the timer is not running
-     * 
-     */
-	void stop();
-    /**
-     * @brief check if the timer is running
-     * 
-     * @return true 
-     * @return false 
-     */
-    bool isRunning() const;
+
+    template <typename NUM>
+    timing_t operator -(const timing_t& a, NUM n) {
+        return timing_t{a.time - n, a.unit};
+    }
+
+    template <typename NUM>
+    timing_t operator *(const timing_t& a, NUM n) {
+        return timing_t{a.time * n, a.unit};
+    }
+
+    template <typename NUM>
+    timing_t operator /(const timing_t& a, NUM n) {
+        return timing_t{a.time / n, a.unit};
+    }
+
+
 
     /**
-     * @brief get the microseconds detected by the clock **relative** to its start
+     * @brief class to time things
      * 
-     * @pre
-     *  @li timer has been stopped
-     * 
-     * @return timing_t time **relative** to the timer start detected by the clock.
      */
-	timing_t getElapsedMicroSeconds() const;
-    /**
-     * @brief get the microseconds detected by the clock **relative** to its start
-     * 
-     * @pre
-     *  @li timer is still running
-     * 
-     * @return timing_t time **relative** to the timer start detected by the clock. 
-     */
-    timing_t getCurrentElapsedMicroSeconds() const;
-    /**
-     * @brief get the microseconds detected by the clock
-     * 
-     * @return timing_t **absolute** time detected by the clock. implementation dependet
-     */
-    timing_t getCurrentMicroSeconds() const;
-};
+    class Timer : public ICleanable {
+    private:
+    #ifdef OS_MAC
+        uint64_t start_time;
+        uint64_t stop_time;
+        mach_timebase_info_data_t timebase;
+    #else
+        timespec stop_time;
+        timespec start_time;
+    #endif
+        bool running;
+    public:
+        friend std::ostream& operator <<(std::ostream& out, const Timer& t) {
+            if (t.isRunning()) {
+                out << t.getCurrentElapsedMicroSeconds();
+            } else {
+                out << "timer stopped";
+            }
+            return out;
+        }
+    public:
+        /**
+         * @brief Construct a new Timer object
+         * 
+         * @param start if true, we will immediately start the time
+         */
+        Timer(bool start=false);
+    public:
+        void cleanup();
+    public:
+        /**
+         * @brief start the timer
+         * 
+         * Do nothing if the timer is alerady started
+         * 
+         */
+        void start();
+        /**
+         * @brief stop the timer
+         * 
+         * Do nothing if the timer is not running
+         * 
+         */
+        void stop();
+        /**
+         * @brief check if the timer is running
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool isRunning() const;
+
+        /**
+         * @brief get the microseconds detected by the clock **relative** to its start
+         * 
+         * @pre
+         *  @li timer has been stopped
+         * 
+         * @return timing_t time **relative** to the timer start detected by the clock.
+         */
+        timing_t getElapsedMicroSeconds() const;
+        /**
+         * @brief get the microseconds detected by the clock **relative** to its start
+         * 
+         * @pre
+         *  @li timer is still running
+         * 
+         * @return timing_t time **relative** to the timer start detected by the clock. 
+         */
+        timing_t getCurrentElapsedMicroSeconds() const;
+        /**
+         * @brief get the microseconds detected by the clock
+         * 
+         * @return timing_t **absolute** time detected by the clock. implementation dependet
+         */
+        timing_t getCurrentMicroSeconds() const;
+    };
 
 }
 

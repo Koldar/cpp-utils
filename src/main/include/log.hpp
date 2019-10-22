@@ -20,6 +20,9 @@
 #include "macros.hpp"
 #include "file_utils.hpp"
 #include "ansiColors.hpp"
+#include <ctime>
+#include <chrono>
+#include "configurations.hpp"
 
 #ifndef QUICK_LOG
 #define QUICK_LOG 0
@@ -52,6 +55,14 @@ void ___abstractLog(const FIRST& first, const OTHER&... args) {
 
 template <typename... OTHER>
 void __abstractLog(int levelNo, const char* level, const char* file, const char* func, int lineno, const OTHER&... args) {
+    std::time_t now; // = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    time(&now);
+    
+    char timeBuffer[SMALL_BUFFER_SIZE];
+    strftime(&timeBuffer[0], SMALL_BUFFER_SIZE, "%Y-%m-%dT%H:%M:%S", gmtime(&now));
+
+    std::cerr << timeBuffer;
+    
     std::cerr 
         << "[";
     switch(levelNo) {

@@ -40,10 +40,12 @@ namespace cpp_utils {
             if (includeUpperbound) {
                 upperbound += 1;
             }
-            if (lowerbound > upperbound) {
+            T diff = upperbound - lowerbound;
+            if (diff <= 0) {
+                critical("lowerbound =", lowerbound);
+                critical("upperbound =", upperbound);
                 throw cpp_utils::exceptions::ImpossibleException{"upperbound less than lowerbund!"};
             }
-            T diff = upperbound - lowerbound;
             T x = (RAND_MAX + 0u) / diff; //number of times u-l can be put inside RAND_MAX
             T y = x * diff; //obtain a valule smaller than rand_max
             T r;
@@ -56,7 +58,7 @@ namespace cpp_utils {
         }
         template <typename T>
         T next(const Interval<T>& interval) {
-            return this->next(interval.getLB(), interval.getUB());
+            return this->next(interval.getLB(), interval.getUB(), true);
         }
         bool flip(double successProbability);
     };

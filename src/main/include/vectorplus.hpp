@@ -210,7 +210,7 @@ public:
     }
 
     template<typename OUTPUT>
-    vectorplus<OUTPUT> map(std::function<OUTPUT(const EL&)> lambda) const {
+    vectorplus<OUTPUT> map(const std::function<OUTPUT(EL)>& lambda) const {
         vectorplus<OUTPUT> result{};
         for (auto el: *this) {
             result.add(lambda(el));

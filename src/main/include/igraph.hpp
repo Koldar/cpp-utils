@@ -94,7 +94,7 @@ namespace cpp_utils::graphs {
     class InEdge;
 
     template <typename G, typename V, typename E>
-    class ListGraph;
+    class AdjacentGraph;
 
     /**
      * @brief an edge where it's specified both the source node and the sink one
@@ -311,8 +311,8 @@ namespace cpp_utils::graphs {
             return true;
         }
     public:
-        using const_vertex_iterator = ProxyConstIterator<std::pair<nodeid_t, const V&>, std::pair<nodeid_t, const V&>*>;
-        using const_edge_iterator = ProxyConstIterator<Edge<E>&, Edge<E>*>;
+        using const_vertex_iterator = ConstIteratorWrapper<std::pair<nodeid_t, const V&>, std::pair<nodeid_t, const V&>*>;
+        using const_edge_iterator = ConstIteratorWrapper<Edge<E>&, Edge<E>*>;
     public:
         IImmutableGraph() {
 
@@ -455,6 +455,12 @@ namespace cpp_utils::graphs {
             }
             throw cpp_utils::exceptions::ElementNotFoundException<V, G>{payload, this->getPayload()};
         }
+        /**
+         * @brief Get the number of edges going into the given vertex
+         * 
+         * @param id the id of the vertex involved
+         * @return size_t the number of edges s.t. the sink id is id
+         */
         virtual size_t getInDegree(nodeid_t id) const = 0;
         virtual size_t getOutDegree(nodeid_t id) const = 0;
         virtual size_t getDegree(nodeid_t id) const = 0;
@@ -471,8 +477,25 @@ namespace cpp_utils::graphs {
         virtual bool hasEdge(nodeid_t sourceId, nodeid_t sinkId) const = 0;
         virtual std::vector<InEdge<E>> getInEdges(nodeid_t id) const = 0;
         virtual std::vector<OutEdge<E>> getOutEdges(nodeid_t id) const = 0;
+        /**
+         * @brief Check if the graph has no vertices
+         * 
+         * @return true
+         * @return false 
+         */
         virtual bool isEmpty() const = 0;
     public:
+        /**
+         * @brief Check if exists the given move representing an out edge in the graph
+         * 
+         * @param id the id of the vertex representing the out move
+         * @param m the move to check
+         * @return true 
+         * @return false 
+         */
+        bool hasOutMove(nodeid_t id, moveid_t m) const {
+            return (m >= 0) && (m < this->getOutDegree(id));
+        }
         /**
          * @brief Get a random vertex id of the graph
          * 
@@ -501,7 +524,7 @@ namespace cpp_utils::graphs {
             SetPlus<std::tuple<nodeid_t, nodeid_t>> tmp;
             SetPlus<Edge<E>> result{};
             for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
-                critical("edge is", *it);
+                debug("edge is", *it);
                 nodeid_t sourceId = it->getSourceId();
                 nodeid_t sinkId = it->getSinkId();
                 if (ignore_opposites) {
@@ -513,7 +536,7 @@ namespace cpp_utils::graphs {
                     result.add(*it);
                 }
             }
-            critical("result is", result);
+            debug("result is", result);
 
             if (ignore_opposites) {
                 return tmp.map<Edge<E>>([&] (const std::tuple<nodeid_t, nodeid_t>& t) {
@@ -550,7 +573,7 @@ namespace cpp_utils::graphs {
          */
         template<typename OUT>
         std::unique_ptr<IImmutableGraph<G, V, OUT>> mapEdges(std::function<OUT(const E&)> edgeMapper) const {
-            ListGraph<G, V, OUT>* result = new ListGraph<G, V, OUT>{this->getPayload()};
+            AdjacentGraph<G, V, OUT>* result = new AdjacentGraph<G, V, OUT>{this->getPayload()};
 
             //vertices
             for (nodeid_t sourceId=0; sourceId<this->numberOfVertices(); ++sourceId) {
@@ -559,8 +582,9 @@ namespace cpp_utils::graphs {
 
             //edges
             for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
-                result->addEdge(it->getSourceId(), it->getSinkId(), edgeMapper(it->getPayload()));
+                result->addEdgeTail(it->getSourceId(), it->getSinkId(), edgeMapper(it->getPayload()));
             }
+            result->finalizeGraph();
 
             return std::unique_ptr<IImmutableGraph<G, V, OUT>>{result};
         }
@@ -661,8 +685,7 @@ namespace cpp_utils::graphs {
          * @return a new graph where each vertex has been ordered as specified by the parameters
          */
         virtual std::unique_ptr<IImmutableGraph<G, V, E>> reorderVertices(const std::vector<nodeid_t>& fromOldToNew, const std::vector<nodeid_t>& fromNewToOld) const {
-
-            ListGraph<G,V,E>* result = new ListGraph<G,V,E>{this->getPayload()};
+            AdjacentGraph<G,V,E>* result = new AdjacentGraph<G,V,E>{this->getPayload()};
 
             //vertices
             for (nodeid_t newId=0; newId<this->numberOfVertices(); ++newId) {
@@ -670,17 +693,28 @@ namespace cpp_utils::graphs {
             }
 
             //edges
-            for (nodeid_t oldSourceId=0; oldSourceId<this->numberOfVertices(); ++oldSourceId) {
-                for (auto outEdge: this->getOutEdges(oldSourceId)) {
-                    result->addEdge(
-                        fromOldToNew[oldSourceId], 
+            for (nodeid_t newSourceId=0; newSourceId<this->numberOfVertices(); ++newSourceId) {
+                debug("reordering ", newSourceId, "out of ", this->numberOfVertices());
+                for (auto outEdge: this->getOutEdges(fromNewToOld[newSourceId])) {
+                    result->addEdgeTail(
+                        newSourceId,
                         fromOldToNew[outEdge.getSinkId()], 
                         outEdge.getPayload()
                     );
                 }
             }
+            result->finalizeGraph();
+            // for (nodeid_t oldSourceId=0; oldSourceId<this->numberOfVertices(); ++oldSourceId) {
+            //     for (auto outEdge: this->getOutEdges(oldSourceId)) {
+            //         result->addEdge(
+            //             fromOldToNew[oldSourceId], 
+            //             fromOldToNew[outEdge.getSinkId()], 
+            //             outEdge.getPayload()
+            //         );
+            //     }
+            // }
 
-            return std::unique_ptr<ListGraph<G,V,E>>{result};
+            return std::unique_ptr<AdjacentGraph<G,V,E>>{result};
         }
         virtual const PPMImage* getPPM() const {
             callExternalProgram("rm -f /tmp/getPPM.png /tmp/getPPM.ppm /tmp/getPPM.dot");
