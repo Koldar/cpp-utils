@@ -1,0 +1,16 @@
+#ifndef _CPP_UTILS_CONFIGURATIONS_HEADER__
+#define _CPP_UTILS_CONFIGURATIONS_HEADER__
+
+#ifndef SMALL_BUFFER_SIZE
+#define SMALL_BUFFER_SIZE 50
+#endif
+
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 300
+#endif
+
+#ifndef LONG_BUFFER_SIZE
+#define LONG_BUFFER_SIZE 1500
+#endif
+
+#endif 
