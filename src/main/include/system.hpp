@@ -29,6 +29,7 @@
 #include <boost/filesystem.hpp>
 #include "exceptions.hpp"
 #include "math.hpp"
+#include "imemory.hpp"
 
 namespace cpp_utils {
 
@@ -44,6 +45,20 @@ namespace cpp_utils {
 
     }
 
+    /**
+     * @brief the the ram used by a process
+     * 
+     * @param processId the process involved
+     * @return MemoryConsumption bytes of used ram
+     */
+    MemoryConsumption getProcessUsedRAM(pid_t processId);
+
+    /**
+     * @brief ram use din the system
+     * 
+     * @return MemoryConsumption bytes of used ram
+     */
+    MemoryConsumption getSystemRAMUsed();
 
     /**
      * @brief the pid of the current process

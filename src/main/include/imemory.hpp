@@ -77,7 +77,7 @@ public:
      * @param value number of bytes
      */
     template <typename T>
-    MemoryConsumption(T value): value{value}, unit{MemoryConsumptionEnum::BYTE} {
+    MemoryConsumption(T value): value{static_cast<size_t>(value)}, unit{MemoryConsumptionEnum::BYTE} {
 
     }
     /**

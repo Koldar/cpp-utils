@@ -113,7 +113,7 @@ public:
 
     explicit wrapped_number<NUM, LB, UB>(wrapped_number<NUM, LB, UB> && other) : value{other.value} { 
     }
-    ~wrapped_number() { }
+    virtual ~wrapped_number() { }
 private:
     void restrainValue() {
         if (this->value > UB) {

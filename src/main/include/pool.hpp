@@ -22,6 +22,7 @@
 #include <iostream>
 #include "imemory.hpp"
 #include "ICleanable.hpp"
+#include "system.hpp"
 
 namespace cpp_utils {
 
@@ -93,31 +94,31 @@ namespace cpp_utils {
              * 
              * @param pool_size size of the chunk we want to build
              */
-            cchunk(size_t pool_size) :
-                pool_size_{pool_size - (pool_size % sizeof(OBJ))} { // round down
-                if(pool_size_ < sizeof(OBJ)) {
-                    critical("cchunk object size < pool size (", pool_size, "<", sizeof(OBJ), "); setting pool size to object size");
-                    pool_size_ = sizeof(OBJ);
+            cchunk(size_t pool_size) : pool_size_{pool_size - (pool_size % sizeof(OBJ))} { // round down
+                if(this->pool_size_ < sizeof(OBJ)) {
+                    debug("cchunk object size < pool size (", pool_size, "<", sizeof(OBJ), "); setting pool size to object size");
+                    this->pool_size_ = sizeof(OBJ);
                 }
 
-                mem_ = new char[pool_size_];
-                next_ = mem_;
-                max_ = mem_ + pool_size_;
+                this->mem_ = new char[pool_size_];
+                this->next_ = mem_;
+                this->max_ = mem_ + pool_size_;
 
-                freed_stack_ = new int[(pool_size_/sizeof(OBJ))];
-                stack_size_ = 0;
+                this->freed_stack_ = new int[(pool_size_/sizeof(OBJ))];
+                this->stack_size_ = 0;
             }
 
-            ~cchunk() {
+            virtual ~cchunk() {
                 if (this->mem_ != nullptr) {
                     //it can be null if the object has been MOVED in another one
                     delete [] mem_;
+                    this->mem_ = nullptr;
                 }
                 if (this->freed_stack_ != nullptr) {
                     //it can be null if the object has been MOVED in another one
                     delete [] freed_stack_;
+                    this->freed_stack_ = nullptr;
                 }
-                
             }
 
             cchunk(const cchunk<OBJ>& other) = delete;
@@ -310,7 +311,8 @@ namespace cpp_utils {
          */
         cpool(size_t max_chunks) :
             num_chunks_{0}, max_chunks_{max_chunks} {
-            init();
+            debug("creating cpool with max", this->max_chunks_);
+            this->init();
         }
 
         /**
@@ -319,10 +321,12 @@ namespace cpp_utils {
          * we will build a pool with at most 20 chunks
          */
         cpool() : num_chunks_{0}, max_chunks_{20} {
+            debug("creating cpool with max", 20);
             init();
         }
 
-        ~cpool() {
+        virtual ~cpool() {
+            warning("I don'tmknow why, but within loops cpool don't actually free memory!");
             //if the pool has been moved, chunks_ is left nullptr, hence we need to do nothing
             if (this->chunks_ != nullptr) {
                 //destroy every chunk
@@ -330,17 +334,24 @@ namespace cpp_utils {
                     delete chunks_[i];
                 }
                 //destroy the array of chunks
-                delete [] chunks_;
+                delete [] this->chunks_;
+                this->chunks_ = nullptr;
             }
+            if (this->chunks_ != nullptr) {
+                delete[] this->chunks_;
+            }
+            debug("destroyed pool!!!! bytes used are", getProcessUsedRAM(getCurrentPID()));
         }
         cpool(const cpool<OBJ>& other) = delete;
         cpool<OBJ>& operator =(const cpool<OBJ>& other) = delete;
 
         cpool(cpool<OBJ>&& other) : chunks_{other.chunks_}, current_chunk_{other.current_chunk_}, num_chunks_{other.num_chunks_}, max_chunks_{other.max_chunks_} {
+            debug("moving cpool with max");
             other.chunks_ = nullptr;
             other.current_chunk_ = nullptr;
         }
         cpool<OBJ>& operator=(cpool<OBJ>&& other) {
+            debug("moving cpool with max");
             this->chunks_ = other.chunks_;
             this->current_chunk_ = other.current_chunk_;
             this->num_chunks_ = other.num_chunks_;
@@ -359,6 +370,7 @@ namespace cpp_utils {
          * this effectively mean that we are allowed to overwrite every object stored in the pool
          */
         inline void reclaim() {
+            debug("reclaiming pool!");
             for(size_t i=0; i < num_chunks_; i++) {
                 chunks_[i]->reclaim();
             }
@@ -389,6 +401,7 @@ namespace cpp_utils {
                 }
 
                 // not enough space in any existing chunk; make a new chunk
+                debug("adding new chunks in the pool!");
                 add_chunk(DEFAULT_CHUNK_SIZE);
                 current_chunk_ = chunks_[num_chunks_-1];
                 mem_ptr = current_chunk_->allocate();
@@ -455,18 +468,21 @@ namespace cpp_utils {
     private:
         void init() {
             //initialize array
-            chunks_ = new internal::cchunk<OBJ>*[max_chunks_];
-            for(int i = 0; i < (int) max_chunks_; i++) {
-                add_chunk(DEFAULT_CHUNK_SIZE);
+            this->chunks_ = new internal::cchunk<OBJ>*[this->max_chunks_];
+            for(int i = 0; i < (int) this->max_chunks_; i++) {
+                this->add_chunk(DEFAULT_CHUNK_SIZE);
             }
             //mark the first chunk as the current one
-            current_chunk_ = chunks_[0];
+            debug("checking....");
+            this->current_chunk_ = this->chunks_[0];
         }
 
         void add_chunk(size_t pool_size) {
-            if(num_chunks_ < max_chunks_) {
+            if(this->num_chunks_ < this->max_chunks_) {
                 //we have space for another chunk. Create it
-                chunks_[num_chunks_] = new internal::cchunk<OBJ>{pool_size};
+                debug("num chunks is", this->num_chunks_);
+                this->chunks_[num_chunks_] = new internal::cchunk<OBJ>{pool_size};
+                debug("chunks[", num_chunks_, "] is", this->chunks_[num_chunks_]);
                 num_chunks_++;
             } else {
                 /* we have already reached the maximum chunk number allowed

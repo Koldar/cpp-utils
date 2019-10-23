@@ -155,7 +155,7 @@ namespace cpp_utils {
             return *this;
         }
 
-        ~safe_inf_uint() {
+        virtual ~safe_inf_uint() {
             
         }
 

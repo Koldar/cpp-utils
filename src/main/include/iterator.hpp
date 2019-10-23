@@ -96,7 +96,7 @@ namespace cpp_utils {
         ConstIteratorWrapper(ConstIteratorWrapperInstance&& o): it{it} {
             o.it = nullptr;
         }
-        ~ConstIteratorWrapper() {
+        virtual ~ConstIteratorWrapper() {
             delete this->it;
         }
         ConstIteratorWrapperInstance& operator = (const ConstIteratorWrapperInstance& o) = delete;
@@ -206,7 +206,7 @@ namespace cpp_utils {
             this->container = o.container;
             return *this;
         }
-        ~AbstractNumberContainerBasedConstIterator() {
+        virtual ~AbstractNumberContainerBasedConstIterator() {
 
         }
     public:

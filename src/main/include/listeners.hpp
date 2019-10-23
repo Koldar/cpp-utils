@@ -25,7 +25,7 @@ public:
     Listenable(): listeners {} {
 
     }
-    ~Listenable() {
+    virtual ~Listenable() {
 
     }
 public:

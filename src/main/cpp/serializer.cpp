@@ -11,8 +11,9 @@ namespace cpp_utils::serializers {
     }
 
     void saveToFile(std::FILE* f, const int& v) {
+        int value = v;
         //TODO here valgrind says that there is an unitiialized write, but I can't solve it (btw: it'ìs not true)
-        if (std::fwrite(&v, sizeof(v), 1, f) != 1) {
+        if (std::fwrite(&value, sizeof(value), 1, f) != 1) {
             throw cpp_utils::exceptions::FileOpeningException{cpp_utils::recoverFilename(f)};
         }
     }

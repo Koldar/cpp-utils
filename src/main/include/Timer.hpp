@@ -119,6 +119,8 @@ namespace cpp_utils {
         timing_t toDays() const {
             return this->convert(timeunit_e::DAY);
         }
+    public:
+        std::string toHumanREadable() const;
     private:
         timing_t convert(timeunit_e other) const {
             //t * unit: number of seconds

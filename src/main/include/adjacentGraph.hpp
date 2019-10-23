@@ -78,7 +78,7 @@ namespace cpp_utils::graphs {
         AdjacentGraphEdgesIterator(AdjacentGraphEdgesIteratorInstance&& o): vertex{o.vertex}, move{o.move}, graph{o.graph}, state{o.state}, tmp{::std::move(o.tmp)} {
 
         }
-        ~AdjacentGraphEdgesIterator() {
+        virtual ~AdjacentGraphEdgesIterator() {
 
         }
         AdjacentGraphEdgesIteratorInstance& operator=(const AdjacentGraphEdgesIteratorInstance& o) { 

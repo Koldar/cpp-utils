@@ -18,7 +18,7 @@ namespace cpp_utils {
         Interval(const T& lb, const T& ub, bool lbIncluded, bool ubIncluded): lb{lb}, ub{ub}, lbIncluded{lbIncluded}, ubIncluded{ubIncluded} {
 
         }
-        ~Interval() {
+        virtual ~Interval() {
 
         }
         Interval(const IntervalInstance& o): lb{o.lb}, ub{o.ub}, lbIncluded{o.lbIncluded}, ubIncluded{o.ubIncluded} {

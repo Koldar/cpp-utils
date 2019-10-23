@@ -116,7 +116,7 @@ public:
 	PPMImage(const PPMImage& other);
 	PPMImage(PPMImage&& other);
 	PPMImage(const char* filename);
-	~PPMImage() {
+	virtual ~PPMImage() {
 		this->deleteImage();
 	}
 	PPMImage& operator =(const PPMImage& other);

@@ -35,7 +35,7 @@ namespace cpp_utils {
             }
             this->f << std::endl;
         }
-        ~CSVWriter() {
+        virtual ~CSVWriter() {
             this->f.close();
         }
         CSVWriter(const CSVWriterInstance& other) = delete;

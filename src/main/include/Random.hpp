@@ -24,7 +24,7 @@ namespace cpp_utils {
         Random(Random&& o);
         Random& operator = (const Random& o);
         Random& operator = (Random&& o);
-        ~Random();
+        virtual ~Random();
     public:
         template <typename T>
         static T nextNum(T lowerbound, T upperbound, bool includeUpperbound = false) {
@@ -42,8 +42,8 @@ namespace cpp_utils {
             }
             T diff = upperbound - lowerbound;
             if (diff <= 0) {
-                critical("lowerbound =", lowerbound);
-                critical("upperbound =", upperbound);
+                debug("lowerbound =", lowerbound);
+                debug("upperbound =", upperbound);
                 throw cpp_utils::exceptions::ImpossibleException{"upperbound less than lowerbund!"};
             }
             T x = (RAND_MAX + 0u) / diff; //number of times u-l can be put inside RAND_MAX

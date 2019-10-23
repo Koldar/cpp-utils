@@ -68,7 +68,7 @@ public:
     VarHolder(const VarHolder<T>& other) {
         memcpy(space, &other.space, sizeof(T));
     }
-    ~VarHolder() {
+    virtual ~VarHolder() {
 
     }
     VarHolder<T>& operator = (const VarHolder<T>& other) {

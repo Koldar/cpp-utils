@@ -76,7 +76,7 @@ public:
     ValueWithPriority(const ValueWithPriority<T>& other): value{other.value}, priority{other.value} {
 
     }
-    ~ValueWithPriority() {
+    virtual ~ValueWithPriority() {
 
     }
     ValueWithPriority<T>& operator=(const ValueWithPriority<T>& other) {
@@ -162,7 +162,8 @@ class StaticPriorityQueue : public IQueue<ITEM> {
 		StaticPriorityQueue(size_t capacity, bool minqueue) : minqueue{minqueue}, qsize{0}, heapCapacity{capacity}, heap{nullptr} {
             this->resize(capacity);
         }
-		~StaticPriorityQueue() {
+		virtual ~StaticPriorityQueue() {
+            debug("deleting StaticPriorityQueue!");
             delete[] this->heap;
         }
 
@@ -379,6 +380,7 @@ class StaticPriorityQueue : public IQueue<ITEM> {
                 throw exceptions::InvalidArgumentException{"queue resize new size < queuesize (%ld < %ld)", newcapacity, this->qsize};
             }
 
+            debug("Resizing StaticPriorityQueue from ", this->heapCapacity, "to", newcapacity);
             ITEM** tmp = new ITEM*[sizeof(ITEM*) * newcapacity];
             if (this->heap != nullptr) {
                 memcpy(tmp, this->heap, sizeof(ITEM*) * this->heapCapacity);

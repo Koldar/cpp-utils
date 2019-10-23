@@ -18,7 +18,7 @@
  */
 #define PROFILE_TIME(value) \
     for(bool profile=true; profile;) \
-        for (Timer timer{true}; profile; value=timer.getCurrentMicroSeconds(), timer.stop(), profile=false)
+        for (Timer timer{true}; profile; value=timer.getCurrentElapsedMicroSeconds(), timer.stop(), profile=false)
 
 
     

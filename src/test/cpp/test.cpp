@@ -1,3 +1,5 @@
+
+#include <boost/algorithm/string.hpp>
 #include "catch.hpp"
 #include "wrapped_number.hpp"
 #include "imemory.hpp"
@@ -43,7 +45,7 @@ public:
     UncopiableClass(int a): a{a} {
 
     }
-    ~UncopiableClass() {
+    virtual ~UncopiableClass() {
 
     }
     UncopiableClass(const UncopiableClass& other) = delete;
@@ -78,13 +80,30 @@ public:
     }
 };
 
+SCENARIO("test boost") {
+    std::string line{"MemTotal:        8008672 kB"};
+    std::vector<std::string> split;
+    boost::split(split, line, boost::is_any_of(":"));
+    REQUIRE(split[1] == std::string{"        8008672 kB"});
+}
+
+SCENARIO("test getProcessUsedRAM") {
+    pid_t pid = getCurrentPID();
+    auto ram = getProcessUsedRAM(pid);
+    auto totalRam = getSystemRAMUsed();
+    critical("RAM is", ram);
+    critical("used RAM is", totalRam);
+    REQUIRE(ram > MemoryConsumption{0});
+    REQUIRE(totalRam > MemoryConsumption{0});
+}
+
 SCENARIO("test open file descriptors") {
 
     GIVEN("testing pid") {
 
         REQUIRE(cpp_utils::getCurrentPID() > 0);
 
-        info("open files: ", cpp_utils::getOpenFileDescriptors());
+        critical("open files: ", cpp_utils::getOpenFileDescriptors());
         REQUIRE(cpp_utils::getOpenFileDescriptors().size() >= 6);
     }
 }
@@ -388,8 +407,7 @@ SCENARIO("test timer") {
             usleep(5000); //microseconds
         }
 
-
-        REQUIRE(timeGap >= 4950);
+        REQUIRE(timeGap >= 4950 && timegap <= 5050);
     }
 }
 

@@ -211,6 +211,10 @@ namespace cpp_utils {
     #endif
     }
 
+    std::string Timer::toHumanREadable() const {
+
+    }
+
     void Timer::cleanup() {
     #ifdef OS_MAC
         start_time = 0;
