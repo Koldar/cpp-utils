@@ -5,40 +5,7 @@
 namespace cpp_utils {
 
     std::ostream& operator << (std::ostream& out, const timing_t& t) {
-        out << t.time;
-        switch (t.unit) {
-            case timeunit_e::NANO: {
-                out << "ns";
-                break;
-            }
-            case timeunit_e::MICRO: {
-                out << "us";
-                break;
-            }
-            case timeunit_e::MILLI: {
-                out << "ms";
-                break;
-            }
-            case timeunit_e::SECOND: {
-                out << "s";
-                break;
-            }
-            case timeunit_e::MINUTE: {
-                out << "m";
-                break;
-            }
-            case timeunit_e::HOUR: {
-                out << "h";
-                break;
-            }
-            case timeunit_e::DAY: {
-                out << " day";
-                break;
-            }
-            default: {
-                throw cpp_utils::exceptions::InvalidScenarioException<timeunit_e>{t.unit};
-            }
-        }
+        out << t.time << internal::toString(t.unit);
         return out;
     }
 
@@ -101,8 +68,46 @@ namespace cpp_utils {
         return isDefinitelyGreaterThan(a.time, b.time, 1e6) || isApproximatelyEqual(a.time, b.time, 1e6);
     }
 
+    std::string timing_t::toHumanReadable() const {
+        timing_t t = this->toNanos();
+        timeunit_e unit = timeunit_e::NANO;
+        while (true) {
+            if (t.unit == timeunit_e::DAY) {
+                break;
+            }
+            if (isDefinitelyGreaterThan(t.time, 1000., 1e-3)) {
+                unit = internal::operator+(unit, 1);
+                t = t.convert(unit);
+            } else {
+                break;
+            }
+        }
+
+        std::stringstream ss;
+        ss << t;
+        return ss.str();
+    }
+
 
     namespace internal {
+
+        timeunit_e operator +(timeunit_e a, int i) {
+            if (i == 0) {
+                return a;
+            } else {
+                switch (a) {
+                    case timeunit_e::NANO: return timeunit_e::MICRO + (i-1);
+                    case timeunit_e::MICRO: return timeunit_e::MILLI + (i-1);
+                    case timeunit_e::MILLI: return timeunit_e::SECOND + (i-1);
+                    case timeunit_e::SECOND: return timeunit_e::MINUTE + (i-1);
+                    case timeunit_e::MINUTE: return timeunit_e::HOUR + (i-1);
+                    case timeunit_e::HOUR: return timeunit_e::DAY + (i-1);
+                    default: {
+                        throw cpp_utils::exceptions::InvalidScenarioException<timeunit_e>{a};
+                    }
+                }
+            }
+        }
 
         double getTimeUnitInSeconds(timeunit_e u) {
             switch (u) {
@@ -119,19 +124,51 @@ namespace cpp_utils {
             }
         }
 
+        std::string toString(timeunit_e u) {
+            switch(u) {
+            case timeunit_e::NANO: {
+                return "ns";
+            }
+            case timeunit_e::MICRO: {
+                return "us";
+            }
+            case timeunit_e::MILLI: {
+                return "ms";
+            }
+            case timeunit_e::SECOND: {
+                return "s";
+            }
+            case timeunit_e::MINUTE: {
+                return "m";
+            }
+            case timeunit_e::HOUR: {
+                return "h";
+            }
+            case timeunit_e::DAY: {
+                return "day";
+            }
+            default: {
+                throw cpp_utils::exceptions::InvalidScenarioException<timeunit_e>{u};
+            }
+            }
+        }
+
     }
 
     Timer::Timer(bool start): running{false} {
-    #ifdef OS_MAC
-        start_time = 0;
-        stop_time = 0;
-        mach_timebase_info(&timebase);
-    #else
-        start_time.tv_sec = 0;
-        start_time.tv_nsec = 0;
-        stop_time.tv_sec = 0;
-        stop_time.tv_nsec = 0;
-    #endif
+        #ifdef OS_MAC
+            start_time = 0;
+            stop_time = 0;
+            mach_timebase_info(&timebase);
+        #else
+            start_time.tv_sec = 0;
+            start_time.tv_nsec = 0;
+            stop_time.tv_sec = 0;
+            stop_time.tv_nsec = 0;
+        #endif
+        if (start) {
+            this->start();
+        }
     }
 
     bool Timer::isRunning() const {
@@ -209,10 +246,6 @@ namespace cpp_utils {
         else
             return timing_t{(double)(stop_time.tv_nsec - start_time.tv_nsec), timeunit_e::NANO}.toMicros();
     #endif
-    }
-
-    std::string Timer::toHumanREadable() const {
-
     }
 
     void Timer::cleanup() {

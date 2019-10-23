@@ -407,7 +407,8 @@ SCENARIO("test timer") {
             usleep(5000); //microseconds
         }
 
-        REQUIRE(timeGap >= 4950 && timegap <= 5050);
+        critical("timeGap is", timeGap);
+        REQUIRE(((timeGap >= 4900) && (timeGap <= 5100)));
     }
 }
 
@@ -462,24 +463,24 @@ SCENARIO("test cpool") {
     pool.reclaim();
 }
 
-SCENARIO("test ceil power") {
-    REQUIRE(pow2GreaterThan(0) == 0);
-    REQUIRE(pow2GreaterThan(1) == 1);
-    REQUIRE(pow2GreaterThan(2) == 2);
-    REQUIRE(pow2GreaterThan(3) == 4);
-    REQUIRE(pow2GreaterThan(4) == 4);
-    REQUIRE(pow2GreaterThan(5) == 8);
-}
+SCENARIO("test math") {
 
-SCENARIO("test number parsing") {
+    GIVEN("test ceil power") {
+        REQUIRE(pow2GreaterThan(0) == 0);
+        REQUIRE(pow2GreaterThan(1) == 1);
+        REQUIRE(pow2GreaterThan(2) == 2);
+        REQUIRE(pow2GreaterThan(3) == 4);
+        REQUIRE(pow2GreaterThan(4) == 4);
+        REQUIRE(pow2GreaterThan(5) == 8);
+    }
 
-    GIVEN("testnig int") {
+    GIVEN("testnig int number parsing") {
         REQUIRE(parseFromString<int>("0") == 0);
         REQUIRE(parseFromString<int>("12") == 12);
         REQUIRE(parseFromString<int>("-12") == -12);
     }
 
-    GIVEN("testing double") {
+    GIVEN("testing double parsing ") {
         REQUIRE(isApproximatelyEqual(parseFromString<double>("0"), 0., 1e-3));
         REQUIRE(isApproximatelyEqual(parseFromString<double>("12"), 12., 1e-3));
         REQUIRE(isApproximatelyEqual(parseFromString<double>("-12"), -12., 1e-3));
@@ -487,10 +488,7 @@ SCENARIO("test number parsing") {
         REQUIRE(isApproximatelyEqual(parseFromString<double>("-12.33"), -12.33, 1e-3));
     }
 
-}
-
-SCENARIO("test log") {
-    GIVEN("integer") {
+    GIVEN("test log integer") {
         REQUIRE(cpp_utils::log2(1) == 0);
         REQUIRE(cpp_utils::log2(2) == 1);
         REQUIRE(cpp_utils::log2(4) == 2);
@@ -500,13 +498,13 @@ SCENARIO("test log") {
         REQUIRE(cpp_utils::log2(6) == 2);
     }
 
-    GIVEN("float") {
+    GIVEN("test log float") {
         REQUIRE(isApproximatelyEqual(cpp_utils::log2(1.f), 0.f, 0.01f));
         REQUIRE(isApproximatelyEqual(cpp_utils::log2(2.f), 1.f, 0.01f));
         REQUIRE(isApproximatelyEqual(cpp_utils::log2(4.f), 2.f, 0.01f));
     }
 
-    GIVEN("double") {
+    GIVEN("test log double") {
         REQUIRE(isApproximatelyEqual(cpp_utils::log2(1.), 0., 0.01));
         REQUIRE(isApproximatelyEqual(cpp_utils::log2(2.), 1., 0.01));
         REQUIRE(isApproximatelyEqual(cpp_utils::log2(4.), 2., 0.01));
@@ -517,6 +515,21 @@ SCENARIO("test log") {
         REQUIRE(cpp_utils::log2(n) == 6);
         REQUIRE((0xFFFFFFFF << (cpp_utils::log2(n)+ 1)) == 0xFFFFFF80);
         REQUIRE((0xFFFFFFFF << (cpp_utils::log2(n) + 1) ^ ~n) == 63);
+    }
+
+    GIVEN("test isDecimal") {
+        REQUIRE(isDecimal(3) == true);
+        REQUIRE(isDecimal(0) == true);
+        REQUIRE(isDecimal(-3) == true);
+
+        REQUIRE(isDecimal(3.) == true);
+        REQUIRE(isDecimal(0.) == true);
+        REQUIRE(isDecimal(-3.) == true);
+
+        REQUIRE(isDecimal(3.5) == false);
+        REQUIRE(isDecimal(0.5) == false);
+        REQUIRE(isDecimal(-0.5) == false);
+        REQUIRE(isDecimal(-3.5) == false);
     }
 }
 

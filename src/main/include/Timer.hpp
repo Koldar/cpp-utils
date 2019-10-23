@@ -42,6 +42,9 @@ namespace cpp_utils {
 
         double getTimeUnitInSeconds(timeunit_e u);
 
+        std::string toString(timeunit_e u);
+
+        timeunit_e operator +(timeunit_e a, int i);
     }
 
     /**
@@ -120,7 +123,19 @@ namespace cpp_utils {
             return this->convert(timeunit_e::DAY);
         }
     public:
-        std::string toHumanREadable() const;
+        double toDouble() const {
+            return this->time;
+        }
+        long toLong() const {
+            return this->time;
+        }
+    public:
+        /**
+         * @brief convert the timing in a string representing the time best suited for a human to be read
+         * 
+         * @return std::string string representation of the time
+         */
+        std::string toHumanReadable() const;
     private:
         timing_t convert(timeunit_e other) const {
             //t * unit: number of seconds

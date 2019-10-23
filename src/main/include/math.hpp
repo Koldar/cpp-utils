@@ -139,6 +139,31 @@ namespace cpp_utils {
         return n == 0 ? 0 : _Pow2GreaterThan(n, 1);
     }
 
+    template <typename T>
+    bool isDecimal(const T& n) {
+        return isApproximatelyEqual(std::fmod(n, 1.0), 0.0, 1e-3);
+    }
+
+    template<int>
+    bool isDecimal(const int& n) {
+        return true;
+    }
+
+    template<unsigned int>
+    bool isDecimal(const unsigned int& n) {
+        return true;
+    }
+
+    template<long>
+    bool isDecimal(const long& n) {
+        return true;
+    }
+
+    template<unsigned long>
+    bool isDecimal(const unsigned long& n) {
+        return true;
+    }
+
     
 
 }

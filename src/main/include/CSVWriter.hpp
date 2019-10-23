@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdio.h>
 #include <iostream>
+#include "vectorplus.hpp"
 
 namespace cpp_utils {
 
@@ -24,6 +25,16 @@ namespace cpp_utils {
      * 
      */
     public:
+        /**
+         * @brief Create a new csv handler
+         * 
+         * @note
+         * the filename, if exists, will be truncated
+         * 
+         * @param filename 
+         * @param separator 
+         * @param header 
+         */
         CSVWriter(const boost::filesystem::path& filename, char separator, const vectorplus<std::string>& header) : filename{filename}, separator{separator}, header{header} {
             this->f.open(filename.string(), std::fstream::trunc);
             this->f << "sep=" << separator << std::endl;
@@ -74,7 +85,7 @@ namespace cpp_utils {
         const boost::filesystem::path& filename;
         std::ofstream f;
         char separator;
-        std::vector<std::string> header;
+        vectorplus<std::string> header;
     };
 
 }
