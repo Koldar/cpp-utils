@@ -129,7 +129,10 @@ namespace cpp_utils::serializers {
     void saveToFile(FILE* file, const cpp_utils::SetPlus<T, _Hash, _Pred, _Alloc>& set)  {
         saveToFile(file, set.size());
         for (auto it=set.begin(); it!=set.end(); ++it) {
-            const T& el = *it;
+            T el{};
+            // /* Clear node struct to suppress valgrind warnings */
+            memset(&el, 0, sizeof(el));
+            el = *it;
             if(std::fwrite(&el, sizeof(el), 1, file) != 1) {
                 throw cpp_utils::exceptions::FileOpeningException{recoverFilename(file)};
             }

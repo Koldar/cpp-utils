@@ -988,6 +988,34 @@ SCENARIO("test adjacent graph") {
             REQUIRE(i == 5);
         }
 
+        WHEN("testing iterator on graph with no edges") {
+            AdjacentGraph<int, int, bool> empty{};
+
+            int i= 0;
+            for (auto it=empty.beginEdges(); it!=empty.endEdges(); ++it) {
+                i += 1;
+            }
+            REQUIRE(i == 0);
+        }
+
+        WHEN("testing iterator on graph with vertices but no edges") {
+            ListGraph<int, int, bool> listGraph{1};
+
+            listGraph.addVertex(5);
+            listGraph.addVertex(10);
+            listGraph.addVertex(15);
+
+            AdjacentGraph<int, int, bool> empty{listGraph};
+            //empty.saveBMP("emptyGraphOnIterate");
+
+            int i = 0;
+            for (auto it=empty.beginEdges(); it!=empty.endEdges(); ++it) {
+                i += 1;
+            }
+
+            REQUIRE(i == 0);
+        }
+
         WHEN("test getEdgeSet") {
             auto set = ag.getEdgeSet(false);
 

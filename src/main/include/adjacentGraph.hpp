@@ -484,7 +484,7 @@ namespace cpp_utils::graphs {
                 } else {
                     lastSourceIdToHandle = 0;
                 }
-                for (nodeid_t emptyId=lastSourceIdToHandle; emptyId<(this->vertexPayload.size() - 1); ++emptyId) {
+                for (nodeid_t emptyId=lastSourceIdToHandle; emptyId<(this->vertexPayload.size()); ++emptyId) {
                     this->outEdgesOfvertexBegin.push_back(this->edges.size());
                 }
             }
