@@ -144,7 +144,7 @@ namespace cpp_utils {
 
 	boost::filesystem::path getLinkTargetName(const boost::filesystem::path& link) {
 		char buffer[BUFFER_SIZE];
-		info("reading link ", boost::filesystem::absolute(link.string()).c_str());
+		debug("reading link ", boost::filesystem::absolute(link.string()).c_str());
 		ssize_t bytesWritten = ::readlink(boost::filesystem::absolute(link.string()).c_str(), &buffer[0], BUFFER_SIZE);
 
 		if (bytesWritten < 0) {
