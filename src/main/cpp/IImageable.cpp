@@ -4,6 +4,20 @@
 
 namespace cpp_utils {
 
+    std::ostream& operator <<(std::ostream& ss, const ImageExtension& ext) {
+        switch (ext){
+            case ImageExtension::SVG: { ss << "svg"; break; }
+            case ImageExtension::PNG: { ss << "png"; break; }
+            case ImageExtension::JPEG: { ss << "jpeg"; break; }
+            case ImageExtension::BMP: { ss << "bmp"; break; }
+            case ImageExtension::PPM: { ss << "ppm"; break; }
+            case ImageExtension::FIG: { ss << "fig"; break; }
+            default:
+                throw cpp_utils::exceptions::makeInvalidScenarioException(ext);
+        }
+        return ss;
+    }
+
 void IImageable::_saveImage(ImageExtension extension, const char* filename) const {
     const PPMImage* ppm = this->getPPM();
     const char* ext;

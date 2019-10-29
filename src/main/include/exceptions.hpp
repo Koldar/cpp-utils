@@ -100,11 +100,26 @@ template <typename TYPE>
 class InvalidScenarioException: public AbstractException {
 public:
     InvalidScenarioException(TYPE t) : AbstractException{}, t{t} {
-        this->updateMessage(cpp_utils::sprintf("No matched scenario for value %s", t));
+        this->updateMessage(cpp_utils::scout("No matched scenario for value ", t, ", which type is ", typeid(t).name()));
     }
 private:
     TYPE t;
 };
+
+    /**
+     * @brief convenience method to avoid explicitling writing the name of the type
+     * 
+     * @code
+     *     makeInvalidScenarioException(5);
+     * @endcode
+     * 
+     * @param t the type which is not within our expected scenarios
+     * @return InvalidScenarioException<TYPE> an exception
+     */
+    template <typename TYPE>
+    InvalidScenarioException<TYPE> makeInvalidScenarioException(TYPE t) {
+        return InvalidScenarioException<TYPE>(t);
+    }
 
 /**
  * @brief like InvalidScenarioException but here the scenario is uniquely indentified by 2 parameters, not one

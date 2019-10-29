@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 #include <boost/functional/hash.hpp>
+#include <boost/filesystem.hpp>
 #include <functional>
 
 #include "exceptions.hpp"
@@ -86,6 +87,8 @@ namespace std {
 		ss << ">";
 		return ss;
 	}
+
+	::std::ostream& operator <<(::std::ostream& ss, const boost::filesystem::path& p);
 
 	// ####################################################################
 	// hash

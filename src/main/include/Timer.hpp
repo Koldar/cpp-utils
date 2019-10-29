@@ -47,6 +47,8 @@ namespace cpp_utils {
         timeunit_e operator +(timeunit_e a, int i);
     }
 
+    std::ostream& operator <<(std::ostream& ss, const timeunit_e tu);
+
     /**
      * @brief class containing a timing
      * 

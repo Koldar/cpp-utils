@@ -30,6 +30,7 @@
 #include "exceptions.hpp"
 #include "math.hpp"
 #include "imemory.hpp"
+#include "operators.hpp"
 
 namespace cpp_utils {
 
@@ -74,9 +75,9 @@ namespace cpp_utils {
      * this function will return **all** the file descriptor open, included some notable ones:
      * @li "." (the current working directory);
      * @li ".." (the parent fo the current working directory)
-     * @li "/dev/pts/1", the `stdin`;
-     * @li "/dev/pts/1", the `stdout`;
-     * @li "/dev/pts/1", the `stderr`;
+     * @li "/dev/pts/<number>", the `stdin`;
+     * @li "/dev/pts/<number>", the `stdout`;
+     * @li "/dev/pts/<number>", the `stderr`;
      * @li process open files list
      * 
      * Internally, we require to read a file inside `fd` folder. Such file is included in the return value as well.
@@ -165,6 +166,7 @@ namespace cpp_utils {
         std::array<char, 128> buffer;
         //std::unique_ptr<FILE, decltype(&pclose)> pipe{popen(cmd.c_str(), "r"), pclose};
         errno = 0;
+        critical("open files are ", getOpenFileDescriptors());
         FILE* pipe = popen(cmd.c_str(), "r");
         if (pipe == nullptr) {
             error("failed executing cmd \"", cmd.c_str(), "\"");

@@ -88,6 +88,10 @@ namespace cpp_utils {
         return ss.str();
     }
 
+    std::ostream& operator <<(std::ostream& ss, const timeunit_e tu) {
+        ss << internal::toString(tu);
+        return ss;
+    }
 
     namespace internal {
 
