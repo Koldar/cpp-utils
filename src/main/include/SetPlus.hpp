@@ -130,6 +130,7 @@ namespace cpp_utils::serializers {
         saveToFile(file, set.size());
         for (auto it=set.begin(); it!=set.end(); ++it) {
             T el{};
+            //https://stackoverflow.com/a/29870828/1887602
             // /* Clear node struct to suppress valgrind warnings */
             memset(&el, 0, sizeof(el));
             el = *it;
