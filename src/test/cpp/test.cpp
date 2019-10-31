@@ -25,6 +25,7 @@
 #include "CSVWriter.hpp"
 #include "Random.hpp"
 #include "profiling.hpp"
+#include "NumTracker.hpp"
 
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
@@ -79,6 +80,36 @@ public:
         return RefClass{refGoingToDie};
     }
 };
+
+SCENARIO("test NumTracker") {
+
+
+    NumTracker<int> tracker;
+
+    REQUIRE(tracker.getCount() == 0);
+
+    tracker.update(4);
+
+    REQUIRE(tracker.getCount() == 1);
+    REQUIRE(tracker.getLastValue() == 4);
+    REQUIRE(isApproximatelyEqual(tracker.getAverage(), 4.0, 1e-3));
+
+    tracker.update(10);
+
+    REQUIRE(tracker.getCount() == 2);
+    REQUIRE(tracker.getLastValue() == 10);
+    REQUIRE(isApproximatelyEqual(tracker.getAverage(), 7.0, 1e-3));
+
+    tracker.update(7);
+
+    REQUIRE(tracker.getCount() == 3);
+    REQUIRE(tracker.getLastValue() == 7);
+    REQUIRE(isApproximatelyEqual(tracker.getAverage(), 7.0, 1e-3));
+
+    tracker.cleanup();
+
+    REQUIRE(tracker.getCount() == 0);
+}
 
 SCENARIO("test boost") {
     std::string line{"MemTotal:        8008672 kB"};
