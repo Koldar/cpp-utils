@@ -3,6 +3,8 @@
 
 #include <type_traits>
 #include <cassert>
+#include <cstring>
+
 #include "imemory.hpp"
 #include "macros.hpp"
 #include "exceptions.hpp"
@@ -35,6 +37,10 @@ public:
     virtual priority_t getPriority(const void* context) const = 0;
     /**
      * @brief Set the Priority object
+     * 
+     * The method is called when:
+     *  - a new element is added in a context;
+     *  - an old element is swapped with another one in a context;
      * 
      * @param context the queue whose priority you need to retrieve. Essential if the item belong to multiple queues.
      * @param p the priority to set
@@ -93,6 +99,78 @@ public:
     }
 };
 
+// template <typename ITEM>
+// class StaticPriorityQueueIterator: ::cpp_utils::AbstractConstIterator<ITEM&, ITEM*> {
+//     typedef StaticPriorityQueueIterator<ITEM> This;
+//     typedef ::cpp_utils::AbstractConstIterator<ITEM&, ITEM*> Super;
+// private:
+//     /**
+//      * @brief 
+//      * 
+//      * the best way to iterate through a heap is to consume one to begin with.
+//      * 
+//      * the idea is to create a "temporary" heap by copying the heap of the original one and then
+//      * consume it
+//      */
+//     std::unique_ptr<StaticPriorityQueue<ITEM>> tempQueue;
+//     iterator_state_t state;
+    
+// public:
+//     StaticPriorityQueueIterator(const StaticPriorityQueue<ITEM>& queue, iterator_state_t state): tempQueue{queue.size(), queue.heap, queue.minqueue}, state{state} {
+
+//     }
+//     virtual ~StaticPriorityQueueIterator() {
+
+//     }
+//     StaticPriorityQueueIterator(const This& o) = delete;
+//     This& operator=(const This& o) = delete;
+
+//     StaticPriorityQueueIterator(This&& o): queue{o.queue}, state{o.state} {
+
+//     }
+    
+        
+//     This& operator=(const This& o) {
+//         this->queue = o.queue;
+//         this->state = o.state;
+//         return *this;
+//     }
+// public:
+//     This& operator++() { 
+//         this->computeNext();
+//         return *this;
+//     }
+
+//     cpp_utils::graphs::Edge<E>& operator*() const {
+//         debug("vertex is", this->vertex, "move", this->move);
+//         this->tmp = Edge<E>{this->vertex, this->graph.getOutEdge(this->vertex, this->move)};
+//         debug("edge is", tmp);
+//         return tmp;
+//     }
+
+//     cpp_utils::graphs::Edge<E>* operator->() const {
+//         this->tmp = Edge<E>{this->vertex, this->graph.getOutEdge(this->vertex, this->move)};
+//         return &tmp;
+//     }
+// private:
+//     void computeNext() {
+//         switch (this->state) {
+//             case iterator_state_t::ENDED: {
+//                 return;
+//             }
+//             case iterator_state_t::STARTED: {
+                
+//             }
+//             case iterator_state_t::NOT_INITIALIZED: {
+//                 this->valueToYield = this->heap
+//             }
+//             default: {
+//                 throw cpp_utils::exceptions::makeInvalidScenarioException(this->state);
+//             }
+//         }
+//     }
+// };
+
 /**
  * @brief a minimum priority queue based on Daniel Harabor one
  * 
@@ -104,15 +182,18 @@ public:
  * A min priority queue. Loosely based on an implementation from HOG
  * by Nathan Sturtevant.
  * 
- * The queue itself do **stores** only **pointers**, not actual values
+ * The queue itself do **stores** only **pointers**, not actual values.
+ * 
  * 
  * @author: dharabor
  * @created: 09/08/2012
  * 
- * @tpaqram ITEM of a type
+ * @tpaqram ITEM type of pointers which are stored in the queue. ITEM needs to implement the
+ *  operator "<" to implement the swapping between one element and another one
  */
 template <typename ITEM>
 class StaticPriorityQueue : public IQueue<ITEM> {
+    friend class StaticPriorityQueueIterator<ITEM>;
     private:
         /**
          * @brief true if the queue put as head the item with least priority 
@@ -150,6 +231,24 @@ class StaticPriorityQueue : public IQueue<ITEM> {
             }
             ss << "]";
             return ss;
+        }
+    private:
+        /**
+         * @brief Create an heap as large as the array put as input
+         * 
+         * The `heap` is only used for cloning. The generated queue will have its own copy of the heap.
+         * However, since the queue contains pointers, the cloned heap will still be able to access to the real objects saved in the original queue.
+         * 
+         * @pre
+         *  @li `heap` represents an array which is a heapified structure (like the one in StaticPriorityQueue);
+         * 
+         * @param heapSize number of elements in `heap`
+         * @param heap the heap representing the priority queue
+         * @param minqueue true if the queue is sorted with the least value at the beginning, false otherwise
+         */
+        StaticPriorityQueue(size_t heapSize, ITEM** heap, bool minqueue): minqueue{minqueue}, qsize{heapSize}, heapCapacity{heapSize}, heap{nullptr} {
+            this->heap = new ITEM*[this->heapCapacity];
+            std::memcpy(this->heap, heap, sizeof(ITEM*) * heapSize);
         }
 	public:
         /**
@@ -272,7 +371,7 @@ class StaticPriorityQueue : public IQueue<ITEM> {
             if(this->qsize > 0) {
                 this->heap[0] = this->heap[this->qsize];
                 this->heap[0]->setPriority(this, 0);
-                heapify_down(0);
+                this->heapify_down(0);
             }
             return result;
         }
@@ -317,6 +416,8 @@ class StaticPriorityQueue : public IQueue<ITEM> {
 		inline bool isMinqueue() const { 
 			return this->minqueue; 
 		}
+
+        SetPlus<ITEM&> peekItemsWithAtMost()
     public:
         void cleanup() {
             this->clear();
@@ -326,6 +427,27 @@ class StaticPriorityQueue : public IQueue<ITEM> {
 			return sizeof(*this);
 		}
     private:
+        /**
+         * @brief given the index in the heap of a node, the index i nthe heap of its left child
+         * 
+         * @param parent index in the heap of the parent
+         * @return int 
+         */
+        int getLeftChildIndex(priority_t parent) const {
+            return parent * 2 + 1;
+        }
+        /**
+         * @brief given the index in the heap of a node, the index i nthe heap of its right child
+         * 
+         * @param parent index in the heap of the parent
+         * @return int 
+         */
+        int getRightChildIndex(priority_t parent) const {
+            return parent * 2 + 2;
+        }
+        int getParent(priority_t child) const {
+            return index -1 >> 1; //>> is a division by 2
+        }
         /**
          * @brief reorders the subpqueue containing elts_[index]
          * 
@@ -393,6 +515,9 @@ class StaticPriorityQueue : public IQueue<ITEM> {
 	
         /**
          * @brief 
+         * 
+         * @pre
+         *  @li `ITEM` implement operator "<"
          * 
          * @param first the first element that we might swap
          * @param second the second element that we might swap

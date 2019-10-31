@@ -1,5 +1,7 @@
 
 #include <boost/algorithm/string.hpp>
+#include <boost/heap/d_ary_heap.hpp>
+
 #include "catch.hpp"
 #include "wrapped_number.hpp"
 #include "imemory.hpp"
@@ -111,11 +113,59 @@ SCENARIO("test NumTracker") {
     REQUIRE(tracker.getCount() == 0);
 }
 
+class ImportantInfo {
+public:
+    int g;
+    int h;
+    char state;
+public:
+    ImportantInfo(char s): g{0}, h{0}, state{s} {
+
+    } 
+};
+
+class HeapNode {
+private:
+    ImportantInfo* info;
+    int priority;
+public:
+    HeapNode(int priority, ImportantInfo* info): info{info}, priority{priority} {
+
+    }
+};
+
+
 SCENARIO("test boost") {
-    std::string line{"MemTotal:        8008672 kB"};
-    std::vector<std::string> split;
-    boost::split(split, line, boost::is_any_of(":"));
-    REQUIRE(split[1] == std::string{"        8008672 kB"});
+
+    GIVEN("boost split") {
+        std::string line{"MemTotal:        8008672 kB"};
+        std::vector<std::string> split;
+        boost::split(split, line, boost::is_any_of(":"));
+        REQUIRE(split[1] == std::string{"        8008672 kB"});
+    }
+    GIVEN("boost d_ary_tree") {
+        typedef typename boost::heap::d_ary_heap<
+            HeapNode, 
+            boost::heap::arity<2>, 
+            boost::heap::mutable_<true>, 
+            boost::heap::compare<compareFocalHeuristic> 
+        > BinaryHeap;
+        BinaryHeap queue{};
+
+        auto a = new ImportantInfo{'a'};
+        auto b = new ImportantInfo{'b'};
+        auto c = new ImportantInfo{'c'};
+
+        queue.push(a);
+        queue.push(b);
+        queue.push(c);
+
+        REQUIRE(queue.size() == 3);
+
+        auto x = queue.pop();
+
+        info(x);
+    }
 }
 
 SCENARIO("test getProcessUsedRAM") {

@@ -61,7 +61,7 @@ namespace cpp_utils::graphs {
 
     template <typename G, typename V, typename E, typename DEBUG_REF=Edge<E>&, typename DEBUG_PTR=Edge<E>*>
     class AdjacentGraphEdgesIterator: public ::cpp_utils::AbstractConstIterator<Edge<E>&, Edge<E>*> {
-        typedef AdjacentGraphEdgesIterator<G, V, E> AdjacentGraphEdgesIteratorInstance;
+        typedef AdjacentGraphEdgesIterator<G, V, E> This;
     private:
         const AdjacentGraph<G, V, E>& graph;
         iterator_state_t state;
@@ -72,16 +72,16 @@ namespace cpp_utils::graphs {
         AdjacentGraphEdgesIterator(iterator_state_t state, nodeid_t vertex, moveid_t move, const AdjacentGraph<G, V, E>& graph): graph{graph}, vertex{vertex}, move{move}, state{state}, tmp{} {
             this->computeNext();
         }
-        AdjacentGraphEdgesIterator(const AdjacentGraphEdgesIteratorInstance& o): vertex{o.vertex}, move{o.move}, graph{o.graph}, state{o.state}, tmp{o.tmp} {
+        AdjacentGraphEdgesIterator(const This& o): vertex{o.vertex}, move{o.move}, graph{o.graph}, state{o.state}, tmp{o.tmp} {
             this->computeNext();
         }
-        AdjacentGraphEdgesIterator(AdjacentGraphEdgesIteratorInstance&& o): vertex{o.vertex}, move{o.move}, graph{o.graph}, state{o.state}, tmp{::std::move(o.tmp)} {
+        AdjacentGraphEdgesIterator(This&& o): vertex{o.vertex}, move{o.move}, graph{o.graph}, state{o.state}, tmp{::std::move(o.tmp)} {
 
         }
         virtual ~AdjacentGraphEdgesIterator() {
 
         }
-        AdjacentGraphEdgesIteratorInstance& operator=(const AdjacentGraphEdgesIteratorInstance& o) { 
+        This& operator=(const This& o) { 
             this->vertex = o.vertex;
             this->move = o.move;
             this->graph = o.graph;
@@ -89,7 +89,7 @@ namespace cpp_utils::graphs {
             this->tmp = o.tmp;
             return *this;
         }
-        AdjacentGraphEdgesIteratorInstance& operator=(AdjacentGraphEdgesIteratorInstance&& o) { 
+        This& operator=(This&& o) { 
             this->vertex = o.vertex;
             this->move = o.move;
             this->graph = o.graph;
@@ -97,7 +97,7 @@ namespace cpp_utils::graphs {
             this->tmp = ::std::move(o.tmp);
             return *this;
         }
-        AdjacentGraphEdgesIteratorInstance& operator++() { 
+        This& operator++() { 
             this->computeNext();
             return *this;
         }
@@ -149,7 +149,7 @@ namespace cpp_utils::graphs {
         }
     public:
         bool isEqualTo(const AbstractConstIterator<Edge<E>&, Edge<E>*>* o) const {
-            auto b = static_cast<const AdjacentGraphEdgesIteratorInstance*>(o);
+            auto b = static_cast<const This*>(o);
 
             if (this->isEnded() && b->isEnded()) {
                 return true;
