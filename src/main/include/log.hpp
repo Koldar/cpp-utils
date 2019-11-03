@@ -13,8 +13,8 @@
  * @author koldar
  */
 
-#ifndef LOG_H_
-#define LOG_H_
+#ifndef _CPP_UTILS_LOG_HEADER_
+#define _CPP_UTILS_LOG_HEADER_
 
 #include <iostream>
 #include "macros.hpp"

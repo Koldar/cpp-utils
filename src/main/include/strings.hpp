@@ -1,5 +1,5 @@
-#ifndef _STRINGS_HEADER__
-#define _STRINGS_HEADER__
+#ifndef _CPP_UTILS_STRINGS_HEADER__
+#define _CPP_UTILS_STRINGS_HEADER__
 
 #include <string>
 #include <iostream>
