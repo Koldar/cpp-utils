@@ -14,47 +14,13 @@
 
 namespace cpp_utils {
 
-typedef unsigned long priority_t;
-
-/**
- * @brief An item which has a priority which can be exploit by the queue to order the elements
- * 
- * The item itself should see this priority as just a random number and nothing more.
- * For sorting the elements in the queue, the item should implement the operator \f$<\f$
- * 
- * The class is not templated with the context type because the interface reprsents that the object has a priority,
- * but it does say who is going to exploit the priority. Hence the `void*` in the methods: everyone can potentially use
- * the same getPriority and setPriority methods.
- */
-class HasPriority {
-public:
-    /**
-     * @brief Get the Priority object
-     * 
-     * @param context the queue whose priority you need to retrieve. Essential if the item belong to multiple queues.
-     * @return priority_t thew priority of the object
-     */
-    virtual priority_t getPriority(const void* context) const = 0;
-    /**
-     * @brief Set the Priority object
-     * 
-     * The method is called when:
-     *  - a new element is added in a context;
-     *  - an old element is swapped with another one in a context;
-     * 
-     * @param context the queue whose priority you need to retrieve. Essential if the item belong to multiple queues.
-     * @param p the priority to set
-     */
-    virtual void setPriority(const void* context, priority_t p) = 0;
-};
-
 /**
  * @brief Simple defaut implementation of an object with priority
  * 
  * @tparam T type of the object involved
  */
 template <typename T>
-class ValueWithPriority: public HasPriority {
+class ValueWithPriority: public HasPriority<priority_t> {
 public:
     friend bool operator ==(const ValueWithPriority<T>& a, const ValueWithPriority<T>& b) {
         if (&a == &b) {
@@ -193,7 +159,7 @@ public:
  */
 template <typename ITEM>
 class StaticPriorityQueue : public IQueue<ITEM> {
-    friend class StaticPriorityQueueIterator<ITEM>;
+    //friend class StaticPriorityQueueIterator<ITEM>;
     private:
         /**
          * @brief true if the queue put as head the item with least priority 
@@ -417,7 +383,6 @@ class StaticPriorityQueue : public IQueue<ITEM> {
 			return this->minqueue; 
 		}
 
-        SetPlus<ITEM&> peekItemsWithAtMost()
     public:
         void cleanup() {
             this->clear();
@@ -446,7 +411,7 @@ class StaticPriorityQueue : public IQueue<ITEM> {
             return parent * 2 + 2;
         }
         int getParent(priority_t child) const {
-            return index -1 >> 1; //>> is a division by 2
+            return child - 1 >> 1; //>> is a division by 2
         }
         /**
          * @brief reorders the subpqueue containing elts_[index]
