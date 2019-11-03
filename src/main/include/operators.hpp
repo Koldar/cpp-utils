@@ -91,6 +91,52 @@ namespace std {
 	::std::ostream& operator <<(::std::ostream& ss, const boost::filesystem::path& p);
 
 	// ####################################################################
+	// templated logical operators
+	// ####################################################################
+
+	template <typename T>
+	struct Operator_Lt {
+		bool operator() (const T& a, const T& b) const {
+			return a < b;
+		}
+	};
+
+	template <typename T>
+	struct Operator_Leq {
+		bool operator() (const T& a, const T& b) const {
+			return a <= b;
+		}
+	};
+
+	template <typename T>
+	struct Operator_Gt {
+		bool operator() (const T& a, const T& b) const {
+			return a > b;
+		}
+	};
+
+	template <typename T>
+	struct Operator_Geq {
+		bool operator() (const T& a, const T& b) const {
+			return a >= b;
+		}
+	};
+
+	template <typename T>
+	struct Operator_Eq {
+		bool operator() (const T& a, const T& b) const {
+			return a == b;
+		}
+	};
+
+	template <typename T>
+	struct Operator_Ne {
+		bool operator() (const T& a, const T& b) const {
+			return a != b;
+		}
+	};
+
+	// ####################################################################
 	// hash
 	// ####################################################################
 
