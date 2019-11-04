@@ -152,7 +152,7 @@ namespace cpp_utils::serializers {
             T element;
             size_t stuffRead = std::fread(&element, sizeof(element), 1, f);
             if((int)stuffRead != 1) {
-                error("we were expecting to read ", 1, " but we read", stuffRead, "elements instead");
+                log_error("we were expecting to read ", 1, " but we read", stuffRead, "elements instead");
                 throw cpp_utils::exceptions::FileOpeningException{recoverFilename(f)};
             }
             set.add(element);

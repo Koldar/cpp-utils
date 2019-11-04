@@ -123,8 +123,8 @@ namespace cpp_utils {
         errno = 0;
         FILE* pipe = popen(cmd.c_str(), "r");
         if (pipe == nullptr) {
-            error("failed executing cmd \"", cmd.c_str(), "\"");
-            error("reason: ", strerror(errno));
+            log_error("failed executing cmd \"", cmd.c_str(), "\"");
+            log_error("reason: ", strerror(errno));
             throw cpp_utils::exceptions::ImpossibleException{"popen() failed! While executing %s", cmd};
         }
 
@@ -169,8 +169,8 @@ namespace cpp_utils {
         critical("open files are ", getOpenFileDescriptors());
         FILE* pipe = popen(cmd.c_str(), "r");
         if (pipe == nullptr) {
-            error("failed executing cmd \"", cmd.c_str(), "\"");
-            error("reason: ", strerror(errno));
+            log_error("failed executing cmd \"", cmd.c_str(), "\"");
+            log_error("reason: ", strerror(errno));
             throw cpp_utils::exceptions::ImpossibleException{"popen() failed! While executing %s", cmd};
         }
 

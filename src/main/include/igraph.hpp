@@ -40,11 +40,11 @@ namespace cpp_utils::serializers {
     template <typename E>
     cpp_utils::graphs::Edge<E>& loadFromFile(FILE* f, cpp_utils::graphs::Edge<E>& e) {
         if(std::fread(&e.sourceId, sizeof(e.sourceId), 1, f) != 1) {
-            error("error while readind sourceId of Edge");
+            log_error("error while readind sourceId of Edge");
             throw cpp_utils::exceptions::FileOpeningException{recoverFilename(f)};
         }
         if(std::fread(&e.sinkId, sizeof(e.sinkId), 1, f) != 1) {
-            error("error while readind sinkId of Edge");
+            log_error("error while readind sinkId of Edge");
             throw cpp_utils::exceptions::FileOpeningException{recoverFilename(f)};
         }
         ::cpp_utils::serializers::loadFromFile(f, e.payload);

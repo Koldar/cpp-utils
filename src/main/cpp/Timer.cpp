@@ -218,7 +218,7 @@ namespace cpp_utils {
 
     timing_t Timer::getCurrentElapsedMicroSeconds() const {
         if (!this->isRunning()) {
-            error("timer is not running!");
+            log_error("timer is not running!");
             throw cpp_utils::exceptions::InvalidStateException<Timer>{*this};
         }
     #ifdef OS_MAC

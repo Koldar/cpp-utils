@@ -86,7 +86,7 @@ namespace cpp_utils {
             std::smatch matches;
             bool canMatch = std::regex_match(mathInterval, matches, re);
             if (!canMatch) {
-                error("interval was \"", mathInterval, "\"");
+                log_error("interval was \"", mathInterval, "\"");
                 throw std::invalid_argument{"regex didn't match"};
             }
 

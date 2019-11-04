@@ -87,14 +87,14 @@ namespace cpp_utils::serializers {
     std::vector<EL>& loadFromFile(FILE* f, std::vector<EL>& result) {
         int s;
         if(std::fread(&s, sizeof(s), 1, f) != 1) {
-            error("error while reading vector size. Sizeof(EL)", sizeof(s));
+            log_error("error while reading vector size. Sizeof(EL)", sizeof(s));
             throw cpp_utils::exceptions::FileOpeningException{recoverFilename(f)};
         }
         result.resize(s);
 
         size_t stuffRead = std::fread(&result[0], sizeof(EL), s, f);
         if((int)stuffRead != s) {
-            error("we were expecting to read ", s, " but we read", stuffRead, "elements instead");
+            log_error("we were expecting to read ", s, " but we read", stuffRead, "elements instead");
             throw cpp_utils::exceptions::FileOpeningException{recoverFilename(f)};
         }
 

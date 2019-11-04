@@ -187,7 +187,7 @@ namespace cpp_utils {
                 DO_ON_DEBUG {
                     assert(mem_ >= addr);
                     if((unsigned)(addr-mem_) >= pool_size_) {
-                        error("err; warthog::mem::cchunk; freeing memory outside range of the chunk at addr: ", &mem_);
+                        log_error("err; warthog::mem::cchunk; freeing memory outside range of the chunk at addr: ", &mem_);
                     }
                 }
 

@@ -466,7 +466,7 @@ namespace cpp_utils::graphs {
                 } else if (lastSourceIdHandled == sourceId) {
                     this->edges.push_back(OutEdge<E>{sinkId, payload});
                 } else {
-                    error("last source id=", lastSourceIdHandled, "current sourceId=", sourceId);
+                    log_error("last source id=", lastSourceIdHandled, "current sourceId=", sourceId);
                     throw cpp_utils::exceptions::ImpossibleException{"last source id is greater than sourceId"};
                 } 
             }

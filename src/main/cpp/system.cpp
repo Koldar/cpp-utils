@@ -148,7 +148,7 @@ namespace cpp_utils {
 		ssize_t bytesWritten = ::readlink(boost::filesystem::absolute(link.string()).c_str(), &buffer[0], BUFFER_SIZE);
 
 		if (bytesWritten < 0) {
-			error("reason", strerror(errno));
+			log_error("reason", strerror(errno));
 			throw cpp_utils::exceptions::ImpossibleException{"readlink error!"};
 		}
 		if (bytesWritten >= BUFFER_SIZE) {

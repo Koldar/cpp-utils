@@ -204,9 +204,9 @@ void __abstractLog(int levelNo, const char* level, const char* file, const char*
  *
  * @param[in] ... the entries to put on stream
  */
-#define error(...) _abstractLog(7, "ERROR", __VA_ARGS__)
+#define log_error(...) _abstractLog(7, "ERROR", __VA_ARGS__)
 #else
-#define error(...) ;
+#define log_error(...) ;
 #endif
 
 #if QUICK_LOG <= 8

@@ -276,7 +276,7 @@ public:
     }
     virtual void addEdge(nodeid_t sourceId, nodeid_t sinkId, const E& payload) {
         if ((this->edges.size() > 0) && (this->edges.back().getSourceId() > sourceId)) {
-            error("trying to add edge ", sourceId, "->", sinkId, "on graph with #edges=", this->edges.size(), "but the last edge has source", this->edges.back().getSourceId());
+            log_error("trying to add edge ", sourceId, "->", sinkId, "on graph with #edges=", this->edges.size(), "but the last edge has source", this->edges.back().getSourceId());
             throw cpp_utils::exceptions::ImpossibleException{"source ids are not compliant with ListGraph invariant"};
         }
         this->edges.push_back(Edge<E>{sourceId, sinkId, payload});
