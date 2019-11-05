@@ -37,7 +37,7 @@ namespace cpp_utils {
          */
         CSVWriter(const boost::filesystem::path& filename, char separator, const vectorplus<std::string>& header) : filename{filename}, separator{separator}, header{header} {
             this->f.open(filename.string(), std::fstream::trunc);
-            this->f << "sep=" << separator << std::endl;
+            //this->f << "sep=" << separator << std::endl;
             for (int i=0; i<header.size(); ++i) {
                 this->f << header[i];
                 if ((i+1) != header.size()) {
