@@ -2,6 +2,7 @@
 #define _MATH_HEADER__
 
 #include <cmath>
+#include "exceptions.hpp"
 #include "log.hpp"
 
 namespace cpp_utils {
@@ -137,6 +138,45 @@ namespace cpp_utils {
     template <typename T>
     constexpr T pow2GreaterThan(T n) {
         return n == 0 ? 0 : _Pow2GreaterThan(n, 1);
+    }
+
+    /**
+     * @brief converts a decimal number into a pair of numerator and denominator
+     * 
+     * The function will generate ratios where the denominator is a power of 10.
+     * 
+     * @tparam T the type of the decimale number. Ususally either `double` or `float`
+     * @tparam OUT the type of the numerator and denominator
+     * @param decimal the number to convert
+     * @param numerator the number which  will represents the numerator
+     * @param denominator the number which  will represents the denominator
+     * @param epsilon threshold of accuracy for the decimal value
+     * @param limit tries to perform before giving up the conversion. Ususally the module of the exponent of `epsilon`. Needs to be > 0
+     */
+    template <typename T, typename OUT>
+    void getRatioOf(T decimal, OUT& numerator, OUT& denominator, T epsilon, int limit) {
+        denominator = 1;
+        T denominatorT = 1;
+
+        while (true) {
+            if (limit == 0) {
+                throw cpp_utils::exceptions::InvalidArgumentException{"cannot convert fraction %f into numerator and denominator", decimal};
+            }
+            limit -= 1;
+
+            numerator = decimal * denominator;
+            T numeratorT = decimal * denominatorT;
+
+            T numeratorTimesDivided10 = (static_cast<T>(10.) * numeratorT)/(static_cast<T>(10.));
+            if (isApproximatelyEqual(numeratorTimesDivided10, static_cast<T>(numerator), epsilon)) {
+                //only an integer number would return the same value
+                return;
+            } else {
+                //increase the numerator and denominator
+                denominator *= 10;
+                denominatorT *= 10;
+            }
+        }
     }
 
     template <typename T>

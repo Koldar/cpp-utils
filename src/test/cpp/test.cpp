@@ -492,6 +492,37 @@ SCENARIO("test cpool") {
 
 SCENARIO("test math") {
 
+    GIVEN("test ratio conversion") {
+        int n;
+        int d;
+
+        WHEN("integer number") {
+            getRatioOf(13., n, d, 1e-6, 10);
+            REQUIRE(n == 13);
+            REQUIRE(d == 1);
+        }
+        WHEN("decimal number") {
+            getRatioOf(1.3, n, d, 1e-6, 10);
+            REQUIRE(n == 13);
+            REQUIRE(d == 10);
+        }
+        WHEN("decimal number") {
+            getRatioOf(1.33, n, d, 1e-6, 10);
+            REQUIRE(n == 133);
+            REQUIRE(d == 100);
+        }
+        WHEN("decimal number") {
+            getRatioOf(0.3, n, d, 1e-6, 10);
+            REQUIRE(n == 3);
+            REQUIRE(d == 10);
+        }
+        WHEN("decimal number") {
+            getRatioOf(0.003, n, d, 1e-6, 10);
+            REQUIRE(n == 3);
+            REQUIRE(d == 1000);
+        }
+    }
+
     GIVEN("test ceil power") {
         REQUIRE(pow2GreaterThan(0) == 0);
         REQUIRE(pow2GreaterThan(1) == 1);
