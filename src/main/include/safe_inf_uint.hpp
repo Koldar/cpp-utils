@@ -381,23 +381,43 @@ namespace cpp_utils {
         void setToInfinity() {
             this->value = UINT64_MAX;
         }
-
+    public:
+        int toInt() const {
+            return (int)this->value;
+        }
+        unsigned int toUInt() const {
+            return (unsigned int) this->value;
+        }
+        long toLong() const {
+            return (long) this->value;
+        }
+        unsigned long toULong() const {
+            return (unsigned long)this->value;
+        }
+        uint32_t toUInt32() const {
+            return (uint32_t)this->value;
+        }
     public:
         explicit operator int() {
             return (int)this->value;
         }
+
         explicit operator long() {
             return (long)this->value;
         }
+
         explicit operator float() {
             return (float)this->value;
         }
+
         explicit operator double() {
             return (double)this->value;
         }
+
         explicit operator unsigned int() {
             return (unsigned int)this->value;
         }
+
         explicit operator unsigned long() {
             return (unsigned long)this->value;
         }
