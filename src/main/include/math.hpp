@@ -179,6 +179,90 @@ namespace cpp_utils {
         }
     }
 
+    namespace internal {
+
+        template<typename T>
+        constexpr int _argmin2(int minimumIndex, int nIndex, const T& minimum) {
+            return minimumIndex;
+        }
+
+        template<typename T, typename... NUMS>
+        constexpr int _argmin2(int minimumIndex, int nIndex, const T& minimum, const T& n, const NUMS&... args) {
+            return (n < minimum)
+                ? _argmin2(nIndex, nIndex + 1, n, args...)
+                : _argmin2(minimumIndex, nIndex + 1, minimum, args...)
+            ;
+        }
+
+        template<typename T, typename... NUMS>
+        constexpr int _argmin1(const T& first, const NUMS&... args) {
+            return _argmin2(0, 1, first, args...);
+        }
+
+        template<typename T>
+        constexpr int _argmax2(int maximumIndex, int nIndex, const T& maximum) {
+            return maximumIndex;
+        }
+
+        template<typename T, typename... NUMS>
+        constexpr int _argmax2(int maximumIndex, int nIndex, const T& maximum, const T& n, const NUMS&... args) {
+            return (n > maximum)
+                ? _argmax2(nIndex, nIndex + 1, n, args...)
+                : _argmax2(maximumIndex, nIndex + 1, maximum, args...)
+                ;
+        }
+
+        template<typename T, typename... NUMS>
+        constexpr int _argmax1(const T& first, const NUMS&... args) {
+            return _argmax2(0, 1, first, args...);
+        }
+
+    }
+
+    /**
+     * @brief computes the argmin of a sequence of values
+     * 
+     * the argmin is the index of the element which is the minimum
+     * 
+     * @note
+     * if multiple values are the minimum, we will return the index of the first one
+     * 
+     * @tparam NUMS 
+     * @param args 
+     * @return constexpr int 
+     */
+    template<typename... NUMS>
+    constexpr int argmin(const NUMS&... args) {
+        return internal::_argmin1(args...);
+    }
+
+    template <typename T>
+    constexpr int argmin(const T& num) {
+        return 0;
+    }
+
+    /**
+     * @brief computes the argmax of a sequence of values
+     * 
+     * the argmax is the index of the element which is the maximum
+     * 
+     * @note
+     * if multiple values are the maximum, we will return the index of the first one
+     * 
+     * @tparam NUMS 
+     * @param args 
+     * @return constexpr int 
+     */
+    template<typename... NUMS>
+    constexpr int argmax(const NUMS&... args) {
+        return internal::_argmax1(args...);
+    }
+
+    template<typename T>
+    constexpr int argmax(const T& num) {
+        return 0;
+    }
+
     template <typename T>
     bool isDecimal(const T& n) {
         return isApproximatelyEqual(std::fmod(n, 1.0), 0.0, 1e-3);

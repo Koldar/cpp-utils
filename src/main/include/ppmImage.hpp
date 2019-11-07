@@ -129,6 +129,21 @@ public:
 public:
 	color_t getPixel(size_t x, size_t y) const;
 	void setPixel(size_t x, size_t y, const color_t& color);
+	/**
+	 * @brief Set the Rectangle Pixel object
+	 * 
+	 * @pre
+	 *  @li \f$ top < bottom \f$;
+	 *  @li  \f$ left < right \f$;
+	 * 
+	 * @param top inclusive
+	 * @param left inclusive
+	 * @param bottom excluded
+	 * @param right excluded
+	 */
+	void setRectanglePixel(size_t top, size_t left, size_t bottom, size_t right, const color_t& color, bool bottomIncluded = false, bool rightIncluded = false);
+	void setHorizontalLine(size_t y, size_t left, size_t right, const color_t& color, bool rightIncluded = false);
+	void setVerticalLine(size_t x, size_t top, size_t bottom, const color_t& color, bool bottomIncluded = false);
 	void setAllPixels(const color_t& color);
 	void mergePixel(size_t x, size_t y, const color_t& color);
 	void merge(const PPMImage& other);

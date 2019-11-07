@@ -2,38 +2,76 @@
 #define _CPP_UTILS_INTERVAL_HEADER__
 
 #include <regex>
+#include <cmath>
+#include <iostream>
+
+#include "math.hpp"
 
 namespace cpp_utils {
 
 
+    /**
+     * @brief interval of 2 numbers.
+     * 
+     * @tparam T type of the values
+     */
     template <typename T>
     class Interval {
-        typedef Interval<T> IntervalInstance;
+        using This = Interval<T>;
     private:
         T lb;
         T ub;
         bool lbIncluded;
         bool ubIncluded;
     public:
-        Interval(const T& lb, const T& ub, bool lbIncluded, bool ubIncluded): lb{lb}, ub{ub}, lbIncluded{lbIncluded}, ubIncluded{ubIncluded} {
+        friend std::ostream& operator <<(std::ostream& ss, const This& i) {
+            ss  << "{" 
+                << (i.lbIncluded ? "[" : "(")
+                << i.lb
+                << "; "
+                << i.ub
+                << (i.ubIncluded ? "]" : ")")
+                << "}";
+            return ss;
+        }
+        friend This operator +(const This&a , const This& b) {
+            This result{a};
+            result += b;
+            return result;
+        }
+        friend This operator -(const This&a , const This& b) {
+            This result{a};
+            result -= b;
+            return result;
+        }
+        friend This operator *(const This&a , const This& b) {
+            This result{a};
+            result *= b;
+            return result;
+        }
+    public:
+        explicit Interval(const T& v): lb{v}, ub{v}, lbIncluded{true}, ubIncluded{true} {
+            
+        }
+        explicit Interval(const T& lb, const T& ub, bool lbIncluded, bool ubIncluded): lb{lb}, ub{ub}, lbIncluded{lbIncluded}, ubIncluded{ubIncluded} {
 
         }
         virtual ~Interval() {
 
         }
-        Interval(const IntervalInstance& o): lb{o.lb}, ub{o.ub}, lbIncluded{o.lbIncluded}, ubIncluded{o.ubIncluded} {
+        Interval(const This& o): lb{o.lb}, ub{o.ub}, lbIncluded{o.lbIncluded}, ubIncluded{o.ubIncluded} {
 
         }
-        Interval(IntervalInstance&& o): lb{o.lb}, ub{o.ub}, lbIncluded{o.lbIncluded}, ubIncluded{o.ubIncluded} {
+        Interval(This&& o): lb{o.lb}, ub{o.ub}, lbIncluded{o.lbIncluded}, ubIncluded{o.ubIncluded} {
         }
-        IntervalInstance& operator =(const IntervalInstance& o) {
+        This& operator =(const This& o) {
             this->lb = o.lb;
             this->ub = o.ub;
             this->lbIncluded = o.lbIncluded;
             this->ubIncluded = o.ubIncluded;
             return *this;
         }
-        IntervalInstance& operator =(IntervalInstance&& o) {
+        This& operator =(This&& o) {
             this->lb = o.lb;
             this->ub = o.ub;
             this->lbIncluded = o.lbIncluded;
@@ -41,6 +79,74 @@ namespace cpp_utils {
             return *this;
         }
     public:
+        This& operator +=(const This& o) {
+            this->lb += o.lb;
+            this->ub += o.ub;
+            this->lbIncluded = this->lbIncluded && o.lbIncluded;
+            this->ubIncluded = this->ubIncluded && o.ubIncluded;
+            return *this;
+        }
+        This& operator +=(const T& v) {
+            this->lb += v;
+            this->ub += v;
+            return *this;
+        }
+        This& operator -=(const This& o) {
+            this->lb = this->lb - o.ub;
+            this->ub -= this->ub - o.lb;
+            this->lbIncluded = o.ubIncluded && this->lbIncluded;
+            this->ubIncluded = this->ubIncluded && o.lbIncluded;
+            return *this;
+        }
+        This& operator -=(const T& v) {
+            this->lb -= v;
+            this->ub -= v;
+            return *this;
+        }
+        This& operator *=(const This& o) {
+            this->lb = std::min(this->lb * o.lb, this->lb * o.ub, this->ub * o.lb, this->ub * o.ub);
+            this->ub -= std::max(this->lb * o.lb, this->lb * o.ub, this->ub * o.lb, this->ub * o.ub);
+            
+            int amin = argmin(this->lb * o.lb, this->lb * o.ub, this->ub * o.lb, this->ub * o.ub);
+            switch (amin) {
+                case 0: this->lbIncluded = this->lbIncluded && o.lbIncluded; break;
+                case 1: this->lbIncluded = this->lbIncluded && o.ubIncluded; break;
+                case 2: this->lbIncluded = this->ubIncluded && o.lbIncluded; break;
+                case 3: this->lbIncluded = this->ubIncluded && o.ubIncluded; break;
+                default: {
+                    throw cpp_utils::exceptions::makeInvalidScenarioException(amin);
+                }
+            }
+
+            int amax = argmax(this->lb * o.lb, this->lb * o.ub, this->ub * o.lb, this->ub * o.ub);
+            switch (amax) {
+                case 0: this->ubIncluded = this->lbIncluded && o.lbIncluded; break;
+                case 1: this->ubIncluded = this->lbIncluded && o.ubIncluded; break;
+                case 2: this->ubIncluded = this->ubIncluded && o.lbIncluded; break;
+                case 3: this->ubIncluded = this->ubIncluded && o.ubIncluded; break;
+                default: {
+                    throw cpp_utils::exceptions::makeInvalidScenarioException(amin);
+                }
+            }
+
+            return *this;
+        }
+        This& operator *=(const T& v) {
+            this->lb *= v;
+            this->ub *= v;
+            return *this;
+        }
+    public:
+        This& scale(const T& v) const {
+            This result{*this};
+            result *= v;
+            return result;
+        }
+        This& translate(const T& v) const {
+            This result{*this};
+            result += v;
+            return result;
+        }
         /**
          * @return the lowerrbound you can put to a c++ rnadom distribution in order to get a random number
          */
@@ -71,6 +177,15 @@ namespace cpp_utils {
             return (v > lb) && (v < ub);
         }
     public:
+        /**
+         * @brief create an interval which contains only a single value
+         * 
+         * @param v the value to contain
+         * @return This 
+         */
+        static This singleton(const T& v) {
+            return This{v, v, true, true};
+        }
         /**
          * generate a Interval from a mathematical Interval string
          *

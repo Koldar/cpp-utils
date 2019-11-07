@@ -109,6 +109,24 @@ void PPMImage::setPixel(size_t x, size_t y, const color_t& color) {
 	this->image[y*this->width + x] = color;
 }
 
+void PPMImage::setRectanglePixel(size_t top, size_t left, size_t bottom, size_t right, const color_t& color, bool bottomIncluded, bool rightIncluded) {
+	bottom += bottomIncluded ? 1 : 0;
+	right += rightIncluded ? 1 : 0;
+	for (auto y=top; y<bottom; ++y) {
+		for (auto x=left; x<right; ++x) {
+			this->setPixel(x, y, color);
+		}
+	}
+}
+
+void PPMImage::setHorizontalLine(size_t y, size_t left, size_t right, const color_t& color, bool rightIncluded) {
+	this->setRectanglePixel(y, left, y, right, color, true, rightIncluded);
+}
+
+void PPMImage::setVerticalLine(size_t x, size_t top, size_t bottom, const color_t& color, bool bottomIncluded = false) {
+	this->setRectanglePixel(top, x, bottom, x, color, bottomIncluded, true);
+}
+
 void PPMImage::setAllPixels(const color_t& color) {
 	for (auto y=0; y<this->height; ++y) {
 		for (auto x=0; x<this->width; ++x) {

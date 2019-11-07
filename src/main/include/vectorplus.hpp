@@ -5,8 +5,10 @@
 #include <algorithm>
 #include <functional>
 #include <type_traits>
+
 #include "ICleanable.hpp"
 #include "imemory.hpp"
+#include "Random.hpp"
 
 namespace cpp_utils {
 
@@ -108,7 +110,8 @@ public:
      * @return const EL& 
      */
     EL& at(int index) {
-        return std::vector<EL>::operator[](this->toAbsolute(index));
+        EL& result = std::vector<EL>::operator[](this->toAbsolute(index));
+        return result;
     }
     const EL& operator [](int index) const {
         return this->at(index);
@@ -348,6 +351,43 @@ public:
         return (*this)[0];
     }
     /**
+     * @brief alias of `getHead`
+     * 
+     * @return const EL& head of the vector
+     */
+    const EL& peek() const {
+        return (*this)[0];
+    }
+    /**
+     * @brief alias of `getHead`
+     * 
+     * @return L& head of the vector
+     */
+    EL& peek() {
+        return (*this)[0];
+    }
+    /**
+     * @brief yields the first item of the vector and removes it from the vector
+     * 
+     * @pre
+     *  @li the element is not empty
+     * 
+     * @return EL the first element of the vector
+     */
+    EL popHead() {
+        EL result = this->front();
+		this->erase(this->begin());
+        return result;
+    }
+    /**
+     * @brief Alias of `popHead`
+     * 
+     * @return EL the first element of the vector
+     */
+    EL pop() {
+        return this->popHead();
+    }
+    /**
      * @brief the last element of this vector
      * 
      * @pre
@@ -390,6 +430,25 @@ public:
      */
     int lastIndex() const {
         return this->size() - 1;
+    }
+
+    /**
+     * @brief get a random element compliant with the given range
+     * 
+     * @param i the range involved
+     * @return const EL& a random element within the range
+     */
+    const EL& getRandomIn(const Interval<int>& i) const {
+        return (*this)[Random::nextNum<int>(i)];
+    }
+
+    /**
+     * @brief get a random element in the vector
+     * 
+     * @return const EL& a random element in the vector
+     */
+    const EL& getRandom() const {
+        return (*this)[Random::nextNum<int>(0, this->size(), true, false)];
     }
 public:
     template <typename... OTHER>

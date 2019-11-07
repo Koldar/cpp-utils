@@ -45,6 +45,16 @@ namespace cpp_utils {
             return *this;
         }
     public:
+        void doOnObserver(const std::function<void(const OBSERVER&)>& lambda) const {
+            if (this->listener != nullptr) {
+                lambda(*this->listener);
+            }
+        }
+        void doOnObserver(const std::function<void(OBSERVER&)>& lambda) {
+            if (this->listener != nullptr) {
+                lambda(*this->listener);
+            }
+        }
         void setListener(const OBSERVER& listener) {
             this->listener = const_cast<OBSERVER*>(&listener);
         }
