@@ -567,6 +567,10 @@ namespace cpp_utils::graphs {
         /**
          * @brief create a new copy of the whole graph but perform a mapping function over the edges
          * 
+         * @note
+         * When the graph is large, even with simple @c edgeMapper the function can heavily impact performances.
+         * We're talking about milliseconds!
+         * 
          * @tparam OUT type of the edge payload in the output graph
          * @param edgeMapper 
          * @return std::unique_ptr<IImmutableGraph<G, V, OUT>> 
