@@ -19,6 +19,7 @@ public:
 	static const color_t RED;
 	static const color_t GREEN;
 	static const color_t BLUE;
+	static const color_t CYAN;
 public:
 	color_t() : red{0}, green{0}, blue{0} {
 
