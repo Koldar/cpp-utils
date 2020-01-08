@@ -143,25 +143,26 @@ SCENARIO("test random") {
     Random rnd{(unsigned int)seed.tv_nsec};
 
     GIVEN("random") {
-        // REQUIRE(rnd.next(5, 6, false) == 5);
+        // REQUIRE(rnd.nextInt(5, 6, false) == 5);
 
         for (int i=0; i<1000; ++i) {
-            auto x = rnd.next(5, 6, true);
+            auto x = rnd.nextInt(5, 6, true);
             if (x != 5 && x != 6) {
+                critical("wrong x was", x);
                 REQUIRE(false);
             }
         }
 
         for (int i=0; i<1000; ++i) {
-            auto x = rnd.next(5, 10, false);
+            auto x = rnd.nextInt(5, 10, false);
             if (x != 5 && x != 6 && x != 7 && x!= 8 && x != 9) {
                 REQUIRE(false);
             }
         }
 
         WHEN("testing empty range") {
-            REQUIRE(rnd.next(5,6, false) == 5);
-            REQUIRE(rnd.next(5,5, true) == 5);
+            REQUIRE(rnd.nextInt(5,6, false) == 5);
+            REQUIRE(rnd.nextInt(5,5, true) == 5);
         }
 
         
@@ -255,72 +256,6 @@ SCENARIO("test system interface") {
         REQUIRE((callPyEvalAndCastNumberTo<int>("100*{V}+{E}", "V", 50, "E", 100) == 5100));
         REQUIRE((callPyEvalAndCastNumberTo<int>("100*{V}+log({E}, 10)", "V", 50, "E", 100) == 5002));
     }
-}
-
-SCENARIO("test Interval") {
-
-    GIVEN("testing methods") {
-
-        Interval<int> a{4, 6, true, false};
-
-        REQUIRE(a.getLB() == 4);
-        REQUIRE(a.getUB() == 5);
-    }
-
-    GIVEN("parse interval") {
-
-        WHEN("both exclusive") {
-            auto a = Interval<int>::fromMath("(5,16)");
-
-            REQUIRE(a.getLB() == 6);
-            REQUIRE(a.getUB() == 15);
-
-            a = Interval<int>::fromMath("]5,16[");
-
-            REQUIRE(a.getLB() == 6);
-            REQUIRE(a.getUB() == 15);
-        }
-
-        WHEN("lb inclusive") {
-            auto a = Interval<int>::fromMath("[5,16)");
-
-            REQUIRE(a.getLB() == 5);
-            REQUIRE(a.getUB() == 15);
-
-            a = Interval<int>::fromMath("[5,16[");
-
-            REQUIRE(a.getLB() == 5);
-            REQUIRE(a.getUB() == 15);
-        }
-
-        WHEN("ub inclusive") {
-            auto a = Interval<int>::fromMath("(5,16]");
-
-            REQUIRE(a.getLB() == 6);
-            REQUIRE(a.getUB() == 16);
-
-            a = Interval<int>::fromMath("]5,16]");
-
-            REQUIRE(a.getLB() == 6);
-            REQUIRE(a.getUB() == 16);
-        }
-
-        WHEN("both inclusive") {
-            auto a = Interval<int>::fromMath("[5,16]");
-
-            REQUIRE(a.getLB() == 5);
-            REQUIRE(a.getUB() == 16);
-        }
-
-    }
-
-    GIVEN("interval with one value") {
-        auto a = Interval<int>::fromMath("[5,5]");
-
-        REQUIRE(a.getLB() == 5);
-        REQUIRE(a.getUB() == 5);
-    }
-    
 }
 
 SCENARIO("functional test") {
