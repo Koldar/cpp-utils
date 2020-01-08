@@ -232,6 +232,43 @@ namespace cpp_utils {
 
             return result;
         }
+
+        static Interval<double> parseDoubleInterval(const std::string& mathInterval) {
+            std::regex re{"^([\\[\\]\\(])(\\d+(?:\\.\\d*)?)\\s*,\\s*(\\d+(?:\\.\\d*)?)([\\[\\]\\)])$"};
+            std::smatch matches;
+            bool canMatch = std::regex_match(mathInterval, matches, re);
+            if (!canMatch) {
+                log_error("interval was \"", mathInterval, "\"");
+                throw std::invalid_argument{"regex didn't match"};
+            }
+
+            Interval<double> result{0., 0., true, true};
+
+            if (matches[1].str() == "[") {
+                result.lbIncluded = true;
+            } else if (matches[1].str() == "]") {
+                result.lbIncluded = false;
+            } else if (matches[1].str() == "(") {
+                result.lbIncluded = false;
+            } else {
+                throw cpp_utils::exceptions::InvalidArgumentException{"incompatible lower bound parenthesis. Expected one of []( but got '%c'", matches[1].str()};
+            }
+
+            result.lb = atof(matches[2].str().c_str());
+            result.ub = atof(matches[3].str().c_str());
+
+            if (matches[4].str() == "]") {
+                result.ubIncluded = true;
+            } else if (matches[4].str() == "[") {
+                result.ubIncluded = false;
+            } else if (matches[4].str() == ")") {
+                result.ubIncluded = false;
+            } else {
+                throw cpp_utils::exceptions::InvalidArgumentException{"incompatible upper bound parenthesis. Expected one of []) but got '%c'", matches[1].str()};
+            }
+
+            return result;
+        }
     };
 
 }
