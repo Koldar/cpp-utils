@@ -502,7 +502,7 @@ namespace cpp_utils::graphs {
          * @return nodeid_t 
          */
         nodeid_t getRandomVertex() const {
-            int node = Random::nextNum(0, this->numberOfVertices());
+            int node = cpp_utils::Random::nextNum(static_cast<size_t>(0), this->numberOfVertices());
             for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
                 if (node == 0) {
                     return it->first;
@@ -760,7 +760,7 @@ namespace cpp_utils::graphs {
     };
 
     /**
-     * @brief A graph whose only change is to alter the edge weights
+     * @brief A graph whose only change is to alter the edge weights and vertex payload
      * 
      * @tparam G 
      * @tparam V 
@@ -769,6 +769,13 @@ namespace cpp_utils::graphs {
     template <typename G, typename V, typename E>
     class INonExtendableGraph: public IImmutableGraph<G,V,E> {
     public:
+        /**
+         * @brief change the payload associated to a vertex
+         * 
+         * @param vertexId id of the vertex involved
+         * @param payload new payload to associated to the vertex
+         */
+        virtual void changeVertexPayload(nodeid_t vertexId, const V& payload) = 0;
         /**
          * @brief Change the label of the single edge
          * 

@@ -241,6 +241,9 @@ public:
         return false;
     }
 public:
+    virtual void changeVertexPayload(nodeid_t vertexId, const V& payload) {
+        this->vertexPayload[vertexId] = payload;
+    }
     virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) {
         for (auto i=0; i<this->edges.size(); ++i) {
             if (this->edges[i].getSourceId() > sourceId) {

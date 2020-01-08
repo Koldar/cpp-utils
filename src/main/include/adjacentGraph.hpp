@@ -409,6 +409,9 @@ namespace cpp_utils::graphs {
             return false;
         }
     public:
+        virtual void changeVertexPayload(nodeid_t vertexId, const V& payload) {
+            this->vertexPayload[vertexId] = payload;
+        }
         virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) {
             for (auto i=this->outEdgesOfvertexBegin[sourceId]; i<this->outEdgesOfvertexBegin[sourceId+1]; ++i) {
                 if (this->edges[i].getSinkId() == sinkId) {
