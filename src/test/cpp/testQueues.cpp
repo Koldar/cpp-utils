@@ -122,16 +122,16 @@ SCENARIO("test boostQueue") {
             REQUIRE(!q.isEmpty());
             REQUIRE(q.size() == 4);
 
-            info("queue is", q);
+            //info("queue is", q);
             REQUIRE(q.peek() == o3);
             REQUIRE(q.pop() == o3);
-            info("queue minus o3", q);
+            //info("queue minus o3", q);
             REQUIRE(q.pop() == o1);
             REQUIRE(q.pop() == o2);
 
-            info("queue before readding o2 ", q);
+            //info("queue before readding o2 ", q);
             q.push(o2);
-            info("queue after readding o2 ", q);
+            //info("queue after readding o2 ", q);
             REQUIRE(!q.contains(o1));
             REQUIRE(q.contains(o2));
             REQUIRE(!q.contains(o3));
@@ -166,16 +166,16 @@ SCENARIO("test boostQueue") {
             REQUIRE(!q.isEmpty());
             REQUIRE(q.size() == 4);
 
-            info("queue is", q);
+            //info("queue is", q);
             REQUIRE(q.peek() == o4);
             REQUIRE(q.pop() == o4);
-            info("queue minus or", q);
+            //info("queue minus or", q);
             REQUIRE(q.pop() == o2);
             REQUIRE(q.pop() == o1);
 
-            info("queue before readding o2 ", q);
+            //info("queue before readding o2 ", q);
             q.push(o2);
-            info("queue after readding o2 ", q);
+            //info("queue after readding o2 ", q);
             REQUIRE(!q.contains(o1));
             REQUIRE(q.contains(o2));
             REQUIRE(q.contains(o3));
