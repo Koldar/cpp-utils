@@ -126,7 +126,7 @@ void PPMImage::setHorizontalLine(size_t y, size_t left, size_t right, const colo
 	this->setRectanglePixel(y, left, y, right, color, true, rightIncluded);
 }
 
-void PPMImage::setVerticalLine(size_t x, size_t top, size_t bottom, const color_t& color, bool bottomIncluded = false) {
+void PPMImage::setVerticalLine(size_t x, size_t top, size_t bottom, const color_t& color, bool bottomIncluded) {
 	this->setRectanglePixel(top, x, bottom, x, color, bottomIncluded, true);
 }
 
@@ -190,6 +190,14 @@ const PPMImage* PPMImage::getPPM() const {
 void PPMImage::savePPM(const std::string& filename) const {
 	//create ppm
 	this->generatePPM(filename);
+}
+
+size_t PPMImage::getWidth() const {
+	return this->width;
+}
+
+size_t PPMImage::getHeight() const {
+	return this->height;
 }
 
 void PPMImage::checkDimensions(const PPMImage& a, const PPMImage& b) {

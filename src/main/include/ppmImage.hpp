@@ -153,6 +153,8 @@ public:
 	size_t totalPixels() const {
 		return this->width * this->height;
 	}
+	size_t getWidth() const;
+	size_t getHeight() const;
 private:
 	/**
 	 * @brief generate a file in the CWD representing a PPM image
