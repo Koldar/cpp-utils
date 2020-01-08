@@ -45,12 +45,30 @@ public:
 
     }
 public:
+    /**
+     * @brief adds a key-mapping inside the map
+     * 
+     * @param k key to add
+     * @param v value to add
+     */
     void put(const K& k, const V& v) {
         (*this)[k] = v;
     }
+    /**
+     * @brief retrieve the valu associated to the given key
+     * 
+     * @param k key involved
+     * @return const V& the value of the key
+     */
     const V& get(const K& k) const {
         return (*this)[k];
     }
+    /**
+     * @brief retrieve the valu associated to the given key
+     * 
+     * @param k key involved
+     * @return const V& the value of the key
+     */
     V& get(const K& k) {
         return (*this)[k];
     }
