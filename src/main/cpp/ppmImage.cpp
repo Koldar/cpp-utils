@@ -13,20 +13,6 @@
 
 namespace cpp_utils {
 
-const color_t color_t::BLACK = color_t{wrapped_uchar{0}, wrapped_uchar{0}, wrapped_uchar{0}};
-const color_t color_t::WHITE = color_t{wrapped_uchar{255}, wrapped_uchar{255}, wrapped_uchar{255}};
-
-const color_t color_t::RED = color_t{wrapped_uchar{255}, wrapped_uchar{0}, wrapped_uchar{0}};
-const color_t color_t::GREEN = color_t{wrapped_uchar{0}, wrapped_uchar{255}, wrapped_uchar{0}};
-const color_t color_t::BLUE = color_t{wrapped_uchar{0}, wrapped_uchar{0}, wrapped_uchar{255}};
-
-const color_t color_t::CYAN = color_t{wrapped_uchar{0}, wrapped_uchar{255}, wrapped_uchar{255}};
-
-std::ostream& operator << (std::ostream& out, const color_t& c) {
-	out << "R=" << static_cast<int>(c.red.getUnderlyingValue()) << " G=" << static_cast<int>(c.green.getUnderlyingValue()) << " B=" << static_cast<int>(c.blue.getUnderlyingValue());
-	return out;
-};
-
 PPMImage::PPMImage(const PPMImage& other) : width{other.width}, height{other.height}, image{nullptr} {
 	this->image = new color_t[this->width * this->height];
 	memcpy(this->image, other.image, sizeof(color_t) * this->width * this->height);
