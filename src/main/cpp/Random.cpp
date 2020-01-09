@@ -21,6 +21,11 @@ namespace cpp_utils {
 
     }
 
+    Random& Random::getDefault() {
+        static Random RANDOM{0};
+        return RANDOM;
+    }
+
     Random& Random::operator = (const Random& o) {
         this->uniformRealDistributions = o.uniformRealDistributions;
         this->uniformIntDistributions = o.uniformIntDistributions;
@@ -37,6 +42,14 @@ namespace cpp_utils {
 
     Random::~Random() {
 
+    }
+
+    int Random::next(int lowerbound, int upperbound, bool includeUpperbound) {
+        return Random::getDefault().nextInt(lowerbound, upperbound, includeUpperbound);
+    }
+
+    int Random::next(const Interval<int>& interval) {
+        return Random::getDefault().nextInt(interval);
     }
 
     bool Random::flip(double successProbability) {
@@ -58,6 +71,10 @@ namespace cpp_utils {
             }
         }
         return this->uniformRealDistributions[key](this->randomEngine);
+    }
+
+    double Random::nextDouble(const Interval<double>& interval) {
+        return this->nextDouble(interval.getLowerbound(), interval.getUpperbound(), interval.isUpperboundIncluded());
     }
     
     int Random::nextInt(int lowerbound, int upperbound, bool includeUpperbound) {

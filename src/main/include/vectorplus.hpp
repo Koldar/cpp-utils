@@ -439,7 +439,7 @@ public:
      * @return const EL& a random element within the range
      */
     const EL& getRandomIn(const Interval<int>& i) const {
-        return (*this)[Random::nextNum<int>(i)];
+        return (*this)[Random::next(i)];
     }
 
     /**
@@ -448,7 +448,7 @@ public:
      * @return const EL& a random element in the vector
      */
     const EL& getRandom() const {
-        return (*this)[Random::nextNum<int>(0, this->size(), true, false)];
+        return (*this)[Random::next(0, this->size(), true, false)];
     }
 public:
     template <typename... OTHER>

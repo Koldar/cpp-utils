@@ -90,7 +90,7 @@ namespace cpp_utils {
             if (this->isEmpty()) {
                 throw cpp_utils::exceptions::EmptyObjectException<SetPlusInstance>{*this};
             }
-            int n = Random::nextNum<int>(0, this->size());
+            int n = Random::next(0, this->size());
             for (auto it=this->begin(); it!=this->end(); ++it) {
                 if (n == 0) {
                     return *it;

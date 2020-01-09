@@ -502,7 +502,7 @@ namespace cpp_utils::graphs {
          * @return nodeid_t 
          */
         nodeid_t getRandomVertex() const {
-            int node = cpp_utils::Random::nextNum(static_cast<size_t>(0), this->numberOfVertices());
+            int node = cpp_utils::Random::next(static_cast<size_t>(0), this->numberOfVertices());
             for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
                 if (node == 0) {
                     return it->first;
@@ -554,7 +554,7 @@ namespace cpp_utils::graphs {
          * @param sinkId 
          */
         void getRandomEdge(nodeid_t& sourceId, nodeid_t sinkId) const {
-            int edge = Random::nextNum(0, this->numberOfEdges());
+            int edge = Random::next(0, this->numberOfEdges());
             for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
                 if (edge == 0) {
                     sourceId = it->getSourceId();

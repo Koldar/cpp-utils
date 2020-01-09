@@ -160,6 +160,46 @@ namespace cpp_utils {
         T getUB() const {
             return ub - (ubIncluded ? 0 : 1);
         }
+
+        /**
+         * @brief the lowerbound of the interval as shown in the notation [a,b)
+         * 
+         * Doesn't consider ::lbIncluded
+         * 
+         * @return T 
+         */
+        T getLowerbound() const {
+            return this->lb;
+        }
+        /**
+         * @brief the upperbound of the interval as shown in the notation [a,b)
+         * 
+         * Doesn't consider ::ubIncluded
+         * 
+         * @return true 
+         * @return false 
+         */
+        T getUpperbound() const {
+            return this->ub;
+        }
+        /**
+         * @brief check if the lowerbound of the itnerval is included in the interval
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool isLowerboundIncluded() const {
+            return this->lbIncluded;
+        }
+        /**
+         * @brief check if the upperbound of the itnerval is included in the interval
+         * 
+         * @return true 
+         * @return false 
+         */
+        bool isUpperboundIncluded() const {
+            return this->ubIncluded;
+        }
         /**
          * @brief check if a value is inside this range
          * 

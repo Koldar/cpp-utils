@@ -27,20 +27,25 @@ namespace cpp_utils {
         Random(const Random& o);
         Random(Random&& o);
     public:
+        /**
+         * @brief get a singleton of ::Random
+         * 
+         * sometimes you just want to fetch a a random number and you don't want to depend on an external
+         * ::Random instance. Use this method to do so.
+         * 
+         * @return Random& 
+         */
+        static Random& getDefault();
+    public:
         Random& operator = (const Random& o);
         Random& operator = (Random&& o);
         virtual ~Random();
     public:
-        template <typename T>
-        static T nextNum(T lowerbound, T upperbound, bool includeUpperbound = false) {
-            return Random{}.nextInt(lowerbound, upperbound, includeUpperbound);
-        }
-        template <typename T>
-        static T nextNum(const Interval<T>& interval) {
-            return Random{}.nextInt(interval);
-        }
+        static int next(int lowerbound, int upperbound, bool includeUpperbound = false);
+        static int next(const Interval<int>& interval);
     public:
         double nextDouble(double lowerbound, double upperbound, bool includeUpperbound = false);
+        double nextDouble(const Interval<double>& interval);
         int nextInt(int lowerbound, int upperbound, bool includeUpperbound = false);
         // template <typename T>
         // T next(T lowerbound, T upperbound, bool includeUpperbound = false) {
