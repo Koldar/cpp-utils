@@ -44,9 +44,9 @@ namespace cpp_utils {
         static int next(int lowerbound, int upperbound, bool includeUpperbound = false);
         static int next(const Interval<int>& interval);
     public:
-        double nextDouble(double lowerbound, double upperbound, bool includeUpperbound = false);
-        double nextDouble(const Interval<double>& interval);
-        int nextInt(int lowerbound, int upperbound, bool includeUpperbound = false);
+        double nextDouble(double lowerbound, double upperbound, bool includeUpperbound = false) const;
+        double nextDouble(const Interval<double>& interval) const;
+        int nextInt(int lowerbound, int upperbound, bool includeUpperbound = false) const;
         // template <typename T>
         // T next(T lowerbound, T upperbound, bool includeUpperbound = false) {
         //     if (includeUpperbound) {
@@ -74,7 +74,7 @@ namespace cpp_utils {
          * @param interval the involved interval
          * @return int a value in the interval
          */
-        int nextInt(const Interval<int>& interval);
+        int nextInt(const Interval<int>& interval) const;
         /**
          * @brief flip a coin which has the given probability to return OK and 1- the given probability to return KO
          * 
@@ -82,11 +82,11 @@ namespace cpp_utils {
          * @return true 
          * @return false 
          */
-        bool flip(double successProbability);
+        bool flip(double successProbability) const;
     private:
-        MapPlus<std::tuple<double, double, bool>, std::uniform_real_distribution<double>> uniformRealDistributions;
-        MapPlus<std::tuple<int, int>, std::uniform_int_distribution<int>> uniformIntDistributions;
-        std::mt19937_64 randomEngine;
+        mutable MapPlus<std::tuple<double, double, bool>, std::uniform_real_distribution<double>> uniformRealDistributions;
+        mutable MapPlus<std::tuple<int, int>, std::uniform_int_distribution<int>> uniformIntDistributions;
+        mutable std::mt19937_64 randomEngine;
     };
 }
 

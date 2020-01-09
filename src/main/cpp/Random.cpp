@@ -52,7 +52,7 @@ namespace cpp_utils {
         return Random::getDefault().nextInt(interval);
     }
 
-    bool Random::flip(double successProbability) {
+    bool Random::flip(double successProbability) const {
         if (cpp_utils::isApproximatelyEqual(successProbability, 1.0, 1e-6)) {
             return true;
         }
@@ -60,7 +60,7 @@ namespace cpp_utils {
         return rnd < (successProbability * RAND_MAX);
     }
 
-    double Random::nextDouble(double lowerbound, double upperbound, bool includeUpperbound) {
+    double Random::nextDouble(double lowerbound, double upperbound, bool includeUpperbound) const {
         auto key = std::make_tuple(lowerbound, upperbound, includeUpperbound);
         if (!this->uniformRealDistributions.containsKey(key)) {
             if (includeUpperbound) {
@@ -73,11 +73,11 @@ namespace cpp_utils {
         return this->uniformRealDistributions[key](this->randomEngine);
     }
 
-    double Random::nextDouble(const Interval<double>& interval) {
+    double Random::nextDouble(const Interval<double>& interval) const {
         return this->nextDouble(interval.getLowerbound(), interval.getUpperbound(), interval.isUpperboundIncluded());
     }
     
-    int Random::nextInt(int lowerbound, int upperbound, bool includeUpperbound) {
+    int Random::nextInt(int lowerbound, int upperbound, bool includeUpperbound) const {
         //uniform_int_distribution picks from [a,b]
         upperbound -= includeUpperbound ? 0 : 1;
         auto key = std::make_tuple(lowerbound, upperbound);
@@ -88,7 +88,7 @@ namespace cpp_utils {
     }
 
 
-    int Random::nextInt(const Interval<int>& interval) {
+    int Random::nextInt(const Interval<int>& interval) const {
         return this->nextInt(interval.getLB(), interval.getUB(), true);
     }
 
