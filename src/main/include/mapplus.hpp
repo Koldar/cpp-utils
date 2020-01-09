@@ -5,6 +5,7 @@
 #include <sstream>
 #include <unordered_map>
 #include "ICleanable.hpp"
+#include "exceptions.hpp"
 
 namespace cpp_utils {
 
