@@ -288,7 +288,51 @@ namespace cpp_utils {
         return true;
     }
 
-    
+    /**
+     * @brief compute a value when it is inside a ring bound.
+     * 
+     * The ring has as lowerbound 0 and as excluded upperbound @c ub
+     * 
+     * @code
+     * ringBound(5, 10) // 5
+     * ringBound(0, 10) // 0
+     * ringBound(10, 10) // 0
+     * ringBound(-1, 10) // 9
+     * ringBound(11, 10) // 1
+     * @endcode
+     * 
+     * @tparam T integer type (like int)
+     * @param val the value to ringBound
+     * @param ub the (excluded) upperbound of the interval
+     * @return T value inside the bound
+     */
+    template <typename T>
+    constexpr T ringBound(T val, const T& ub) {
+        return  (val < 0) ? ringBound(ub + val, ub) : 
+                (val >= ub) ? val % ub :
+                val
+                ;
+    }
+
+    /**
+     * @brief like ::ringBound but with a lowerbound which is not 0
+     * 
+     * 
+     * @code
+     * ringBound(5, 2, 10) // 5
+     * ringBound(2, 2, 10) // 2
+     * ringBound(0, 2, 10) // 8
+     * @endcode
+     * 
+     * @tparam T integer type (like int)
+     * @param val the value to ringBound
+     * @param ub the (excluded) upperbound of the interval
+     * @return T value inside the bound
+     */
+    template <typename T>
+    constexpr T ringBound(T val, const T& lb, const T& ub) {
+        return lb + ringBound(val - lb, ub - lb);
+    }
 
 }
 

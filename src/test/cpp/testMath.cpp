@@ -6,6 +6,26 @@ using namespace cpp_utils;
 
 SCENARIO("test math") {
 
+    GIVEN("test ringBound") {
+        REQUIRE(ringBound(5, 10) == 5);
+        REQUIRE(ringBound(0, 10) == 0);
+        REQUIRE(ringBound(10, 10) == 0);
+        REQUIRE(ringBound(11, 10) == 1);
+        REQUIRE(ringBound(-1, 10) == 9);
+        REQUIRE(ringBound(20, 10) == 0);
+        REQUIRE(ringBound(-10, 10) == 0);
+        REQUIRE(ringBound(-11, 10) == 9);
+    }
+
+    GIVEN("test general ringbound") {
+        REQUIRE(ringBound(5, 2, 10) == 5);
+        REQUIRE(ringBound(2, 2, 10) == 2);
+        REQUIRE(ringBound(10, 2, 10) == 2);
+        REQUIRE(ringBound(9, 2, 10) == 9);
+        REQUIRE(ringBound(1, 2, 10) == 9);
+        REQUIRE(ringBound(2, 2, 10) == 2);
+    }
+
     GIVEN("test argmin") {
         REQUIRE(argmin(1) == 0);
         REQUIRE(argmin(1, 2) == 0);
