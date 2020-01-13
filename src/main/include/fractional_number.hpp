@@ -37,6 +37,19 @@ namespace cpp_utils {
         TYPE numerator;
         TYPE denominator;
     public:
+        /**
+         * @brief create a fractional number which is infact a integral one
+         * 
+         * the denominator will be set to 1
+         * 
+         * @note
+         * This constructor is implicitly called
+         * 
+         * @param num the number
+         */
+        /*implicit*/ fractional_number(TYPE num): numerator{num}, denominator{1} {
+            
+        }
         explicit fractional_number(const TYPE& num, const TYPE& den): numerator{num}, denominator{den} {
 
         }
