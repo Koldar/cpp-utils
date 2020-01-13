@@ -398,27 +398,27 @@ namespace cpp_utils {
             return (uint32_t)this->value;
         }
     public:
-        explicit operator int() {
+        explicit operator int() const {
             return (int)this->value;
         }
 
-        explicit operator long() {
+        explicit operator long() const {
             return (long)this->value;
         }
 
-        explicit operator float() {
+        explicit operator float() const {
             return (float)this->value;
         }
 
-        explicit operator double() {
+        explicit operator double() const {
             return (double)this->value;
         }
 
-        explicit operator unsigned int() {
+        explicit operator unsigned int() const {
             return (unsigned int)this->value;
         }
 
-        explicit operator unsigned long() {
+        explicit operator unsigned long() const {
             return (unsigned long)this->value;
         }
     };
