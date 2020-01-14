@@ -311,6 +311,18 @@ namespace cpp_utils {
         }
     };
 
+    /**
+     * @brief alias for Interval<int>
+     * 
+     */
+    using IntInterval = Interval<int>;
+    /**
+     * @brief alias for Interval<double>
+     * 
+     */
+    using DoubleInterval = Interval<double>;
+    
+
 }
 
 
