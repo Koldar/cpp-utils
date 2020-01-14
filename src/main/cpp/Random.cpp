@@ -52,10 +52,13 @@ namespace cpp_utils {
         return Random::getDefault().nextInt(interval);
     }
 
-    static double next(double lowerbound, double upperbound, bool includeUpperbound) {
-        return Random::getDefault().nextDouble(lowerbound, upperbound, )
+    static double Random::next(double lowerbound, double upperbound, bool includeUpperbound) {
+        return Random::getDefault().nextDouble(lowerbound, upperbound, includeUpperbound);
     }
-        static double next(const Interval<double>& interval);
+    
+    static double Random::next(const Interval<double>& interval) {
+        return Random::getDefault().nextInt(interval);
+    }
 
     bool Random::flip(double successProbability) const {
         if (cpp_utils::isApproximatelyEqual(successProbability, 1.0, 1e-6)) {

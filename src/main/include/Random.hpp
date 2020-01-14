@@ -41,9 +41,37 @@ namespace cpp_utils {
         Random& operator = (Random&& o);
         virtual ~Random();
     public:
+        /**
+         * @brief fetch a next int involved in `[a, b)` interval
+         * 
+         * @param lowerbound the lowerbound of interval `[a, b)` (included)
+         * @param upperbound the upperbound of interval `[a, b)` (excluded)
+         * @param includeUpperbound true if you want to use the intervla `[a,b]` instead of `[a,b)`
+         * @return int an int inside [a, b)
+         */
         static int next(int lowerbound, int upperbound, bool includeUpperbound = false);
+        /**
+         * @brief fetch a next int involved in `[a, b)` interval
+         * 
+         * @param interval interval `[a, b)`
+         * @return int an int inside [a, b)
+         */
         static int next(const Interval<int>& interval);
+        /**
+         * @brief fetch a next double involved in `[a, b)` interval
+         * 
+         * @param lowerbound the lowerbound of interval `[a, b)` (included)
+         * @param upperbound the upperbound of interval `[a, b)` (excluded)
+         * @param includeUpperbound true if you want to use the intervla `[a,b]` instead of `[a,b)`
+         * @return double a double inside [a, b)
+         */
         static double next(double lowerbound, double upperbound, bool includeUpperbound = false);
+        /**
+         * @brief fetch a next double involved in `[a, b)` interval
+         * 
+         * @param interval interval `[a, b)`
+         * @return double a double inside [a, b)
+         */
         static double next(const Interval<double>& interval);
     public:
         double nextDouble(double lowerbound, double upperbound, bool includeUpperbound = false) const;
