@@ -43,6 +43,8 @@ namespace cpp_utils {
     public:
         static int next(int lowerbound, int upperbound, bool includeUpperbound = false);
         static int next(const Interval<int>& interval);
+        static double next(double lowerbound, double upperbound, bool includeUpperbound = false);
+        static double next(const Interval<double>& interval);
     public:
         double nextDouble(double lowerbound, double upperbound, bool includeUpperbound = false) const;
         double nextDouble(const Interval<double>& interval) const;
