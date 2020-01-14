@@ -574,6 +574,7 @@ namespace cpp_utils::graphs {
          * @tparam OUT type of the edge payload in the output graph
          * @param edgeMapper 
          * @return std::unique_ptr<IImmutableGraph<G, V, OUT>> 
+         * @deprecated TODO remove this the other mapEdges should be preferred since it doesn't incur in runtime slodowns
          */
         template<typename OUT>
         std::unique_ptr<IImmutableGraph<G, V, OUT>> mapEdges(std::function<OUT(const E&)> edgeMapper) const {
@@ -592,6 +593,39 @@ namespace cpp_utils::graphs {
 
             return std::unique_ptr<IImmutableGraph<G, V, OUT>>{result};
         }
+
+        /**
+         * @brief create a new copy of the whole graph but perform a mapping function over the edges
+         * 
+         * @note
+         * When the graph is large, even with simple @c edgeMapper the function can heavily impact performances.
+         * We're talking about milliseconds!
+         * 
+         * The function yields a raw pointer. It is the job of the user to manually free it, or to assign it in a
+         * smart pointer.
+         * 
+         * @tparam OUT type of the edge payload in the output graph
+         * @param edgeMapper function that maps an edge label into another one
+         * @return IImmutableGraph<G, V, OUT>*
+         * @deprecated TODO remove this the other mapEdges should be preferred since it doesn't incur in runtime slodowns
+         */
+        template<typename OUT, typename LAMBDA>
+        IImmutableGraph<G, V, OUT>* mapEdges(LAMBDA mapper) const {
+            AdjacentGraph<G, V, OUT>* result = new AdjacentGraph<G, V, OUT>{this->getPayload()};
+
+            //vertices
+            for (nodeid_t sourceId=0; sourceId<this->numberOfVertices(); ++sourceId) {
+                result->addVertex(this->getVertex(sourceId));
+            }
+
+            //edges
+            for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+                result->addEdgeTail(it->getSourceId(), it->getSinkId(), mapper(it->getPayload()));
+            }
+            result->finalizeGraph();
+
+            return result;
+        } 
 
         /**
          * @brief Method that counts edges satisfying a certain criterion
