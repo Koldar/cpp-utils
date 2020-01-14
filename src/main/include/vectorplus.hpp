@@ -26,6 +26,9 @@ std::ostream& operator << (std::ostream& out, const vectorplus<EL>& vec);
  */
 template<typename EL>
 class vectorplus : public std::vector<EL>, ICleanable, IMemorable {
+public:
+    typedef vectorplus<EL> This;
+public:
     friend std::ostream& operator << <>(std::ostream& out, const vectorplus<EL>& vec);
 public:
     vectorplus(): std::vector<EL>{} {
@@ -113,6 +116,26 @@ public:
         EL& result = std::vector<EL>::operator[](this->toAbsolute(index));
         return result;
     }
+
+    /**
+     * @brief fetch a subrange of the vector
+     * 
+     * @code
+     *  {3,4,1,5,7}.at(1,-1) //{4,1,5}
+     * @endcode
+     * 
+     * @param start the first index (included) which will be included in the return value
+     * @param end the last index (excluded) which will included in tyhe return value
+     * @return const This the subrange wished
+     */
+    const This at(int start, int end) const {
+        This result{};
+        for (int i=this->toAbsolute(start); i<this->toAbsolute(end); ++i) {
+            result.add(std::vector<EL>::operator[](i));
+        }
+        return result;
+    }
+
     const EL& operator [](int index) const {
         return this->at(index);
     }
