@@ -166,7 +166,7 @@ namespace cpp_utils {
         std::array<char, 128> buffer;
         //std::unique_ptr<FILE, decltype(&pclose)> pipe{popen(cmd.c_str(), "r"), pclose};
         errno = 0;
-        critical("open files are ", getOpenFileDescriptors());
+        debug("open files are ", getOpenFileDescriptors());
         FILE* pipe = popen(cmd.c_str(), "r");
         if (pipe == nullptr) {
             log_error("failed executing cmd \"", cmd.c_str(), "\"");
