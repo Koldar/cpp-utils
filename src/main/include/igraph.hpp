@@ -1,14 +1,6 @@
 #ifndef _CPP_UTILS_IGRAPH_HEADER__
 #define _CPP_UTILS_IGRAPH_HEADER__
 
-#include "imemory.hpp"
-#include "IImageable.hpp"
-#include "iterator.hpp"
-#include "operators.hpp"
-#include "ppmImage.hpp"
-#include "SetPlus.hpp"
-#include "log.hpp"
-#include "Random.hpp"
 #include <tuple>
 #include <climits>
 #include <vector>
@@ -17,6 +9,15 @@
 #include <iostream>
 #include <sstream>
 
+#include "imemory.hpp"
+#include "IImageable.hpp"
+#include "iterator.hpp"
+#include "operators.hpp"
+#include "ppmImage.hpp"
+#include "SetPlus.hpp"
+#include "log.hpp"
+#include "Random.hpp"
+#include "functional.hpp"
 
 namespace cpp_utils::graphs {
 
@@ -626,6 +627,42 @@ namespace cpp_utils::graphs {
 
             return result;
         } 
+
+        template <typename OUT>
+        IImmutableGraph<G,OUT,E>* mapVertices(const function_t<V, OUT>& mapper) const {
+            AdjacentGraph<G, OUT, E>* result = new AdjacentGraph<G, OUT, E>{this->getPayload()};
+
+            //vertices
+            for (nodeid_t sourceId=0; sourceId<this->numberOfVertices(); ++sourceId) {
+                result->addVertex(mapper(this->getVertex(sourceId)));
+            }
+
+            //edges
+            for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+                result->addEdgeTail(it->getSourceId(), it->getSinkId(), it->getPayload());
+            }
+            result->finalizeGraph();
+
+            return result;
+        }
+
+        template <typename VOUT, typename EOUT>
+        IImmutableGraph<G,VOUT,EOUT>* mapVerticesAndEdges(const function_t<V, VOUT>& vertexMapper, const function_t<E, EOUT>& edgeMapper) const {
+            AdjacentGraph<G, VOUT, EOUT>* result = new AdjacentGraph<G, VOUT, EOUT>{this->getPayload()};
+
+            //vertices
+            for (nodeid_t sourceId=0; sourceId<this->numberOfVertices(); ++sourceId) {
+                result->addVertex(vertexMapper(this->getVertex(sourceId)));
+            }
+
+            //edges
+            for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
+                result->addEdgeTail(it->getSourceId(), it->getSinkId(), edgeMapper(it->getPayload()));
+            }
+            result->finalizeGraph();
+
+            return result;
+        }
 
         /**
          * @brief Method that counts edges satisfying a certain criterion
