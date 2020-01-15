@@ -27,6 +27,18 @@ namespace cpp_utils {
             return x;
         }
     };
+
+
+    template <typename IN, typename OUT>
+    using function_t = std::function<OUT(const IN& in)>;
+
+    template <typename IN>
+    using predicate_t = std::function<bool(const IN& in)>;
+
+    using runnable_t = std::function<void()>;
+
+    template <typename IN>
+    using consumer_t = std::function<void(const IN& in)>;
 }
 
 #endif 
