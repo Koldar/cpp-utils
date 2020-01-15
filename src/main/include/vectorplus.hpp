@@ -28,44 +28,48 @@ template<typename EL>
 class vectorplus : public std::vector<EL>, ICleanable, IMemorable {
 public:
     typedef vectorplus<EL> This;
+    typedef std::vector<EL> Super;
 public:
     friend std::ostream& operator << <>(std::ostream& out, const vectorplus<EL>& vec);
 public:
-    vectorplus(): std::vector<EL>{} {
+    vectorplus(): Super{} {
     }
-    vectorplus(const EL& el): std::vector<EL>(20, el) {
+    vectorplus(const EL& el): Super(20, el) {
     }
-    vectorplus(const std::vector<EL>& other): std::vector<EL>{other} {
+    vectorplus(const Super& other): Super{other} {
 
     }
-    vectorplus(std::size_t size, const EL& el): std::vector<EL>(size, el) {
+    vectorplus(std::size_t size, const EL& el): Super(size, el) {
 
     }
     template <typename... OTHER>
-    vectorplus(const EL& first, const EL& second, const EL& third, const OTHER&... args) : std::vector<EL>{} {
+    vectorplus(const EL& first, const EL& second, const EL& third, const OTHER&... args) : Super{} {
         this->add(first);
         this->add(second);
         this->add(third);
         this->add(args...);
     }
-    vectorplus(std::vector<EL>&& other): std::vector<EL>{::std::move(other)} {
+    vectorplus(Super&& other): Super{other} {
 
     }
-    vectorplus(const cpp_utils::vectorplus<EL>& other): std::vector<EL>{} {
+    vectorplus(const cpp_utils::vectorplus<EL>& other): Super{} {
+        debug("building the path!!!!");
         for (auto el : other) {
             this->add(el);
         }
     }
-    //TODO implement
-    vectorplus(cpp_utils::vectorplus<EL>&& other) : std::vector<EL>{::std::move(other)} {
+
+    vectorplus(cpp_utils::vectorplus<EL>&& other) : Super{other} {
     }
 
-    vectorplus<EL>& operator=(const vectorplus<EL>& other) {
-        ::std::vector<EL>::operator =(other);
+    This& operator=(const This& other) {
+        Super::operator =(other);
+        return *this;
     }
 
-    vectorplus<EL>& operator=(const vectorplus<EL>&& other) {
-        ::std::vector<EL>::operator =(std::move(other));
+    vectorplus<EL>& operator=(This&& other) {
+        Super::operator =(other);
+        return *this;
     }
 
 
