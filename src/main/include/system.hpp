@@ -46,6 +46,10 @@ namespace cpp_utils {
 
     }
 
+    FILE* popenRead(const char* command, const char* mode);
+
+    int pclose(FILE* fileDescriptor);
+
     /**
      * @brief the the ram used by a process
      * 
@@ -67,6 +71,8 @@ namespace cpp_utils {
      * @return pid_t the pid of he current process
      */
     pid_t getCurrentPID();
+
+    size_t getPIDNumberOpened();
 
     /**
      * @brief get the open files this process has
@@ -117,15 +123,16 @@ namespace cpp_utils {
         // char buffer[100];
         // fscanf(file, "%100s", buffer);
         // pclose(file);
+        critical("pid opened are", getPIDNumberOpened());
 
         std::array<char, 128> buffer;
         //std::unique_ptr<FILE, decltype(&pclose)> pipe{popen(cmd.c_str(), "r"), pclose};
         errno = 0;
-        FILE* pipe = popen(cmd.c_str(), "r");
+        FILE* pipe = cpp_utils::popenRead(cmd.c_str(), "r");
         if (pipe == nullptr) {
             log_error("failed executing cmd \"", cmd.c_str(), "\"");
-            log_error("reason: ", strerror(errno));
-            throw cpp_utils::exceptions::ImpossibleException{"popen() failed! While executing %s", cmd};
+            log_error("error code: ", errno, "reason: ", strerror(errno));
+            throw cpp_utils::exceptions::makeImpossibleException("popen() failed! While executing ", cmd);
         }
 
         std::string result{};
@@ -133,7 +140,7 @@ namespace cpp_utils {
             result += buffer.data();
         }
 
-        int exitStatus = pclose(pipe);
+        int exitStatus = cpp_utils::pclose(pipe);
 
         if (exitStatus != 0) {
             throw cpp_utils::exceptions::CommandFailedException{cmd, exitStatus};
@@ -166,8 +173,9 @@ namespace cpp_utils {
         std::array<char, 128> buffer;
         //std::unique_ptr<FILE, decltype(&pclose)> pipe{popen(cmd.c_str(), "r"), pclose};
         errno = 0;
+        critical("pid opened are", getPIDNumberOpened());
         debug("open files are ", getOpenFileDescriptors());
-        FILE* pipe = popen(cmd.c_str(), "r");
+        FILE* pipe = cpp_utils::popenRead(cmd.c_str(), "r");
         if (pipe == nullptr) {
             log_error("failed executing cmd \"", cmd.c_str(), "\"");
             log_error("reason: ", strerror(errno));
@@ -179,7 +187,7 @@ namespace cpp_utils {
             result += buffer.data();
         }
 
-        pclose(pipe);
+        cpp_utils::pclose(pipe);
 
         return result;
     }
