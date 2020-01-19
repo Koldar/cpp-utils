@@ -1,8 +1,88 @@
 #include "catch.hpp"
 
 #include "math.hpp"
+#include "MCValue.hpp"
+#include "MDValue.hpp"
 
 using namespace cpp_utils;
+
+SCENARIO("test MC and MD values") {
+    GIVEN("a mc value") {
+        MCValue<int> a = 4;
+
+        REQUIRE(a == 4);
+        a += 4;
+        REQUIRE(a == 8);
+        a -= -2;
+        REQUIRE(a == 10);
+        a += 0;
+        REQUIRE(a == 10);
+        a -= 0;
+        REQUIRE(a == 10);
+
+        a = 11;
+        REQUIRE(a == 11);
+        a = 11;
+        REQUIRE(a == 11);
+
+        a.cleanup();
+        REQUIRE(a == 0);
+
+        REQUIRE_THROWS(a = -4);
+        REQUIRE_THROWS(a += -1);
+        REQUIRE_THROWS(a -= 1);
+
+        a = 10;
+        REQUIRE(a == 10);
+        a *= 5;
+        REQUIRE(a == 50);
+        a /= 1;
+        REQUIRE(a == 50);
+
+        REQUIRE_THROWS(a /= 2);
+    }
+
+    GIVEN("a md value") {
+        MDValue<int> a = 40;
+
+        REQUIRE(a == 40);
+        a += -4;
+        REQUIRE(a == 36);
+        a -= 2;
+        REQUIRE(a == 34);
+        a += 0;
+        REQUIRE(a == 34);
+        a -= 0;
+        REQUIRE(a == 34);
+
+        a = 11;
+        REQUIRE(a == 11);
+        a = 11;
+        REQUIRE(a == 11);
+
+        REQUIRE_THROWS(a *= 2);
+
+        a.cleanup();
+        REQUIRE(a == 0);
+
+        REQUIRE_THROWS(a = 40);
+        REQUIRE_THROWS(a += 1);
+        REQUIRE_THROWS(a -= -1);
+
+        a = -10;
+        REQUIRE(a == -10);
+        a *= 1;
+        REQUIRE(a == -10);
+        a *= 3;
+        REQUIRE(a == -30);
+
+        a.cleanup();
+        a /= 2;
+        REQUIRE(a == 0);
+
+
+    }
+}
 
 SCENARIO("test math") {
 
