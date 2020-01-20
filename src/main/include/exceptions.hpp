@@ -116,7 +116,7 @@ namespace cpp_utils::exceptions {
     class InvalidScenarioException: public AbstractException {
     public:
         InvalidScenarioException(TYPE t) : AbstractException{}, t{t} {
-            this->updateMessage(cpp_utils::scout("No matched scenario for value ", t, ", which type is ", typeid(t).name()));
+            this->updateMessage(cpp_utils::swcout("No matched scenario for value ", t, ", which type is ", typeid(t).name()));
         }
     private:
         TYPE t;
@@ -232,7 +232,7 @@ namespace cpp_utils::exceptions {
             vsnprintf(buffer, 1000, format, ap);
             va_end(ap);
 
-            this->message = std::string{buffer};
+            this->updateMessage(std::string{buffer});
         }
     };
 
@@ -249,7 +249,7 @@ namespace cpp_utils::exceptions {
      */
     template <typename ...OTHERS>
     InvalidArgumentException makeInvalidArgumentException(const OTHERS&... types) {
-        return InvalidArgumentException{cpp_utils::scout(types...).c_str()};
+        return InvalidArgumentException{cpp_utils::swcout(types...).c_str()};
     }
 
     class OperationFailedException: public AbstractException {
