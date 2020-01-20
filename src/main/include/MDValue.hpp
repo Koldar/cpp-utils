@@ -81,7 +81,7 @@ namespace cpp_utils {
         This& multiply(const This& b) {
             //(a*b)>a => ab-a>0 => a(b-1)>0
             if (this->val * (b.val - 1) > 0) {
-                throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This multiplication will make it increase!");
+                throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This multiplication with", b, "will make it increase!");
             }
             this->val *= b.val;
             return *this;
