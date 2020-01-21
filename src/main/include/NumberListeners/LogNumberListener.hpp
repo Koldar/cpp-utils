@@ -44,6 +44,9 @@ namespace cpp_utils {
         This& operator=(const This& o) = default;
         This& operator=(This&& o) = default;
     public:
+        virtual void cleanup() {
+
+        }
         virtual void onNumberIncreased(const NUMBER& oldValue, const NUMBER& newValue) {
             switch (logLevel) {
                 case 0: debug("number", what, "increased from ", oldValue, "to", newValue, "!"); break;
@@ -52,7 +55,7 @@ namespace cpp_utils {
                 case 3: fine("number", what, "increased from ", oldValue, "to", newValue, "!"); break;
                 case 5: info("number", what, "increased from ", oldValue, "to", newValue, "!"); break;
                 case 6: warning("number", what, "increased from ", oldValue, "to", newValue, "!"); break;
-                case 7: error("number", what, "increased from ", oldValue, "to", newValue, "!"); break;
+                case 7: log_error("number", what, "increased from ", oldValue, "to", newValue, "!"); break;
                 case 8: critical("number", what, "increased from ", oldValue, "to", newValue, "!"); break;
                 default:
                     throw cpp_utils::exceptions::InvalidArgumentException("invalid logLevel", logLevel);
@@ -67,7 +70,7 @@ namespace cpp_utils {
                 case 3: fine("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
                 case 5: info("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
                 case 6: warning("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
-                case 7: error("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
+                case 7: log_error("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
                 case 8: critical("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
                 default:
                     throw cpp_utils::exceptions::InvalidArgumentException("invalid logLevel", logLevel);
