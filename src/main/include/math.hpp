@@ -168,7 +168,7 @@ namespace cpp_utils {
             T numeratorT = decimal * denominatorT;
 
             T numeratorTimesDivided10 = (static_cast<T>(10.) * numeratorT)/(static_cast<T>(10.));
-            critical("decimal=", decimal, "numerator=", numerator, "denominator=", denominator, "numeratorT=", numeratorT, "denominatorT=", denominatorT, "numeratorTimesDivided10=", numeratorTimesDivided10, "limit=", limit, "epsilon=", epsilon);
+            debug("decimal=", decimal, "numerator=", numerator, "denominator=", denominator, "numeratorT=", numeratorT, "denominatorT=", denominatorT, "numeratorTimesDivided10=", numeratorTimesDivided10, "limit=", limit, "epsilon=", epsilon);
             if (isApproximatelyEqual(numeratorTimesDivided10, static_cast<T>(numerator), epsilon)) {
                 //only an integer number would return the same value
                 return;
