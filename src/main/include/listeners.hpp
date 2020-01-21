@@ -32,7 +32,7 @@ namespace cpp_utils {
         ISingleListenable(const This& o): listener{o.listener} {
 
         }
-        ISingleListenable(This&& o) : listener(o.listener) {
+        ISingleListenable(This&& o) : listener{o.listener} {
             o.listener = nullptr;
         }
         This& operator=(const This& o) {
