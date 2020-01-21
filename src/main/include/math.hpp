@@ -160,14 +160,15 @@ namespace cpp_utils {
 
         while (true) {
             if (limit == 0) {
-                throw cpp_utils::exceptions::InvalidArgumentException{"cannot convert fraction %f into numerator and denominator", decimal};
+                throw cpp_utils::exceptions::makeInvalidArgumentException("cannot convert fraction", decimal, "into numerator and denominator", decimal, ". epsilon=", epsilon, "limit", limit);
             }
             limit -= 1;
 
-            numerator = decimal * denominator;
+            numerator = static_cast<OUT>(decimal * static_cast<T>(denominator));
             T numeratorT = decimal * denominatorT;
 
             T numeratorTimesDivided10 = (static_cast<T>(10.) * numeratorT)/(static_cast<T>(10.));
+            critical("decimal=", decimal, "numerator=", numerator, "denominator=", denominator, "numeratorT=", numeratorT, "denominatorT=", denominatorT, "numeratorTimesDivided10=", numeratorTimesDivided10, "limit=", limit, "epsilon=", epsilon);
             if (isApproximatelyEqual(numeratorTimesDivided10, static_cast<T>(numerator), epsilon)) {
                 //only an integer number would return the same value
                 return;
