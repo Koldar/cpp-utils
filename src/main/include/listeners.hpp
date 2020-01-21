@@ -27,7 +27,7 @@ namespace cpp_utils {
 
         }
         virtual ~ISingleListenable() {
-
+            //we do not own the listner, hence it is not our duty to deallocate it
         }
         ISingleListenable(const This& o): listener{o.listener} {
 

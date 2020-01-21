@@ -12,17 +12,20 @@ namespace cpp_utils {
     class MCValue;
 
     /**
-     * @brief a number which keeps being updating but each time it is updated its value is check to ensure that its value never increases
+     * @brief a number which keeps being updating but each time it is updated its value is check to ensure that its value never increases (value keep being the same is accepted though)
      * 
      * @note
      * MD stands for "Monotonically Decrescent"
      * 
+     * You can watch the change of this number via ::NumberListener
+     * 
      * @tparam NUM type of the internal value
      */
     template <typename NUM>
-    class MDValue: public ICleanable, public IMemorable {
+    class MDValue: public ICleanable, public IMemorable, public ISingleListenable<NumberListener<NUM>> {
     public:
         typedef MDValue<NUM> This;
+        typedef NumberListener<NUM> Listener;
     public:
         friend class MCValue<NUM>;
     private:
@@ -48,12 +51,18 @@ namespace cpp_utils {
             if (this->val < o.val) {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This assignment with", o, "will make it increase");
             }
+            if (this->val != o.val) {
+                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, o.val); });
+            }
             this->val = o.val;
             return *this;
         }
         This& operator=(This&& o) {
             if (this->val < o.val) {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This assignment with", o, "will make it increase");
+            }
+            if (this->val != o.val) {
+                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, o.val); });
             }
             this->val = o.val;
             return *this;
@@ -67,12 +76,18 @@ namespace cpp_utils {
             if (b.val > 0) {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This sum will make it increase!");
             }
+            if (b.val != 0) {
+                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, this->val + b.val); });
+            }
             this->val += b.val;
             return *this;
         }
         This& subtract(const This& b) {
             if (b.val < 0) {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This subtraction will make it increase!");
+            }
+            if (b.val != 0) {
+                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, this->val - b.val); });
             }
             debug("this is", *this, " and b is", b, ". difference is ", this->val - b.val);
             this->val -= b.val;
@@ -83,6 +98,9 @@ namespace cpp_utils {
             if (this->val * (b.val - 1) > 0) {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This multiplication with", b, "will make it increase!");
             }
+            if (b.val != 1) {
+                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, this->val * b.val); });
+            }
             this->val *= b.val;
             return *this;
         }
@@ -90,6 +108,9 @@ namespace cpp_utils {
             //(a/b)>a => a>ab => ab-a<0 => a(b-1)<0
             if (this->val * (b.val - 1) < 0) {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This division will make it increase!");
+            }
+            if (b.val != 1) {
+                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, this->val / b.val); });
             }
             this->val /= b.val;
             return *this;
@@ -149,6 +170,9 @@ namespace cpp_utils {
     public:
         void cleanup() {
             this->val = 0;
+            if (this->listener != nullptr) {
+                this->listener->cleanup();
+            }
         }
         MemoryConsumption getByteMemoryOccupied() const {
             return MemoryConsumption{sizeof(*this)};
