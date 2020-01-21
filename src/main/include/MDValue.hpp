@@ -25,6 +25,7 @@ namespace cpp_utils {
     class MDValue: public ICleanable, public IMemorable, public ISingleListenable<NumberListener<NUM>> {
     public:
         typedef MDValue<NUM> This;
+        typedef ISingleListenable<NumberListener<NUM>> Super2;
         typedef NumberListener<NUM> Listener;
     public:
         friend class MCValue<NUM>;
@@ -41,10 +42,10 @@ namespace cpp_utils {
         virtual ~MDValue() {
 
         }
-        MDValue(const This& o): val{o.val} {
+        MDValue(const This& o): Super2{o}, val{o.val} {
 
         }
-        MDValue(This&& o): val{o.val} {
+        MDValue(This&& o): Super2{o}, val{o.val} {
 
         }
         This& operator=(const This& o) {
@@ -55,6 +56,7 @@ namespace cpp_utils {
                 this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, o.val); });
             }
             this->val = o.val;
+            Super2::operator =(o);
             return *this;
         }
         This& operator=(This&& o) {
@@ -65,6 +67,7 @@ namespace cpp_utils {
                 this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, o.val); });
             }
             this->val = o.val;
+            Super2::operator =(o);
             return *this;
         }
     public:
