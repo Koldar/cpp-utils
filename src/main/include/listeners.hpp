@@ -28,6 +28,7 @@ namespace cpp_utils {
         }
         virtual ~ISingleListenable() {
             //we do not own the listner, hence it is not our duty to deallocate it
+            this->listener = nullptr;
         }
         ISingleListenable(const This& o): listener{o.listener} {
 
@@ -36,11 +37,29 @@ namespace cpp_utils {
             o.listener = nullptr;
         }
         This& operator=(const This& o) {
-            this->listener = o.listener;
+            if (this->listener != nullptr && o.listener != nullptr && this->listener != o.listener) {
+                throw cpp_utils::exceptions::makeInvalidArgumentException("impossible to copy the listeners: we would lose a listener! this=", this->listener, "other=", o.listener);
+            }
+            if (this->listener == nullptr && o.listener != nullptr) {
+                this->listener = o.listener;
+            }
             return *this;
         }
+        /**
+         * @brief copy the structure
+         * 
+         * If both structures has listener, we will copy only if *this has no listener. If both has listeners, an error is thrown
+         * 
+         * @param o 
+         * @return This& 
+         */
         This& operator=(This&& o) {
-            this->listener = o.listener;
+            if (this->listener != nullptr && o.listener != nullptr && this->listener != o.listener) {
+                throw cpp_utils::exceptions::makeInvalidArgumentException("impossible to copy the listeners: we would lose a listener! this=", this->listener, "other=", o.listener);
+            }
+            if (this->listener == nullptr && o.listener != nullptr) {
+                this->listener = o.listener;
+            }
             o.listener = nullptr;
             return *this;
         }
@@ -71,6 +90,15 @@ namespace cpp_utils {
             if (this->listener != nullptr) {
                 lambda(*this->listener);
             }
+        }
+        /**
+         * @brief check if the structure has a listener or not
+         * 
+         * @return true if the object has a listener
+         * @return false otherwise
+         */
+        bool hasListener() const {
+            return this->listener != nullptr;
         }
     };
 

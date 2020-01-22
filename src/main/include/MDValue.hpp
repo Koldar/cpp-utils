@@ -36,38 +36,45 @@ namespace cpp_utils {
          */
         NUM val;
     public:
-        /*implicit*/ MDValue(const NUM& val): val{val} {
+        /*implicit*/ MDValue(const NUM& val): Super2{}, val{val} {
 
         }
         virtual ~MDValue() {
-
+            critical("destroying md with value", this->val);
         }
         MDValue(const This& o): Super2{o}, val{o.val} {
 
         }
         MDValue(This&& o): Super2{o}, val{o.val} {
-
         }
         This& operator=(const This& o) {
             if (this->val < o.val) {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This assignment with", o, "will make it increase");
             }
+
+            Super2::operator =(o);
             if (this->val != o.val) {
                 this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, o.val); });
             }
             this->val = o.val;
-            Super2::operator =(o);
             return *this;
         }
         This& operator=(This&& o) {
+            critical("move on ", this->val, "and ", o.val);
             if (this->val < o.val) {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This assignment with", o, "will make it increase");
             }
-            if (this->val != o.val) {
-                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, o.val); });
-            }
-            this->val = o.val;
+
+            critical("calling super::move");
             Super2::operator =(o);
+            critical("checking if val != o.val");
+            if (this->val != o.val) {
+                critical("fire evetn");
+                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, o.val); });
+                critical("done firing event");
+            }
+            critical("setting val");
+            this->val = o.val;
             return *this;
         }
     public:
