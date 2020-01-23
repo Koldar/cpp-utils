@@ -81,12 +81,12 @@ namespace cpp_utils {
             this->listener = nullptr;
         }
         
-        void fireEvent(std::function<void(const OBSERVER&)> lambda) const {
+        void fireEvent(const std::function<void(const OBSERVER&)>& lambda) const {
             if (this->listener != nullptr) {
                 lambda(*this->listener);
             }
         }
-        void fireEvent(std::function<void(OBSERVER&)> lambda) {
+        void fireEvent(const std::function<void(OBSERVER&)>& lambda) {
             if (this->listener != nullptr) {
                 lambda(*this->listener);
             }
