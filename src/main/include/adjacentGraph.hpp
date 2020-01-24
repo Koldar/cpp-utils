@@ -173,7 +173,11 @@ namespace cpp_utils::graphs {
      */
     template <typename G, typename V, typename E>
     class AdjacentGraph: public INonExtendableGraph<G, V, E> {
+    public:
+        using This = AdjacentGraph<G,V,E>;
+        using Super = INonExtendableGraph<G,V,E>;
         using const_vertex_iterator = PairNumberContainerBasedConstIterator<std::vector<V>, nodeid_t, V>;
+        using Super::changeVertexPayload;
         friend IImmutableGraph<G,V,E>;
     private:
         /**
@@ -190,11 +194,11 @@ namespace cpp_utils::graphs {
          */
         std::vector<int> outEdgesOfvertexBegin;
     public:
-        friend void cpp_utils::serializers::saveToFile<>(FILE* f, const AdjacentGraph<G,V,E>& g);
-        friend AdjacentGraph<G,V,E>& cpp_utils::serializers::loadFromFile<>(FILE* f, AdjacentGraph<G,V,E>& result);
+        friend void cpp_utils::serializers::saveToFile<>(FILE* f, const This& g);
+        friend This& cpp_utils::serializers::loadFromFile<>(FILE* f, This& result);
         friend class AdjacentGraphEdgesIterator<G, V, E>;
     public:
-        AdjacentGraph<G,V,E>(): payload{}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
+        AdjacentGraph(): payload{}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
 
         }
         /**
@@ -202,7 +206,7 @@ namespace cpp_utils::graphs {
          * 
          * @param payload value attached to the whole graph
          */
-        AdjacentGraph<G,V,E>(const G& payload): payload{payload}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
+        AdjacentGraph(const G& payload): payload{payload}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
 
         }
         /**
@@ -222,34 +226,34 @@ namespace cpp_utils::graphs {
          * 
          * @param other another graph. It's mandatory that the ids of `other` are **contiguous** and they start from 0!
          */
-        AdjacentGraph<G,V,E>(const IImmutableGraph<G,V,E>& other) : payload{other.getPayload()}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
+        AdjacentGraph(const IImmutableGraph<G,V,E>& other) : payload{other.getPayload()}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
             info("the payload is ", this->payload);
             this->init(other);
         }
-        AdjacentGraph<G,V,E>(IImmutableGraph<G,V,E>&& other) : payload{other.getPayload()}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
+        AdjacentGraph(IImmutableGraph<G,V,E>&& other) : payload{other.getPayload()}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
             this->init(other);
         }
-        AdjacentGraph<G,V,E>(const AdjacentGraph<G, V,E>& other): payload{other.payload}, vertexPayload{other.vertexPayload}, edges{other.edges}, outEdgesOfvertexBegin{other.outEdgesOfvertexBegin} {
+        AdjacentGraph(const AdjacentGraph<G, V,E>& other): payload{other.payload}, vertexPayload{other.vertexPayload}, edges{other.edges}, outEdgesOfvertexBegin{other.outEdgesOfvertexBegin} {
 
         }
-        AdjacentGraph<G,V,E>(AdjacentGraph<G, V,E>&& other): payload{::std::move(other.payload)}, vertexPayload{::std::move(other.vertexPayload)}, edges{::std::move(other.edges)}, outEdgesOfvertexBegin{::std::move(other.outEdgesOfvertexBegin)} {
+        AdjacentGraph(AdjacentGraph<G, V,E>&& other): payload{::std::move(other.payload)}, vertexPayload{::std::move(other.vertexPayload)}, edges{::std::move(other.edges)}, outEdgesOfvertexBegin{::std::move(other.outEdgesOfvertexBegin)} {
             
         }
-        AdjacentGraph<G,V,E>& operator = (const AdjacentGraph<G,V,E>& o) {
+        AdjacentGraph& operator = (const This& o) {
             this->payload = o.payload;
             this->vertexPayload = o.vertexPayload;
             this->edges = o.edges;
             this->outEdgesOfvertexBegin = o.outEdgesOfvertexBegin;
             return *this;
         }
-        AdjacentGraph<G,V,E>& operator = (AdjacentGraph<G,V,E>&& o) {
+        This& operator = (This&& o) {
             this->payload = ::std::move(o.payload);
             this->vertexPayload = ::std::move(o.vertexPayload);
             this->edges = ::std::move(o.edges);
             this->outEdgesOfvertexBegin = ::std::move(o.outEdgesOfvertexBegin);
             return *this;
         }
-        virtual ~AdjacentGraph<G,V,E>() {
+        virtual ~AdjacentGraph() {
 
         }
     public:
