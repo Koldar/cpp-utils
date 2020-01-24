@@ -30,8 +30,15 @@ namespace cpp_utils {
      * 
      */
     class IImageable {
-    protected:
-        virtual const PPMImage* getPPM() const = 0;
+    public:
+        /**
+         * @brief generate a PPM image that represents the concept
+         * 
+         * The image is modifiable because maybe you want to edit it before saving it into a fil format (e.g., bmp)
+         * 
+         * @return PPMImage* an image. This pointer needs to be manually freed (or you can wrap it in a smart pointer)
+         */
+        virtual PPMImage* getPPM() const = 0;
     protected:
         void _saveImage(ImageExtension extension, const char* filename) const;
     public:

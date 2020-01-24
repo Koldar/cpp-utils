@@ -19,7 +19,7 @@ namespace cpp_utils {
     }
 
 void IImageable::_saveImage(ImageExtension extension, const char* filename) const {
-    const PPMImage* ppm = this->getPPM();
+    PPMImage* ppm = this->getPPM();
     const char* ext;
     switch (extension) {
         case ImageExtension::SVG: ext="svg"; break;

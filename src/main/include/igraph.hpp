@@ -791,7 +791,7 @@ namespace cpp_utils::graphs {
 
             return std::unique_ptr<AdjacentGraph<G,V,E>>{result};
         }
-        virtual const PPMImage* getPPM() const {
+        virtual PPMImage* getPPM() const {
             callExternalProgram("rm -f /tmp/getPPM.png /tmp/getPPM.ppm /tmp/getPPM.dot");
 
             std::ofstream f;

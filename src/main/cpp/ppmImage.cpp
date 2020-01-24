@@ -196,8 +196,8 @@ void PPMImage::generatePPM(const std::string& filename) const {
 	ofs.close();
 }
 
-const PPMImage* PPMImage::getPPM() const {
-	return this;
+PPMImage* PPMImage::getPPM() const {
+	return const_cast<PPMImage*>(this);
 }
 
 void PPMImage::savePPM(const std::string& filename) const {

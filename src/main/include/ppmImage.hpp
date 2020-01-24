@@ -32,11 +32,28 @@ namespace cpp_utils {
 		PPMImage& operator =(const PPMImage& other);
 		PPMImage& operator =(PPMImage&& other);
 	protected:
-		virtual const PPMImage* getPPM() const;
+		/**
+		 * @brief return this very PPM
+		 * 
+		 * @attention
+		 * this function will return this pointer, that will be modified!!!!
+		 * 
+		 * @return PPMImage* **this** pointer, as modificable
+		 */
+		virtual PPMImage* getPPM() const;
 	public:
 		PPMImage& operator +=(const PPMImage& other);
 		PPMImage& operator +=(const color_t& other);
 	public:
+		/**
+		 * @brief check if the image is valid
+		 * 
+		 * An image is valid if it has width and height positive non null and has at least 2 colors
+		 * 
+		 * @return true 
+		 * @return false 
+		 */
+		bool isValid() const;
 		color_t getPixel(size_t x, size_t y) const;
 		void setPixel(size_t x, size_t y, const color_t& color);
 		/**
