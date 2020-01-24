@@ -10,6 +10,8 @@ namespace cpp_utils {
 	class color_t {
 	public:
 		friend std::ostream& operator << (std::ostream& out, const color_t& c);
+		friend bool operator ==(const color_t& a, const color_t& b);
+		friend bool operator !=(const color_t& a, const color_t& b);
 	public:
 		static const color_t LIGHT_RED;
 		static const color_t RED;

@@ -229,4 +229,12 @@ namespace cpp_utils {
         return out;
     };
 
+    bool operator ==(const color_t& a, const color_t& b) {
+        return a.red == b.red && a.green == b.green && a.blue == b.blue;
+    }
+
+	bool operator !=(const color_t& a, const color_t& b) {
+        return a.red != b.red || a.green != b.green || a.blue != b.blue;
+    }
+
 }
