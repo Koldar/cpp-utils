@@ -860,6 +860,19 @@ namespace cpp_utils::graphs {
         virtual void changeWeightOutEdge(nodeid_t sourceId, moveid_t index, const E& newPayload) = 0;
 
         /**
+         * @brief function used to update the payload of a vertex by using the rpevious one
+         * 
+         * @pre
+         *  @li vertex must exist
+         * 
+         * @param vertexId the id of the vertex to change
+         * @param mapper a function that takes the id of the vertex and the current paylaod to produce the new paylaod
+         */
+        virtual void changeVertexPayload(nodeid_t vertexId, const bifunction_t<nodeid_t, V, V>& mapper) {
+            auto current = this->getVertex(vertexId);
+            this->changeVertexPayload(vertexId, mapper(vertexId, current));
+        }
+        /**
          * @brief Change the label of at most 2 edges
          * 
          * The opposite edge (if any) **will be touched**
