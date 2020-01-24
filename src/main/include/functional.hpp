@@ -32,6 +32,12 @@ namespace cpp_utils {
     template <typename IN, typename OUT>
     using function_t = std::function<OUT(const IN& in)>;
 
+    template <typename IN1, typename IN2, typename OUT>
+    using bifunction_t = std::function<OUT(const IN1& in, const IN2& in2)>;
+
+    template <typename IN1, typename IN2, typename IN3, typename OUT>
+    using trifunction_t = std::function<OUT(const IN1& in, const IN2& in2, const IN3& in3)>;
+
     /**
      * @brief a function whic accept a certain type and return the same type
      * 
@@ -47,7 +53,13 @@ namespace cpp_utils {
     using autofunction_t =  function_t<X, X>;
 
     template <typename IN>
-    using predicate_t = std::function<bool(const IN& in)>;
+    using predicate_t = function_t<IN, bool>;
+
+    template <typename IN1, typename IN2>
+    using bipredicate_t = bifunction_t<IN1, IN2, bool>;
+
+    template <typename IN1, typename IN2, typename IN3>
+    using tripredicate_t = trifunction_t<IN1, IN2, IN3,bool>;
 
     using runnable_t = std::function<void()>;
 
