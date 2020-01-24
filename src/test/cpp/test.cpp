@@ -30,6 +30,8 @@
 #include "NumTracker.hpp"
 #include "BoostQueue.hpp"
 
+#include "UncopiableClass.hpp"
+
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
 
@@ -39,24 +41,6 @@ public:
 public:
     RefAndPtrTest(int a): a{a} {
 
-    }
-};
-
-class UncopiableClass {
-public:
-    int a;
-public:
-    UncopiableClass(int a): a{a} {
-
-    }
-    virtual ~UncopiableClass() {
-
-    }
-    UncopiableClass(const UncopiableClass& other) = delete;
-    UncopiableClass& operator =(const UncopiableClass& other) = delete;
-    friend std::ostream& operator <<(std::ostream& out, const UncopiableClass& other) {
-        out << other.a;
-        return out;
     }
 };
 
@@ -221,21 +205,6 @@ SCENARIO("test hash") {
             a.insert(std::pair<int, char>{5, 'a'});
             REQUIRE(a.size() == 1);
         }
-    }
-}
-
-SCENARIO("test scout") {
-    GIVEN("scout on primitives") {
-        REQUIRE(scout("the basic is ", 5) == "the basic is 5");
-
-        char c = 'a';
-        REQUIRE(scout("additional is ", c) == "additional is a");
-    }
-
-    GIVEN("scout on uncopiable class") {
-        UncopiableClass foo{5};
-
-        REQUIRE(scout("uncopiable class is ", "the actual ", foo) == "uncopiable class is the actual 5");
     }
 }
 
