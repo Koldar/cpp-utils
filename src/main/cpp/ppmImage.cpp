@@ -89,6 +89,33 @@ PPMImage& PPMImage::operator +=(const color_t& other) {
 	return *this;
 }
 
+bool PPMImage::isValid() const {
+	if (this->width == 0) {
+		log_error("width is 0");
+		return false;
+	}
+	if (this->height == 0) {
+		log_error("height is 0");
+		return false;
+	}
+	color_t c1, c2;
+	bool c1Found = false;
+	bool c2Found = false;
+	for (auto y=0; y<this->height; ++y) {
+		for (auto x=0; x<this->width; ++x) {
+			if (!c1Found) {
+				c1 = this->getPixel(x, y);
+				c1Found = true;
+			} else if (!c2Found && (this->getPixel(x, y) != c1)) {
+				return true;
+			} 
+		}
+	}
+
+	log_error("there is only one color and it is", c1);
+	return false;
+}
+
 color_t PPMImage::getPixel(size_t x, size_t y) const {
 	return this->image[y*this->width + x];
 }
