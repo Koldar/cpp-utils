@@ -6,6 +6,10 @@
 
 namespace cpp_utils {
 
+std::ostream& _ojoin(std::ostream& out, const char* sep) {
+    return out;
+}
+
 std::string sprintf(const char* format, ...) {
     char buffer[1000];
     va_list ap;
