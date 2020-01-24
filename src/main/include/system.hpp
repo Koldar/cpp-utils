@@ -31,6 +31,7 @@
 #include "math.hpp"
 #include "imemory.hpp"
 #include "operators.hpp"
+#include "strings.hpp"
 
 namespace cpp_utils {
 
@@ -46,8 +47,21 @@ namespace cpp_utils {
 
     }
 
+    /**
+     * @brief check if a program is installed on the system
+     * 
+     * The function uses `which` to establish that
+     * 
+     * @param command the command to check its existence
+     * @return true 
+     * @return false 
+     */
+    bool isProgramInstalled(const std::string& command);
+
+    [[deprecated("does not fully work")]]
     FILE* popenRead(const char* command, const char* mode);
 
+    [[deprecated("does not fully work")]]
     int pclose(FILE* fileDescriptor);
 
     /**
@@ -123,15 +137,20 @@ namespace cpp_utils {
         // char buffer[100];
         // fscanf(file, "%100s", buffer);
         // pclose(file);
-        critical("pid opened are", getPIDNumberOpened());
+        debug("pid opened are", getPIDNumberOpened());
 
         std::array<char, 128> buffer;
         //std::unique_ptr<FILE, decltype(&pclose)> pipe{popen(cmd.c_str(), "r"), pclose};
+        critical("executing", cmd);
         errno = 0;
-        FILE* pipe = cpp_utils::popenRead(cmd.c_str(), "r");
+        FILE* pipe = ::popen(cmd.c_str(), "r");
         if (pipe == nullptr) {
             log_error("failed executing cmd \"", cmd.c_str(), "\"");
-            log_error("error code: ", errno, "reason: ", strerror(errno));
+            log_error("It is possible that fork has failed. errno is ", errno, "description: ", strerror(errno));
+			log_error("AFAIK there are either 2 issues: ");
+			log_error("1) there is left literally no memory. Consider buying new RAM or creating a swap");
+			log_error("2) overcommit is prevented (see https://stackoverflow.com/a/15623171/1887602). Or with root do \" echo 1 > /proc/sys/vm/overcommit_memory\"");
+			log_error("3) the child process didn't exit before running out of memory. Happens if you're running a big script taking lots of memory");
             throw cpp_utils::exceptions::makeImpossibleException("popen() failed! While executing ", cmd);
         }
 
@@ -140,7 +159,7 @@ namespace cpp_utils {
             result += buffer.data();
         }
 
-        int exitStatus = cpp_utils::pclose(pipe);
+        int exitStatus = ::pclose(pipe);
 
         if (exitStatus != 0) {
             throw cpp_utils::exceptions::CommandFailedException{cmd, exitStatus};
@@ -173,12 +192,19 @@ namespace cpp_utils {
         std::array<char, 128> buffer;
         //std::unique_ptr<FILE, decltype(&pclose)> pipe{popen(cmd.c_str(), "r"), pclose};
         errno = 0;
-        critical("pid opened are", getPIDNumberOpened());
+        debug("pid opened are", getPIDNumberOpened());
         debug("open files are ", getOpenFileDescriptors());
-        FILE* pipe = cpp_utils::popenRead(cmd.c_str(), "r");
+        critical("executing", cmd);
+        
+        errno = 0;
+        FILE* pipe = popen(cmd.c_str(), "r");
         if (pipe == nullptr) {
             log_error("failed executing cmd \"", cmd.c_str(), "\"");
-            log_error("reason: ", strerror(errno));
+            log_error("It is possible that fork has failed. errno is ", errno, "description: ", strerror(errno));
+			log_error("AFAIK there are either 2 issues: ");
+			log_error("1) there is left literally no memory. Consider buying new RAM or creating a swap");
+			log_error("2) overcommit is prevented (see https://stackoverflow.com/a/15623171/1887602). Or with root do \" echo 1 > /proc/sys/vm/overcommit_memory\"");
+			log_error("3) the child process didn't exit before running out of memory. Happens if you're running a big script taking lots of memory");
             throw cpp_utils::exceptions::ImpossibleException{"popen() failed! While executing %s", cmd};
         }
 
@@ -187,23 +213,42 @@ namespace cpp_utils {
             result += buffer.data();
         }
 
-        cpp_utils::pclose(pipe);
+        ::pclose(pipe);
 
         return result;
     }
 
 
     /**
-     * @brief check if a program is installed on the system
+     * @brief Call an external program, but before calling it, it check if it is present in the system
      * 
-     * The function uses `which` to establish that
+     * @note
+     * the function will fail if the system call will receive an exit code which is not 0
      * 
-     * @param command the command to check its existence
-     * @return true 
-     * @return false 
+     * @param programNameToCheck the name of the external program you rely on (e.g., dot, valgrind)
+     * @param versionYouHave useful for external developer. By using this value you can tell them which version of the program you've been using all along
+     * @param others variadic list of elements that will form the command you will execute
+     * @return int exist code. Usualluy 0
      */
-    bool isProgramInstalled(const std::string& command);
+    template <typename ...OTHERS>
+    int callExternalProgramSafe(const char* programNameToCheck, const char* versionYouHave, const OTHERS&... others) {
+        auto cmd = scout(others...);
+        if (!isProgramInstalled(programNameToCheck)) {
+            throw cpp_utils::exceptions::CommandNotFoundException{programNameToCheck, versionYouHave, ""};
+        }
 
+        return callExternalProgram("%s", cmd);
+    }
+
+    template <typename ...OTHER>
+    std::string callExternalProgramSafeAndFetchOutput(const char* programNameToCheck, const char* versionYouHave, const OTHER&... others) {
+        auto cmd = scout(others...);
+        if (!isProgramInstalled(programNameToCheck)) {
+            throw cpp_utils::exceptions::CommandNotFoundException{programNameToCheck, versionYouHave, ""};
+        }
+
+        return callExternalProgramAndFetchOutput(cmd);
+    }
     /**
      * @brief Call PyEval script to generate templated strings in C++
      * 

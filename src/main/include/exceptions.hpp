@@ -271,6 +271,25 @@ namespace cpp_utils::exceptions {
         int exitCode;
     };
 
+    /**
+     * @brief thrown when you're trying to call an external program via ::system, but the program does not exist
+     * 
+     */
+    class CommandNotFoundException : public AbstractException {
+    public:
+        CommandNotFoundException(const std::string& command, const std::string& version, const std::string& howToInstall): AbstractException{}, command{command}, version{version}, howToInstall{howToInstall} {
+            this->updateMessage(cpp_utils::scout("Command \"", command, "\" is not installed on your system. I've installed it via ", howToInstall, " and in my setup the version was ", version));
+        }
+
+        CommandNotFoundException(const std::string& command, const std::string& howToInstall): AbstractException{}, command{command}, version{""}, howToInstall{howToInstall} {
+            this->updateMessage(cpp_utils::scout("Command \"", command, "\" is not installed on your system. I've installed it via ", howToInstall));
+        }
+    private:
+        std::string command;
+        std::string version;
+        std::string howToInstall;
+    };
+
     class FileOpeningException: public AbstractException {
     private:
         std::string filename;
