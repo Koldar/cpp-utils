@@ -6,6 +6,14 @@
 namespace cpp_utils {
 
     /**
+     * @brief rename a file or a directory
+     * 
+     * @param p the path of either the file or directory to rename
+     * @param newName the new name of the file/directory
+     */
+    void rename(const boost::filesystem::path& p, const std::string& newName);
+
+    /**
      * @brief remove a file
      * 
      * @note
@@ -42,6 +50,15 @@ namespace cpp_utils {
     bool exist(const boost::filesystem::path& p);
 
     /**
+     * @brief check if a path si empty
+     * 
+     * @param p the path involved
+     * @return true 
+     * @return false 
+     */
+    bool isEmpty(const boost::filesystem::path& p);
+
+    /**
      * @brief get the path without the extension
      * 
      * @pre
@@ -51,6 +68,18 @@ namespace cpp_utils {
      * @return boost::filesystem::path 
      */
     boost::filesystem::path withoutExtension(const boost::filesystem::path& p);
+
+    /**
+     * @brief replace the extension of the file with a new one
+     * 
+     * @pre
+     *  @li @c p represents a file
+     * 
+     * @param p the path fo the file
+     * @param newExtension new extension of the file
+     * @return boost::filesystem::path 
+     */
+    boost::filesystem::path changeExtension(const boost::filesystem::path& p, const char* newExtension);
 
     /**
      * @brief get the basename of a path

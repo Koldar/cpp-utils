@@ -7,11 +7,16 @@
 
 namespace cpp_utils {
 
-    VideoBuilder::VideoBuilder(): imageNames{}, duration{1.0}, outputFramerate{25} {
+    VideoBuilder::VideoBuilder(): imageNames{}, duration{1.0}, outputFramerate{25}, removeImages{false}, audioFile{} {
 
     }
     VideoBuilder::~VideoBuilder() {
 
+    }
+
+    VideoBuilder& VideoBuilder::setAudio(const boost::filesystem::path& audio) {
+        this->audioFile = audio;
+        return *this;
     }
     
     VideoBuilder& VideoBuilder::setDuration(double d) {
@@ -49,21 +54,50 @@ namespace cpp_utils {
         }
         return *this;
     }
+
+    VideoBuilder& VideoBuilder::setRemoveImages(bool remove) {
+        this->removeImages = remove;
+        return *this;
+    }
    
     VideoBuilder& VideoBuilder::buildVideo(const boost::filesystem::path& path) const {
         //see https://trac.ffmpeg.org/wiki/ChangingFrameRate
         critical("duration is", this->duration);
         auto demuxerPath = this->generateConcatDemuxer(cpp_utils::basename(path).native(), this->duration);
 
-        debug("computing absolute path of", path);
-        auto outputPath = cpp_utils::absolute(path);
-        debug("done");
+        boost::filesystem::path tmpMp4{scout("/tmp/", cpp_utils::basename(path).native(), ".mp4")};
+        auto outputPath = cpp_utils::changeExtension(cpp_utils::absolute(path), "mp4");
 
-        auto output = cpp_utils::callExternalProgramSafeAndFetchOutput("ffmpeg", "4.1.4", "ffmpeg -threads auto -y -safe 0 -f concat -i \"", demuxerPath.native(), "\" -pix_fmt yuv420p -vf fps=", this->outputFramerate, " -preset veryfast \"", cpp_utils::withoutExtension(outputPath.native()), ".mp4\"");
-        debug(output);
+        boost::filesystem::path tmp;
+        if (!this->audioFile.empty()) {
+            //if the audio is present, we need to call ffmpeg twice, meaning that we need a temproary file. Otherwise we can generate
+            //the mp4 directly in the outputPath
+            tmp = tmpMp4;
+        } else {
+            tmp = outputPath;
+        }
+
+        auto output = cpp_utils::callExternalProgramSafeAndFetchOutput("ffmpeg", "4.1.4", "ffmpeg -threads auto -y -safe 0 -f concat -i \"", demuxerPath.native(), "\" -pix_fmt yuv420p -vf fps=", this->outputFramerate, " -preset veryfast \"", tmp.native(), "\"");
+
+        //adds the audio file
+        if (!this->audioFile.empty()) {
+            //we have saved the file in tmp. add the audio
+            critical("adding audio");
+            callFFMPEG("ffmpeg -y -i \"", tmp.native(), "\" -i \"", this->audioFile.native(), "\" -shortest -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k \"", outputPath.native(), "\"");
+
+            //delete tmp file
+            cpp_utils::remove(tmpMp4);
+        }
 
         //delete demuxer
-        //cpp_utils::remove(demuxerPath);
+        cpp_utils::remove(demuxerPath);
+
+        if (this->removeImages) {
+            for (auto image : this->imageNames) {
+                cpp_utils::remove(image);
+            }
+        }
+
         return const_cast<VideoBuilder&>(*this);
     }
     

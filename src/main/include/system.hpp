@@ -175,9 +175,6 @@ namespace cpp_utils {
      * This function won't check process exit code!!!
      * 
      * @tparam OTHERS args that compose the external program
-     * @param output string that will contain the stdout
-     * @param args args composing the command to execute
-     * @return std::string stdout
      */
     template <typename... OTHERS>
     std::string callUnsafeExternalProgramAndFetchOutput(const OTHERS&... args) {
@@ -237,7 +234,7 @@ namespace cpp_utils {
             throw cpp_utils::exceptions::CommandNotFoundException{programNameToCheck, versionYouHave, ""};
         }
 
-        return callExternalProgram("%s", cmd);
+        return callExternalProgram("%s", cmd.c_str());
     }
 
     template <typename ...OTHER>
@@ -249,6 +246,12 @@ namespace cpp_utils {
 
         return callExternalProgramAndFetchOutput(cmd);
     }
+
+    template <typename ...OTHER>
+    int callFFMPEG(const OTHER&... other) {
+        return callExternalProgramSafe("ffmpeg", "4.1.4", other...);
+    }
+
     /**
      * @brief Call PyEval script to generate templated strings in C++
      * 

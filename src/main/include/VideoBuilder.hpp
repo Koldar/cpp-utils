@@ -23,7 +23,13 @@ namespace cpp_utils {
          */
         double outputFramerate;
         double duration;
+        bool removeImages;
+        boost::filesystem::path audioFile;
     public:
+        /**
+         * @brief new builder that outputs a video of 25 fps, where each image stays for 1 time unit and does **not** remove the images afgter generating the video
+         * 
+         */
         VideoBuilder();
         virtual ~VideoBuilder();
         VideoBuilder(const This& o) = default;
@@ -31,6 +37,15 @@ namespace cpp_utils {
         This& operator = (const This& o) = default;
         This& operator = (This&& o) = default;
     public:
+
+        /**
+         * @brief Adds an audio for the video
+         * 
+         * @param ppath to an audio file
+         * @return VideoBuilder& this
+         */
+        VideoBuilder& setAudio(const boost::filesystem::path& p);
+
         /**
          * @brief how much time a single image will be displayed in the video
          * 
@@ -80,6 +95,14 @@ namespace cpp_utils {
          * @return VideoBuilder& this
          */
         VideoBuilder& addImagesUntilNoFound(const IntInterval& range, const function_t<int, boost::filesystem::path>& mapper);
+
+        /**
+         * @brief if set to true, we will remove the images we have used in the video
+         * 
+         * @param remove true if we want to remove the images after building the video, false otherwise
+         * @return VideoBuilder& this
+         */
+        VideoBuilder& setRemoveImages(bool remove);
 
         /**
          * @brief concretely build an video
