@@ -17,6 +17,13 @@ namespace cpp_utils {
     private:
         vectorplus<boost::filesystem::path> imageNames;
         /**
+         * @brief input framerate
+         * 
+         * consider increasing the number if you have lots of images
+         * 
+         */
+        double inputFramerate;
+        /**
          * @brief the framerate the output video will have
          * 
          * @see https://ffmpeg.org/ffmpeg.html#Video-Options
@@ -53,6 +60,15 @@ namespace cpp_utils {
          * @return VideoBuilder& this
          */
         VideoBuilder& setDuration(double d);
+
+        /**
+         * @brief 
+         * 
+         * @param fr the framerate the input files will have
+         * @return VideoBuilder& this
+         * @see https://ffmpeg.org/ffmpeg.html#Video-Options
+         */
+        VideoBuilder& setInputFramerate(double fr);
 
         /**
          * @brief 

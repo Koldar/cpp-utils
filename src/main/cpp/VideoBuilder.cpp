@@ -7,7 +7,7 @@
 
 namespace cpp_utils {
 
-    VideoBuilder::VideoBuilder(): imageNames{}, duration{1.0}, outputFramerate{25}, removeImages{false}, audioFile{} {
+    VideoBuilder::VideoBuilder(): imageNames{}, duration{1.0}, inputFramerate{25}, outputFramerate{25}, removeImages{false}, audioFile{} {
 
     }
     VideoBuilder::~VideoBuilder() {
@@ -21,6 +21,11 @@ namespace cpp_utils {
     
     VideoBuilder& VideoBuilder::setDuration(double d) {
         this->duration = d;
+        return *this;
+    }
+
+    VideoBuilder& VideoBuilder::setInputFramerate(double fr) {
+        this->inputFramerate = fr;
         return *this;
     }
 
@@ -77,7 +82,7 @@ namespace cpp_utils {
             tmp = outputPath;
         }
 
-        auto output = cpp_utils::callExternalProgramSafeAndFetchOutput("ffmpeg", "4.1.4", "ffmpeg -threads auto -y -safe 0 -f concat -i \"", demuxerPath.native(), "\" -pix_fmt yuv420p -vf fps=", this->outputFramerate, " -preset veryfast \"", tmp.native(), "\"");
+        auto output = cpp_utils::callExternalProgramSafeAndFetchOutput("ffmpeg", "4.1.4", "ffmpeg -threads auto -y -safe 0 -r ", this->inputFramerate, " -f concat -i \"", demuxerPath.native(), "\" -c:v libx264 -vf fps=", this->outputFramerate, " -pix_fmt yuv420p -preset veryfast \"", tmp.native(), "\"");
 
         //adds the audio file
         if (!this->audioFile.empty()) {

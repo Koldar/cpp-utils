@@ -13,12 +13,12 @@ SCENARIO("test video builder", "[VideoBuilder]") {
 
         function_t<int, boost::filesystem::path> mapper = [&](int id) { return scout("./iteration_", id, ".bmp.bmp");};
         builder
+            .setInputFramerate(1)
             .addImagesThat(IntInterval{0, 6, true, false}, mapper)
             .buildVideo("./output.mp4")
             .setDuration(0.20)
             .buildVideo("./output-fast.mp4")
             ;
-        
 
         REQUIRE(cpp_utils::exists("./output.mp4"));
         REQUIRE(cpp_utils::exists("./output-fast.mp4"));
@@ -29,6 +29,7 @@ SCENARIO("test video builder", "[VideoBuilder]") {
 
         function_t<int, boost::filesystem::path> mapper = [&](int id) { return scout("./iteration_", id, ".bmp.bmp");};
         builder
+            .setInputFramerate(1)
             .addImagesThat(IntInterval{0, 6, true, false}, mapper)
             .setAudio("./test.wav")
             .buildVideo("./output-with-audio.mp4")
