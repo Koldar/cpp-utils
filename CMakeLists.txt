@@ -29,7 +29,7 @@ set(THEPROJECT_POSITION_INDEPENDENT_CODE "true")
 set(THEPROJECT_DEBUG_LOG_LEVEL "3")
 # The -std version flag you want to use for compiling this project. Default to c++11
 # See man gcc for further information (go to -std man page)
-set(THEPROJECT_CPP_STANDARD "c++14")
+set(THEPROJECT_CPP_STANDARD "c++17")
 # Set of -D definitions to add to the build of both main/test debug/release
 # Use -D to add a new definition, -U to remove a definition. Defaults to nothing
 # Do not put here the following: NDEBUG, DEBUG, QUICKLOG
