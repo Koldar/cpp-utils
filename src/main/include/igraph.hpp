@@ -578,7 +578,7 @@ namespace cpp_utils::graphs {
          * @deprecated TODO remove this the other mapEdges should be preferred since it doesn't incur in runtime slodowns
          */
         template<typename OUT>
-        std::unique_ptr<IImmutableGraph<G, V, OUT>> mapEdges(std::function<OUT(const E&)> edgeMapper) const {
+        IImmutableGraph<G, V, OUT>* mapEdges(std::function<OUT(const E&)> edgeMapper) const {
             AdjacentGraph<G, V, OUT>* result = new AdjacentGraph<G, V, OUT>{this->getPayload()};
 
             //vertices
@@ -592,7 +592,7 @@ namespace cpp_utils::graphs {
             }
             result->finalizeGraph();
 
-            return std::unique_ptr<IImmutableGraph<G, V, OUT>>{result};
+            return result;
         }
 
         /**
