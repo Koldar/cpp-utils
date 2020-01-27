@@ -66,6 +66,10 @@ namespace cpp_utils {
     }
    
     VideoBuilder& VideoBuilder::buildVideo(const boost::filesystem::path& path) const {
+        if (this->imageNames.isEmpty()) {
+            warning("no images to build ", path, "! Ignoring");
+            return const_cast<VideoBuilder&>(*this);
+        }
         //see https://trac.ffmpeg.org/wiki/ChangingFrameRate
         critical("duration is", this->duration);
         auto demuxerPath = this->generateConcatDemuxer(cpp_utils::basename(path).native(), this->duration);
@@ -121,8 +125,9 @@ namespace cpp_utils {
             concatDemuxer << "duration " << duration << "\n";
         }
         //repeat the last file
-        concatDemuxer << "file " << cpp_utils::absolute(this->imageNames.getTail()) << "\n";
-
+        auto lastImageName = this->imageNames.getTail();
+        concatDemuxer << "file " << cpp_utils::absolute(lastImageName) << "\n";
+    
         //close file
         concatDemuxer.close();
         return demuxerPath;
