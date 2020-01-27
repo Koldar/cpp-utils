@@ -71,7 +71,8 @@ namespace cpp_utils {
         auto demuxerPath = this->generateConcatDemuxer(cpp_utils::basename(path).native(), this->duration);
 
         boost::filesystem::path tmpMp4{scout("/tmp/", cpp_utils::basename(path).native(), ".mp4")};
-        auto outputPath = cpp_utils::changeExtension(cpp_utils::absolute(path), "mp4");
+        auto absolutePath = cpp_utils::absolute(path);
+        auto outputPath = cpp_utils::changeExtension(absolutePath, "mp4");
 
         boost::filesystem::path tmp;
         if (!this->audioFile.empty()) {

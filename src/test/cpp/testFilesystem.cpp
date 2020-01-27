@@ -10,4 +10,7 @@ SCENARIO("test filesystem") {
     REQUIRE(cpp_utils::normalize(boost::filesystem::path{"/tmp/./../home"}) == "/home");
 
     REQUIRE(cpp_utils::join("/tmp", ".", "..", "home") == "/tmp/./../home");
+
+    boost::filesystem::path path{"/tmp/./../home"};
+    REQUIRE(cpp_utils::absolute(path) == "/home");
 }

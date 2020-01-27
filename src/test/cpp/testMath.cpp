@@ -4,9 +4,11 @@
 #include "MCValue.hpp"
 #include "MDValue.hpp"
 
+#include "LogNumberListener.hpp"
+
 using namespace cpp_utils;
 
-SCENARIO("test MC and MD values") {
+SCENARIO("test MC and MD values", "[MCMDValues]") {
     GIVEN("a mc value") {
         MCValue<int> a = 4;
 
@@ -79,8 +81,14 @@ SCENARIO("test MC and MD values") {
         a.cleanup();
         a /= 2;
         REQUIRE(a == 0);
+    }
 
+    GIVEN("a MD value with listener") {
+        MDValue<int> upperbound = 40;
+        auto upperboundListener = LogNumberListener<int>{"upperbound", 8};
+        upperbound.setListener(upperboundListener);
 
+        upperbound = 30;
     }
 }
 

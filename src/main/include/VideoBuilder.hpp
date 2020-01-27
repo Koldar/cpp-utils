@@ -1,6 +1,8 @@
 #ifndef _CPPUTILS_VIDEOBUILDER_HEADER__
 #define _CPPUTILS_VIDEOBUILDER_HEADER__
 
+#include <boost/filesystem.hpp>
+
 #include "functional.hpp"
 #include "vectorplus.hpp"
 #include "Interval.hpp"
