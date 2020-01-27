@@ -24,9 +24,9 @@ namespace cpp_utils {
     template <typename NUM>
     class MDValue: public ICleanable, public IMemorable, public ISingleListenable<NumberListener<NUM>> {
     public:
-        typedef MDValue<NUM> This;
-        typedef ISingleListenable<NumberListener<NUM>> Super2;
-        typedef NumberListener<NUM> Listener;
+        using This = MDValue<NUM>;
+        using Listener = NumberListener<NUM>;
+        using Super2 = ISingleListenable<Listener>;
     public:
         friend class MCValue<NUM>;
     private:
@@ -40,7 +40,7 @@ namespace cpp_utils {
 
         }
         virtual ~MDValue() {
-            critical("destroying md with value", this->val);
+            debug("destroying md with value", this->val);
         }
         MDValue(const This& o): Super2{o}, val{o.val} {
 
@@ -54,26 +54,30 @@ namespace cpp_utils {
 
             Super2::operator =(o);
             if (this->val != o.val) {
-                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, o.val); });
+                this->fireEvent([&, o](Listener& l) { l.onNumberDecreased(this->val, o.val); });
             }
             this->val = o.val;
             return *this;
         }
         This& operator=(This&& o) {
-            critical("move on ", this->val, "and ", o.val);
+            debug("move on ", this->val, "and ", o.val);
             if (this->val < o.val) {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This assignment with", o, "will make it increase");
             }
 
-            critical("calling super::move");
-            Super2::operator =(o);
-            critical("checking if val != o.val");
+            debug("calling super::move");
+            Super2::operator =(std::move(o));
+            debug("checking if val != o.val");
             if (this->val != o.val) {
-                critical("fire evetn");
-                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, o.val); });
-                critical("done firing event");
+                NUM v1 = this->val;
+                NUM v2 = o.val;
+                this->fireEvent([&v1, &v2](Listener& l) { 
+                    //TODO uncomment this will lead to some invalid read when calling such method. Who knows why?
+                    //l.onNumberDecreased(v1, v2); 
+                });
+                debug("done firing event");
             }
-            critical("setting val");
+            debug("setting val");
             this->val = o.val;
             return *this;
         }
@@ -87,7 +91,7 @@ namespace cpp_utils {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This sum will make it increase!");
             }
             if (b.val != 0) {
-                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, this->val + b.val); });
+                this->fireEvent([&, b](Listener& l) { l.onNumberDecreased(this->val, this->val + b.val); });
             }
             this->val += b.val;
             return *this;
@@ -97,7 +101,7 @@ namespace cpp_utils {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This subtraction will make it increase!");
             }
             if (b.val != 0) {
-                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, this->val - b.val); });
+                this->fireEvent([&, b](Listener& l) { l.onNumberDecreased(this->val, this->val - b.val); });
             }
             debug("this is", *this, " and b is", b, ". difference is ", this->val - b.val);
             this->val -= b.val;
@@ -109,7 +113,7 @@ namespace cpp_utils {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This multiplication with", b, "will make it increase!");
             }
             if (b.val != 1) {
-                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, this->val * b.val); });
+                this->fireEvent([&, b](Listener& l) { l.onNumberDecreased(this->val, this->val * b.val); });
             }
             this->val *= b.val;
             return *this;
@@ -120,7 +124,7 @@ namespace cpp_utils {
                 throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This division will make it increase!");
             }
             if (b.val != 1) {
-                this->fireEvent([&](Listener& l) { l.onNumberDecreased(this->val, this->val / b.val); });
+                this->fireEvent([&, b](Listener& l) { l.onNumberDecreased(this->val, this->val / b.val); });
             }
             this->val /= b.val;
             return *this;

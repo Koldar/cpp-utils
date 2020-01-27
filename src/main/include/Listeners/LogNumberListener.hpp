@@ -35,19 +35,34 @@ namespace cpp_utils {
          * @param what what the number actually represents
          * @param logLevel log level to output. either 0,1,2,3,5,6,7,8
          */
-        LogNumberListener(const std::string& what, int logLevel): Super{}, logLevel{logLevel}, what{what} {
+        LogNumberListener(const std::string& what, int logLevel): logLevel{logLevel}, what{what} {
 
         }
-        virtual ~LogNumberListener() = default;
-        LogNumberListener(const This& o) = default;
-        LogNumberListener(This&& o) = default;
-        This& operator=(const This& o) = default;
-        This& operator=(This&& o) = default;
+        virtual ~LogNumberListener() {
+            
+        }
+        LogNumberListener(const This& o): logLevel{o.logLevel}, what{o.what} {
+
+        }
+        LogNumberListener(This&& o): logLevel{o.logLevel}, what{o.what} {
+
+        }
+        This& operator=(const This& o) {
+            this->logLevel = o.logLevel;
+            this->what = o.what;
+            return *this;
+        }
+        This& operator=(This&& o) {
+            this->logLevel = o.logLevel;
+            this->what = o.what;
+            return *this;
+        }
     public:
         virtual void cleanup() {
 
         }
         virtual void onNumberIncreased(const NUMBER& oldValue, const NUMBER& newValue) {
+            critical("called onNumberIncreased");
             switch (logLevel) {
                 case 0: debug("number", what, "increased from ", oldValue, "to", newValue, "!"); break;
                 case 1: finest("number", what, "increased from ", oldValue, "to", newValue, "!"); break;
@@ -60,21 +75,47 @@ namespace cpp_utils {
                 default:
                     throw cpp_utils::exceptions::InvalidArgumentException("invalid logLevel", logLevel);
             }
+            critical("done calling onNumberIncreased");
         }
 
         virtual void onNumberDecreased(const NUMBER& oldValue, const NUMBER& newValue) {
+            debug("called onNumberDecreased");
             switch (logLevel) {
-                case 0: debug("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
-                case 1: finest("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
-                case 2: finer("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
-                case 3: fine("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
-                case 5: info("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
-                case 6: warning("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
-                case 7: log_error("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
-                case 8: critical("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
-                default:
+                case 0: {
+                    debug("number", what, "decreased from ", oldValue, "to", newValue, "!"); 
+                    break;
+                }
+                case 1: {
+                    finest("number", what, "decreased from ", oldValue, "to", newValue, "!"); 
+                    break;
+                }
+                case 2: {
+                    finer("number", what, "decreased from ", oldValue, "to", newValue, "!"); 
+                    break;
+                }
+                case 3: {
+                    fine("number", what, "decreased from ", oldValue, "to", newValue, "!"); 
+                    break;
+                }
+                case 5: {
+                    info("number", what, "decreased from ", oldValue, "to", newValue, "!"); 
+                    break;
+                }
+                case 6: {
+                    warning("number", what, "decreased from ", oldValue, "to", newValue, "!"); 
+                    break;
+                }
+                case 7: {
+                    log_error("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
+                }
+                case 8: {
+                    critical("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
+                }
+                default: {
                     throw cpp_utils::exceptions::InvalidArgumentException("invalid logLevel", logLevel);
+                }
             }
+            debug("done calling onNumberDecreased");
         }
     };
 

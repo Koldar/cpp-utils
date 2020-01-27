@@ -27,6 +27,7 @@ namespace cpp_utils {
 
         }
         virtual ~ISingleListenable() {
+            debug("destroying ISingleListenable");
             //we do not own the listner, hence it is not our duty to deallocate it
             this->listener = nullptr;
         }
@@ -37,12 +38,15 @@ namespace cpp_utils {
             o.listener = nullptr;
         }
         This& operator=(const This& o) {
+            debug("trying to copy the listeneral");
             if (this->listener != nullptr && o.listener != nullptr && this->listener != o.listener) {
                 throw cpp_utils::exceptions::makeInvalidArgumentException("impossible to copy the listeners: we would lose a listener! this=", this->listener, "other=", o.listener);
             }
             if (this->listener == nullptr && o.listener != nullptr) {
+                debug("this listener is copied from other listers.. (this = ", this->listener, ", other=", o.listener, ")");
                 this->listener = o.listener;
             }
+            debug("returning this");
             return *this;
         }
         /**
@@ -54,13 +58,17 @@ namespace cpp_utils {
          * @return This& 
          */
         This& operator=(This&& o) {
+            debug("trying to move listeners...");
             if (this->listener != nullptr && o.listener != nullptr && this->listener != o.listener) {
                 throw cpp_utils::exceptions::makeInvalidArgumentException("impossible to copy the listeners: we would lose a listener! this=", this->listener, "other=", o.listener);
             }
             if (this->listener == nullptr && o.listener != nullptr) {
+                debug("this listener is copied from other listers.. (this = ", this->listener, ", other=", o.listener, ")");
                 this->listener = o.listener;
             }
+            debug("setting other listener to null");
             o.listener = nullptr;
+            debug("returning this");
             return *this;
         }
     public:
@@ -83,11 +91,26 @@ namespace cpp_utils {
         
         void fireEvent(const std::function<void(const OBSERVER&)>& lambda) const {
             if (this->listener != nullptr) {
+                critical("fire event in single listeners const");
                 lambda(*this->listener);
             }
         }
         void fireEvent(const std::function<void(OBSERVER&)>& lambda) {
             if (this->listener != nullptr) {
+                debug("fire event in single listeners non-const");
+                lambda(*this->listener);
+            }
+        }
+        void fireEvent(std::function<void(OBSERVER&)>&& lambda) {
+            if (this->listener != nullptr) {
+                debug("fire move event in single listeners non-const");
+                lambda(*this->listener);
+            }
+        }
+        template <typename LAMBDA>
+        void fireEvent(const LAMBDA& lambda) {
+            if (this->listener != nullptr) {
+                debug("fire template event in single listeners non-const");
                 lambda(*this->listener);
             }
         }
