@@ -119,7 +119,7 @@ void __abstractLog(int levelNo, const char* level, const char* file, const char*
  *
  * @param[in] ... the entries to put on stream
  */
-#define finest(...) _abstractLog(1, "FINEST", __VA_ARGS__)
+#define finest(...) _abstractLog(1, "FINST", __VA_ARGS__)
 #else
 #define finest(...) ;
 #endif
@@ -222,6 +222,14 @@ void __abstractLog(int levelNo, const char* level, const char* file, const char*
  * @param[in] ... the entries to put on stream
  */
 #define critical(...) _abstractLog(8, "CRTCL", __VA_ARGS__)
+#define cdebug(...) _abstractLog(8, "DEBUG", __VA_ARGS__)
+#define cfinest(...) _abstractLog(8, "FINST", __VA_ARGS__)
+#define cfiner(...) _abstractLog(8, "FINER", __VA_ARGS__)
+#define cfine(...) _abstractLog(8, "FINE ", __VA_ARGS__)
+#define cinfo(...) _abstractLog(8, "INFO ", __VA_ARGS__)
+#define cwarning(...) _abstractLog(8, "WARN ", __VA_ARGS__)
+#define clog_error(...) _abstractLog(8, "ERROR", __VA_ARGS__)
+#define ccritical(...) _abstractLog(8, "CRTCL", __VA_ARGS__)
 #else
 #define critical(...) ;
 #endif
