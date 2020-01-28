@@ -9,6 +9,22 @@
 
 namespace cpp_utils {
 
+    /**
+     * @brief convert a string into its lower case version
+     * 
+     * @param str 
+     * @return std::string 
+     */
+    std::string toLowercase(const std::string& str);
+
+    /**
+     * @brief convert a string into its upper case version
+     * 
+     * @param str 
+     * @return std::string 
+     */
+    std::string toUppercase(const std::string& str);
+
     //TODO create a cout version that accept data like sprintf but uses << to generate the values.
     //allowed formats are %s (call <<), %p (obtain pointer of somethign which isn't a pointer, the pointer itself otherwise), %.2f (only for decimals)
 
