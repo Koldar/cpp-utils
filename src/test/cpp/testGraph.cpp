@@ -248,6 +248,11 @@ SCENARIO("test adjacent graph") {
             
             delete tmp;
         }
+
+        WHEN("testing out and in max degrees") {
+            REQUIRE(lg.getMaxOutDegree() == 2);
+            REQUIRE(lg.getMaxInDegree() == 1);
+        }
     }
 }
 
