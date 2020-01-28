@@ -3,9 +3,13 @@
 
 #include <string>
 #include <cstdarg>
+#include <iostream>
+
+#include <boost/filesystem.hpp>
+
 #include "system.hpp"
 #include "exceptions.hpp"
-#include <iostream>
+
 
 namespace cpp_utils {
 
@@ -44,18 +48,63 @@ namespace cpp_utils {
     public:
         void saveSVG(const std::string& filename, ...) const;
         void saveSVG(const char* filename, ...) const;
+        /**
+         * @brief save a SVG file
+         * 
+         * @post
+         * @li svg present in the file system
+         * 
+         * @param p the path where to save it. If the path has extension SVG, we will not duplicate such extension
+         */
+        void saveSVG(const boost::filesystem::path& p) const;
 
         void savePNG(const std::string& filename, ...) const;
         void savePNG(const char* filename, ...) const;
+        /**
+         * @brief save a SVG file
+         * 
+         * @post
+         * @li svg present in the file system
+         * 
+         * @param p the path where to save it. If the path has extension SVG, we will not duplicate such extension
+         */
+        void savePNG(const boost::filesystem::path& p) const;
 
         void saveJPEG(const std::string& filename, ...) const;
         void saveJPEG(const char* filename, ...) const;
+        /**
+         * @brief save a SVG file
+         * 
+         * @post
+         * @li svg present in the file system
+         * 
+         * @param p the path where to save it. If the path has extension SVG, we will not duplicate such extension
+         */
+        void saveJPEG(const boost::filesystem::path& p) const;
 
         void saveBMP(const std::string& filename, ...) const;
         void saveBMP(const char* filename, ...) const;
+        /**
+         * @brief save a SVG file
+         * 
+         * @post
+         * @li svg present in the file system
+         * 
+         * @param p the path where to save it. If the path has extension SVG, we will not duplicate such extension
+         */
+        void saveBMP(const boost::filesystem::path& p) const;
 
         void saveFIG(const std::string& filename, ...) const;
         void saveFIG(const char* filename, ...) const;
+        /**
+         * @brief save a SVG file
+         * 
+         * @post
+         * @li svg present in the file system
+         * 
+         * @param p the path where to save it. If the path has extension SVG, we will not duplicate such extension
+         */
+        void saveFIG(const boost::filesystem::path& p) const;
     public:
         void vsaveImage(ImageExtension extension, const char* filename, va_list ap) const;
         void saveImage(ImageExtension extension, const char* filename, ...) const;
