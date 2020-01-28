@@ -92,6 +92,38 @@ SCENARIO("test MC and MD values", "[MCMDValues]") {
     }
 }
 
+SCENARIO("test gaussian") {
+
+    REQUIRE(isApproximatelyEqual(pi(), 3.14, 1e-2));
+
+    REQUIRE(isApproximatelyEqual(getGaussian(0, 1), 1., 1e-3));
+    critical("getGaussian(-1, 1)=", getGaussian(-1, 1));
+    REQUIRE(isApproximatelyEqual(getGaussian(-1, 1), 0.6, 1e-1));
+    REQUIRE(isApproximatelyEqual(getGaussian(1, 1), 0.6, 1e-1));
+    critical("getGaussian(2, 1)=", getGaussian(2, 1));
+    // REQUIRE(isApproximatelyEqual(getGaussian(2, 1), 0.13, 1e-2));
+    // REQUIRE(isApproximatelyEqual(getGaussian(-2, 1), 0.13, 1e-2));
+    critical("getGaussian(200, 1)=", getGaussian(200, 1));
+    REQUIRE(isApproximatelyEqual(getGaussian(200, 1), 0., 1e-3));
+    
+    REQUIRE(isApproximatelyEqual(getGaussian(2, 3, 0, 1), 3., 1e-3));
+    REQUIRE(isApproximatelyEqual(getGaussian(2, 3, 1, 1), 2.4, 1e-1));
+    REQUIRE(isApproximatelyEqual(getGaussian(2, 3, 200, 1), 2., 1e-3));
+
+    critical("getLeftGaussian(5, 0.5, 5, 10, 2, 3)=", getLeftGaussian(5, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(5, 0.5, 5, 10, 2, 3), 2., 1e-3));
+    critical("getLeftGaussian(10, 0.5, 5, 10, 2, 3)=", getLeftGaussian(10, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(10, 0.5, 5, 10, 2, 3), 3., 1e-3));
+    critical("getLeftGaussian(6, 0.5, 5, 10, 2, 3)=", getLeftGaussian(6, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(6, 0.5, 5, 10, 2, 3), 2., 1e-3));
+    critical("getLeftGaussian(7, 0.5, 5, 10, 2, 3)=", getLeftGaussian(7, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(7, 0.5, 5, 10, 2, 3), 2., 1e-3));
+    critical("getLeftGaussian(8, 0.5, 5, 10, 2, 3)=", getLeftGaussian(8, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(8, 0.5, 5, 10, 2, 3), 2., 1e-3));
+    critical("getLeftGaussian(9, 0.5, 5, 10, 2, 3)=", getLeftGaussian(9, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(9, 0.5, 5, 10, 2, 3), 2., 1e-3));
+}
+
 SCENARIO("test math") {
 
     GIVEN("test ringBound") {

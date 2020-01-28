@@ -8,6 +8,72 @@
 namespace cpp_utils {
 
     /**
+     * @brief pi value
+     * 
+     * @return constexpr double 
+     */
+    constexpr double pi() {
+        return std::atan(1)*4;
+    }
+
+    /**
+     * @brief Get normal distribution
+     * 
+     * @code
+     *  (1/sigma sqrt(2*pi))* exp(0.5 * (x- mu/sigma)^2)
+     * @endcode
+     * 
+     * @param x 
+     * @param mean 
+     * @param stddev 
+     * @return double 
+     */
+    double getNormal(double x, double mean, double stddev);
+
+    /**
+     * @brief Get normal distribution
+     * 
+     * @code
+     *  compute a gaussian with mean 0
+     * @endcode
+     * 
+     * @param x 
+     * @param mean 
+     * @param stddev 
+     * @return double 
+     */
+    double getGaussian(double x, double stddev);
+
+    /**
+     * @brief compute a gaussian whose minimum y and maximum y are given
+     * 
+     * @param minY 
+     * @param maxY 
+     * @param x 
+     * @param stddev 
+     * @return double 
+     */
+    double getGaussian(double minY, double maxY, double x, double stddev);
+
+    /**
+     * @brief compute a gaussian which is 
+     * 
+     * @param x 
+     * @param mean 
+     * @param stddev 
+     * @param minX 
+     * @param maxX 
+     * @param minY 
+     * @param maxY 
+     * @return double 
+     */
+    double getCenteredGaussian(double x, double stddev, double minX, double maxX, double minY, double maxY);
+
+    double getLeftGaussian(double x, double stddev, double minX, double maxX, double minY, double maxY);
+
+    double getRightGaussian(double x, double stddev, double minX, double maxX, double minY, double maxY);
+
+    /**
      * @brief parse a number from a string
      * 
      * @tparam T the type of the number to parse
