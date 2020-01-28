@@ -487,6 +487,42 @@ namespace cpp_utils::graphs {
         virtual bool isEmpty() const = 0;
     public:
         /**
+         * @brief get the maximum out degree a node has
+         * 
+         * @note
+         * the default implementation is quite slow
+         * 
+         * @return size_t max of all the out degrees of every vertex in the graph
+         */
+        size_t getMaxOutDegree() const {
+            size_t result = 0;
+            for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
+                auto outDegree = this->getOutDegree(it->first);
+                if (outDegree > result) {
+                    result = outDegree;
+                }
+            }
+            return result;
+        }
+        /**
+         * @brief get the maximum out degree a node has
+         * 
+         * @note
+         * the default implementation is quite slow
+         * 
+         * @return size_t max of all the out degrees of every vertex in the graph
+         */
+        size_t getMaxInDegree() const {
+            size_t result = 0;
+            for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
+                auto inDegree = this->getInDegree(it->first);
+                if (inDegree > result) {
+                    result = inDegree;
+                }
+            }
+            return result;
+        }
+        /**
          * @brief Check if exists the given move representing an out edge in the graph
          * 
          * @param id the id of the vertex representing the out move
