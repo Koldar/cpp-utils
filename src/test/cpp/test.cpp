@@ -340,117 +340,6 @@ SCENARIO("test strings") {
     REQUIRE(cpp_utils::join(3) == std::string{});
 }
 
-SCENARIO("test float operations") {
-
-    GIVEN("double") {
-
-        REQUIRE(isApproximatelyEqual(5., 5., 0.001) == true);
-        REQUIRE(isApproximatelyEqual(5., 6., 0.001) == false);
-
-        REQUIRE(isApproximatelyEqual(5.001, 5.002, 0.002) == true);
-        REQUIRE(isApproximatelyEqual(5.001, 5.003, 0.0001) == false);
-
-        REQUIRE(isDefinitelyGreaterThan(5.001, 4.001, 0.002) == true);
-        REQUIRE(isDefinitelyGreaterThan(5.002, 5.001, 0.0001) == true);
-        REQUIRE(isDefinitelyGreaterThan(5.002, 5.001, 0.002) == false);
-
-        REQUIRE(isDefinitelyLessThan(4.001, 5.001, 0.002) == true);
-        REQUIRE(isDefinitelyLessThan(5.001, 5.002, 0.0001) == true);
-        REQUIRE(isDefinitelyLessThan(5.001, 5.002, 0.002) == false);
-    }
-
-}
-
-SCENARIO("test safe inf uint") {
-
-    GIVEN("casts") {
-        REQUIRE(safe_inf_uint{0L} == 0L);
-        REQUIRE(safe_inf_uint{10L} == 10L);
-        REQUIRE(safe_inf_uint{UINT64_MAX} == UINT64_MAX);
-
-        REQUIRE(isApproximatelyEqual(static_cast<float>(safe_inf_uint{0L}), ((float)0), 0.001f));
-        REQUIRE(isApproximatelyEqual(static_cast<float>(safe_inf_uint{10L}), ((float)10), 0.001f));
-        REQUIRE(isApproximatelyEqual(static_cast<float>(safe_inf_uint{UINT64_MAX}), ((float)UINT64_MAX), 0.001f));
-
-        REQUIRE(isApproximatelyEqual(static_cast<double>(safe_inf_uint{0L}), ((double)0), 0.001));
-        REQUIRE(isApproximatelyEqual(static_cast<double>(safe_inf_uint{10L}), ((double)10), 0.001));
-        REQUIRE(isApproximatelyEqual(static_cast<double>(safe_inf_uint{UINT64_MAX}), ((double)UINT64_MAX), 0.001));
-    }
-
-    GIVEN("non infinite operations") {
-        safe_inf_uint a = 150;
-        safe_inf_uint b = 50;
-
-        REQUIRE(((a + b) == safe_inf_uint{200}));
-        REQUIRE((a - b) == safe_inf_uint{100});
-        REQUIRE((a * b) == safe_inf_uint{7500});
-        REQUIRE((a / b) == safe_inf_uint{3});
-        REQUIRE(a.isInfinity() == false);
-        REQUIRE(b.isInfinity() == false);
-    }
-
-    GIVEN("constants") {
-        REQUIRE(safe_inf_uint::ZERO == safe_inf_uint{0});
-        REQUIRE(safe_inf_uint::MIN == safe_inf_uint{0});
-        REQUIRE(safe_inf_uint::MAX == safe_inf_uint{UINT64_MAX - 1});
-        REQUIRE(safe_inf_uint::INFTY == safe_inf_uint{UINT64_MAX});
-
-        REQUIRE(safe_inf_uint::ZERO.isInfinity() == false);
-        REQUIRE(safe_inf_uint::MIN.isInfinity() == false);
-        REQUIRE(safe_inf_uint::MAX.isInfinity() == false);
-        REQUIRE(safe_inf_uint::INFTY.isInfinity() == true);
-    }
-
-    GIVEN("first is infinite, the other is not") {
-        safe_inf_uint a = 100;
-        safe_inf_uint b = safe_inf_uint::INFTY;
-
-        REQUIRE((b + a).isInfinity());
-        REQUIRE((b - a).isInfinity());
-        REQUIRE((b * a).isInfinity());
-        REQUIRE((b / a).isInfinity());
-        REQUIRE(a.isInfinity() == false);
-        REQUIRE(b.isInfinity() == true);
-    }
-
-    GIVEN("second is infinite, first is not") {
-        safe_inf_uint a = 100;
-        safe_inf_uint b = safe_inf_uint::INFTY;
-
-        REQUIRE((a + b).isInfinity());
-        REQUIRE_THROWS_AS((a - b).isInfinity(), cpp_utils::exceptions::NumericalOperationException);
-        REQUIRE((a * b).isInfinity());
-        REQUIRE((a / b) == safe_inf_uint::ZERO);
-        REQUIRE(a.isInfinity() == false);
-        REQUIRE(b.isInfinity() == true);
-    }
-
-    GIVEN("both are infinite") {
-        safe_inf_uint a = safe_inf_uint::INFTY;
-        safe_inf_uint b = safe_inf_uint::INFTY;
-
-        REQUIRE((b + a).isInfinity());
-        REQUIRE_THROWS_AS((b - a).isInfinity(), cpp_utils::exceptions::NumericalOperationException);
-        REQUIRE((b * a).isInfinity());
-        REQUIRE_THROWS_AS((b / a).isInfinity(), cpp_utils::exceptions::NumericalOperationException);
-        REQUIRE(a.isInfinity() == true);
-        REQUIRE(b.isInfinity() == true);
-    }
-
-    GIVEN("random operations") {
-        safe_inf_uint ab = 0;
-        safe_inf_uint bc = 100;
-        safe_inf_uint ac = 100;
-
-        REQUIRE((ab + bc) >= ac);
-
-        safe_inf_uint a = 100;
-        safe_inf_uint b = safe_inf_uint::INFTY;
-
-        REQUIRE(a < b);
-    }
-}
-
 SCENARIO("test MapPlus") {
 
     GIVEN("an empty map") {
@@ -467,32 +356,6 @@ SCENARIO("test MapPlus") {
         REQUIRE(a.containsValue(3) == true);
         REQUIRE(a.containsValue(7) == false);
     }
-}
-
-SCENARIO("test edges") {
-
-    GIVEN("an edge") {
-        Edge<bool> edge{0, 5, true};
-
-        WHEN("save edge") {
-            boost::filesystem::path p{"./saveEdge.dat"};
-            FILE* f = fopen(p.native().c_str(), "wb");
-
-            cpp_utils::serializers::saveToFile(f, edge);
-            fclose(f);
-
-            f = nullptr;
-
-            Edge<bool> edge2;
-            f = fopen(p.native().c_str(), "rb");
-            cpp_utils::serializers::loadFromFile(f, edge2);
-            fclose(f);
-
-            REQUIRE(edge == edge2);
-        }
-    }
-    
-
 }
 
 
@@ -583,12 +446,3 @@ SCENARIO("test safe number") {
          REQUIRE(safe_int{2} * safe_int{6} == safe_int{10});
      }
  }
-
-SCENARIO("test log.h") {
-
-    //normal
-    critical("this is a test!", 20);
-
-
-    
-}

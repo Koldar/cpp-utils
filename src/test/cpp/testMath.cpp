@@ -8,123 +8,67 @@
 
 using namespace cpp_utils;
 
-SCENARIO("test MC and MD values", "[MCMDValues]") {
-    GIVEN("a mc value") {
-        MCValue<int> a = 4;
-
-        REQUIRE(a == 4);
-        a += 4;
-        REQUIRE(a == 8);
-        a -= -2;
-        REQUIRE(a == 10);
-        a += 0;
-        REQUIRE(a == 10);
-        a -= 0;
-        REQUIRE(a == 10);
-
-        a = 11;
-        REQUIRE(a == 11);
-        a = 11;
-        REQUIRE(a == 11);
-
-        a.cleanup();
-        REQUIRE(a == 0);
-
-        REQUIRE_THROWS(a = -4);
-        REQUIRE_THROWS(a += -1);
-        REQUIRE_THROWS(a -= 1);
-
-        a = 10;
-        REQUIRE(a == 10);
-        a *= 5;
-        REQUIRE(a == 50);
-        a /= 1;
-        REQUIRE(a == 50);
-
-        REQUIRE_THROWS(a /= 2);
-    }
-
-    GIVEN("a md value") {
-        MDValue<int> a = 40;
-
-        REQUIRE(a == 40);
-        a += -4;
-        REQUIRE(a == 36);
-        a -= 2;
-        REQUIRE(a == 34);
-        a += 0;
-        REQUIRE(a == 34);
-        a -= 0;
-        REQUIRE(a == 34);
-
-        a = 11;
-        REQUIRE(a == 11);
-        a = 11;
-        REQUIRE(a == 11);
-
-        REQUIRE_THROWS(a *= 2);
-
-        a.cleanup();
-        REQUIRE(a == 0);
-
-        REQUIRE_THROWS(a = 40);
-        REQUIRE_THROWS(a += 1);
-        REQUIRE_THROWS(a -= -1);
-
-        a = -10;
-        REQUIRE(a == -10);
-        a *= 1;
-        REQUIRE(a == -10);
-        a *= 3;
-        REQUIRE(a == -30);
-
-        a.cleanup();
-        a /= 2;
-        REQUIRE(a == 0);
-    }
-
-    GIVEN("a MD value with listener") {
-        MDValue<int> upperbound = 40;
-        auto upperboundListener = LogNumberListener<int>{"upperbound", 8};
-        upperbound.setListener(upperboundListener);
-
-        upperbound = 30;
-    }
-}
-
-SCENARIO("test gaussian") {
-
-    REQUIRE(isApproximatelyEqual(pi(), 3.14, 1e-2));
-
-    REQUIRE(isApproximatelyEqual(getGaussian(0, 1), 1., 1e-3));
-    critical("getGaussian(-1, 1)=", getGaussian(-1, 1));
-    REQUIRE(isApproximatelyEqual(getGaussian(-1, 1), 0.6, 1e-1));
-    REQUIRE(isApproximatelyEqual(getGaussian(1, 1), 0.6, 1e-1));
-    critical("getGaussian(2, 1)=", getGaussian(2, 1));
-    // REQUIRE(isApproximatelyEqual(getGaussian(2, 1), 0.13, 1e-2));
-    // REQUIRE(isApproximatelyEqual(getGaussian(-2, 1), 0.13, 1e-2));
-    critical("getGaussian(200, 1)=", getGaussian(200, 1));
-    REQUIRE(isApproximatelyEqual(getGaussian(200, 1), 0., 1e-3));
-    
-    REQUIRE(isApproximatelyEqual(getGaussian(2, 3, 0, 1), 3., 1e-3));
-    REQUIRE(isApproximatelyEqual(getGaussian(2, 3, 1, 1), 2.4, 1e-1));
-    REQUIRE(isApproximatelyEqual(getGaussian(2, 3, 200, 1), 2., 1e-3));
-
-    critical("getLeftGaussian(5, 0.5, 5, 10, 2, 3)=", getLeftGaussian(5, 0.5, 5, 10, 2, 3));
-    REQUIRE(isApproximatelyEqual(getLeftGaussian(5, 0.5, 5, 10, 2, 3), 2., 1e-3));
-    critical("getLeftGaussian(10, 0.5, 5, 10, 2, 3)=", getLeftGaussian(10, 0.5, 5, 10, 2, 3));
-    REQUIRE(isApproximatelyEqual(getLeftGaussian(10, 0.5, 5, 10, 2, 3), 3., 1e-3));
-    critical("getLeftGaussian(6, 0.5, 5, 10, 2, 3)=", getLeftGaussian(6, 0.5, 5, 10, 2, 3));
-    REQUIRE(isApproximatelyEqual(getLeftGaussian(6, 0.5, 5, 10, 2, 3), 2., 1e-3));
-    critical("getLeftGaussian(7, 0.5, 5, 10, 2, 3)=", getLeftGaussian(7, 0.5, 5, 10, 2, 3));
-    REQUIRE(isApproximatelyEqual(getLeftGaussian(7, 0.5, 5, 10, 2, 3), 2., 1e-3));
-    critical("getLeftGaussian(8, 0.5, 5, 10, 2, 3)=", getLeftGaussian(8, 0.5, 5, 10, 2, 3));
-    REQUIRE(isApproximatelyEqual(getLeftGaussian(8, 0.5, 5, 10, 2, 3), 2., 1e-3));
-    critical("getLeftGaussian(9, 0.5, 5, 10, 2, 3)=", getLeftGaussian(9, 0.5, 5, 10, 2, 3));
-    REQUIRE(isApproximatelyEqual(getLeftGaussian(9, 0.5, 5, 10, 2, 3), 2., 1e-3));
-}
-
 SCENARIO("test math") {
+
+    GIVEN("test getIntegerDigits") {
+        critical("testing getIntegerDigits");
+        REQUIRE(getIntegerDigits(0, false) == 0);
+        REQUIRE(getIntegerDigits(1, false) == 1);
+        REQUIRE(getIntegerDigits(11, false) == 2);
+        REQUIRE(getIntegerDigits(0.3, false) == 0);
+        REQUIRE(getIntegerDigits(1.3, false) == 1);
+        REQUIRE(getIntegerDigits(11.3, false) == 2);
+        REQUIRE(getIntegerDigits(-0.3, false) == 0);
+        REQUIRE(getIntegerDigits(-1.3, false) == 1);
+        REQUIRE(getIntegerDigits(-11.3, false) == 2);
+
+        REQUIRE(getIntegerDigits(0, true) == 1);
+        REQUIRE(getIntegerDigits(1, true) == 1);
+        REQUIRE(getIntegerDigits(11, true) == 2);
+        REQUIRE(getIntegerDigits(0.3, true) == 1);
+        REQUIRE(getIntegerDigits(1.3, true) == 1);
+        REQUIRE(getIntegerDigits(11.3, true) == 2);
+        REQUIRE(getIntegerDigits(-0.3, true) == 1);
+        REQUIRE(getIntegerDigits(-1.3, true) == 1);
+        REQUIRE(getIntegerDigits(-11.3, true) == 2);
+    }
+
+    GIVEN("test pow10") {
+        REQUIRE(pow10<double>(0) == 1);
+        REQUIRE(pow10<double>(1) == 10);
+        REQUIRE(pow10<double>(2) == 100);
+        REQUIRE(pow10<double>(3) == 1000);
+        REQUIRE(pow10<double>(4) == 10000);
+
+        REQUIRE(pow10<double>(-1) == 0.1);
+        REQUIRE(pow10<double>(-2) == 0.01);
+        REQUIRE(pow10<double>(-3) == 0.001);
+        REQUIRE(pow10<double>(-4) == 0.0001);
+    }
+
+    GIVEN("isApproximatelyEqual") {
+
+        REQUIRE(isApproximatelyEqual(5., 5., 0.001) == true);
+        REQUIRE(isApproximatelyEqual(5., 6., 0.001) == false);
+
+        REQUIRE(isApproximatelyEqual(5.001, 5.002, 0.002) == true);
+        REQUIRE(isApproximatelyEqual(5.001, 5.003, 0.0001) == false);
+
+        WHEN("problematic tests") {
+            REQUIRE(isApproximatelyEqual(0.135335, 0.0, 1e-0) == true);
+            REQUIRE(isApproximatelyEqual(0.135335, 0.1, 1e-1) == true);
+            REQUIRE(isApproximatelyEqual(0.135335, 0.13, 1e-2));
+        }
+
+
+        REQUIRE(isDefinitelyGreaterThan(5.001, 4.001, 0.002) == true);
+        REQUIRE(isDefinitelyGreaterThan(5.002, 5.001, 0.0001) == true);
+        REQUIRE(isDefinitelyGreaterThan(5.002, 5.001, 0.002) == false);
+
+        REQUIRE(isDefinitelyLessThan(4.001, 5.001, 0.002) == true);
+        REQUIRE(isDefinitelyLessThan(5.001, 5.002, 0.0001) == true);
+        REQUIRE(isDefinitelyLessThan(5.001, 5.002, 0.002) == false);
+    }
 
     GIVEN("test ringBound") {
         REQUIRE(ringBound(5, 10) == 5);
@@ -257,4 +201,170 @@ SCENARIO("test math") {
         REQUIRE(isDecimal(-0.5) == false);
         REQUIRE(isDecimal(-3.5) == false);
     }
+}
+
+SCENARIO("test MC and MD values", "[MCMDValues]") {
+    GIVEN("a mc value") {
+        MCValue<int> a = 4;
+
+        REQUIRE(a == 4);
+        a += 4;
+        REQUIRE(a == 8);
+        a -= -2;
+        REQUIRE(a == 10);
+        a += 0;
+        REQUIRE(a == 10);
+        a -= 0;
+        REQUIRE(a == 10);
+
+        a = 11;
+        REQUIRE(a == 11);
+        a = 11;
+        REQUIRE(a == 11);
+
+        a.cleanup();
+        REQUIRE(a == 0);
+
+        REQUIRE_THROWS(a = -4);
+        REQUIRE_THROWS(a += -1);
+        REQUIRE_THROWS(a -= 1);
+
+        a = 10;
+        REQUIRE(a == 10);
+        a *= 5;
+        REQUIRE(a == 50);
+        a /= 1;
+        REQUIRE(a == 50);
+
+        REQUIRE_THROWS(a /= 2);
+    }
+
+    GIVEN("a md value") {
+        MDValue<int> a = 40;
+
+        REQUIRE(a == 40);
+        a += -4;
+        REQUIRE(a == 36);
+        a -= 2;
+        REQUIRE(a == 34);
+        a += 0;
+        REQUIRE(a == 34);
+        a -= 0;
+        REQUIRE(a == 34);
+
+        a = 11;
+        REQUIRE(a == 11);
+        a = 11;
+        REQUIRE(a == 11);
+
+        REQUIRE_THROWS(a *= 2);
+
+        a.cleanup();
+        REQUIRE(a == 0);
+
+        REQUIRE_THROWS(a = 40);
+        REQUIRE_THROWS(a += 1);
+        REQUIRE_THROWS(a -= -1);
+
+        a = -10;
+        REQUIRE(a == -10);
+        a *= 1;
+        REQUIRE(a == -10);
+        a *= 3;
+        REQUIRE(a == -30);
+
+        a.cleanup();
+        a /= 2;
+        REQUIRE(a == 0);
+    }
+
+    GIVEN("a MD value with listener") {
+        MDValue<int> upperbound = 40;
+        auto upperboundListener = LogNumberListener<int>{"upperbound", 8};
+        upperbound.setListener(upperboundListener);
+
+        upperbound = 30;
+    }
+}
+
+SCENARIO("test linearTransform") {
+
+    GIVEN("computing m") {
+
+        WHEN("first point is origin") {
+            REQUIRE(isApproximatelyEqual(getM(0., 0., 1., 1.), 1., 1e-3));
+            REQUIRE(isApproximatelyEqual(getM(0., 0., 2., 2.), 1., 1e-3));
+            REQUIRE(isApproximatelyEqual(getM(0., 0., 1., 2.), 2., 1e-3));
+            REQUIRE(isApproximatelyEqual(getM(0., 0., 1., 3.), 3., 1e-3));
+        }
+
+        WHEN("first point is not origin") {
+            REQUIRE(isApproximatelyEqual(getM(1., 1., 2., 3.), 2., 1e-3));
+        }
+    }
+
+    GIVEN("computing linearTransform") {
+
+        WHEN("first point is origin") {
+            REQUIRE(isApproximatelyEqual(linearTransform(0., 0., 0., 1., 1.), 0., 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(0.3, 0., 0., 1., 1.), 0.3, 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(0.6, 0., 0., 1., 1.), 0.6, 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(0.9, 0., 0., 1., 1.), 0.9, 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(1.0, 0., 0., 1., 1.), 1.0, 1e-3));
+
+            REQUIRE(isApproximatelyEqual(linearTransform(0., 0., 0., 2., 4.), 0.0, 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(0.5, 0., 0., 2., 4.), 1.0, 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(1.0, 0., 0., 2., 4.), 2.0, 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(1.5, 0., 0., 2., 4.), 3.0, 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(2.0, 0., 0., 2., 4.), 4.0, 1e-3));
+        }
+
+        WHEN("first point is not origin") {
+            REQUIRE(isApproximatelyEqual(linearTransform(1.0, 1., 2., 2., 4.), 2.0, 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(1.3, 1., 2., 2., 4.), 2.6, 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(1.6, 1., 2., 2., 4.), 3.2, 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(1.9, 1., 2., 2., 4.), 3.8, 1e-3));
+            REQUIRE(isApproximatelyEqual(linearTransform(2.0, 1., 2., 2., 4.), 4.0, 1e-3));
+        }
+    }
+}
+
+SCENARIO("test monotonically crescent") {
+
+    REQUIRE(getMonotonicallyCrescent(0, 0, 1) == 0.);
+    REQUIRE(getMonotonicallyCrescent(0, 0, 1) == 0.);
+    //TODO continue from here
+
+}
+
+SCENARIO("test gaussian") {
+
+    REQUIRE(isApproximatelyEqual(pi(), 3.14, 1e-2));
+
+    REQUIRE(isApproximatelyEqual(getGaussian(0, 1), 1., 1e-3));
+    critical("getGaussian(-1, 1)=", getGaussian(-1, 1));
+    REQUIRE(isApproximatelyEqual(getGaussian(-1, 1), 0.6, 1e-1));
+    REQUIRE(isApproximatelyEqual(getGaussian(1, 1), 0.6, 1e-1));
+    critical("getGaussian(2, 1)=", getGaussian(2, 1));
+    REQUIRE(isApproximatelyEqual(getGaussian(2, 1), 0.13, 1e-2));
+    REQUIRE(isApproximatelyEqual(getGaussian(-2, 1), 0.13, 1e-2));
+    critical("getGaussian(200, 1)=", getGaussian(200, 1));
+    REQUIRE(isApproximatelyEqual(getGaussian(200, 1), 0., 1e-3));
+    
+    REQUIRE(isApproximatelyEqual(getGaussian(2, 3, 0, 1), 3., 1e-3));
+    REQUIRE(isApproximatelyEqual(getGaussian(2, 3, 1, 1), 2.4, 1e-1));
+    REQUIRE(isApproximatelyEqual(getGaussian(2, 3, 200, 1), 2., 1e-3));
+
+    critical("getLeftGaussian(5, 0.5, 5, 10, 2, 3)=", getLeftGaussian(5, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(5, 0.5, 5, 10, 2, 3), 2., 1e-3));
+    critical("getLeftGaussian(10, 0.5, 5, 10, 2, 3)=", getLeftGaussian(10, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(10, 0.5, 5, 10, 2, 3), 3., 1e-3));
+    critical("getLeftGaussian(6, 0.5, 5, 10, 2, 3)=", getLeftGaussian(6, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(6, 0.5, 5, 10, 2, 3), 2., 1e-3));
+    critical("getLeftGaussian(7, 0.5, 5, 10, 2, 3)=", getLeftGaussian(7, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(7, 0.5, 5, 10, 2, 3), 2., 1e-3));
+    critical("getLeftGaussian(8, 0.5, 5, 10, 2, 3)=", getLeftGaussian(8, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(8, 0.5, 5, 10, 2, 3), 2., 1e-3));
+    critical("getLeftGaussian(9, 0.5, 5, 10, 2, 3)=", getLeftGaussian(9, 0.5, 5, 10, 2, 3));
+    REQUIRE(isApproximatelyEqual(getLeftGaussian(9, 0.5, 5, 10, 2, 3), 2., 1e-3));
 }

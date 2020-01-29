@@ -6,6 +6,32 @@
 using namespace cpp_utils;
 using namespace cpp_utils::graphs;
 
+SCENARIO("test edges") {
+
+    GIVEN("an edge") {
+        Edge<bool> edge{0, 5, true};
+
+        WHEN("save edge") {
+            boost::filesystem::path p{"./saveEdge.dat"};
+            FILE* f = fopen(p.native().c_str(), "wb");
+
+            cpp_utils::serializers::saveToFile(f, edge);
+            fclose(f);
+
+            f = nullptr;
+
+            Edge<bool> edge2;
+            f = fopen(p.native().c_str(), "rb");
+            cpp_utils::serializers::loadFromFile(f, edge2);
+            fclose(f);
+
+            REQUIRE(edge == edge2);
+        }
+    }
+    
+
+}
+
 SCENARIO("test adjacent graph") {
     GIVEN("an empty graph") {
         ListGraph<int, int, int> lg{20};

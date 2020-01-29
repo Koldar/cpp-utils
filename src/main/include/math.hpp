@@ -17,6 +17,220 @@ namespace cpp_utils {
     }
 
     /**
+     * @brief compute the number of digits a number has
+     * 
+     * @note
+     *  examples if `countZero` is false
+     * @code
+     *  getIntegerDigits(0); //0
+     *  getIntegerDigits(1); //1
+     *  getIntegerDigits(11); //2
+     *  getIntegerDigits(0.3); //0
+     *  getIntegerDigits(1.3); //1
+     *  getIntegerDigits(11.3); //2
+     * @endcode
+     * 
+     * @tparam NUM type of the number involved
+     * @param n nuymber involved
+     * @param countZero if true, values like 0.3 will return 1, since "0" is treated as a normal digit. If false we will return 0 since "0" is not trated as a digit.
+     * @return constexpr int number of digit before the decimal part
+     */
+    template <typename NUM>
+    constexpr int getIntegerDigits(const NUM& n, bool countZero = true) {
+        cdebug("n=", n);
+        if (n < 0) {
+            return getIntegerDigits(-n, countZero);
+        }
+
+        if (n < 1) {
+            return countZero ? 1 : 0;
+        }
+        return static_cast<int>(floor(log10(n))) + 1;    
+    }
+
+    
+
+    // template <typename NUM>
+    // NUM pow10(int a) {
+    //     NUM n{1};
+    //     return internal::_pow10(n, a);
+    // }
+
+    template <typename NUM>
+    NUM pow10(int a) {
+        static double pow[] = {
+            1e-20, 1e-19, 1e-18, 1e-17, 1e-16, 
+            1e-15, 1e-14, 1e-13, 1e-12, 1e-11,
+            1e-10, 1e-9, 1e-8, 1e-7, 1e-6, 
+            1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 
+            1,
+            1e+1, 1e+2, 1e+3, 1e+4, 1e+5, 
+            1e+6, 1e+7, 1e+8, 1e+9, 1e+10, 
+            1e+11, 1e+12, 1e+13, 1e+14, 1e+15, 
+            1e+16, 1e+17, 1e+18, 1e+19, 1e+20, 
+        };
+        cdebug("a=", a);
+        assert(a >= -20 && a <= +20);
+        return static_cast<NUM>(pow[20 + a]);
+    }
+
+    /**
+     * @brief get angular coefficient of a line going through 2 points
+     * 
+     * The linear equation is:
+     * ```
+     * y = mx + q
+     * ```
+     * 
+     * @pre
+     *  @li \f$ xa -xb \not = 0 \f$;
+     * 
+     * @tparam NUM type fo the points
+     * @param xa x of the first point
+     * @param ya y of the first point
+     * @param xb x of the second point
+     * @param yb y of the second point
+     * @return m
+     */
+    template <typename NUM>
+    constexpr NUM getM(const NUM& xa, const NUM& ya, const NUM& xb, const NUM& yb) {
+        return (ya-yb)/(xa-xb);
+    }
+
+    /**
+     * @brief get q of a line going through 2 points
+     * 
+     * The linear equation is:
+     * ```
+     * y = mx + q
+     * ```
+     * 
+     * @pre
+     *  @li \f$ xa -xb \not = 0 \f$;
+     * 
+     * @tparam NUM type fo the points
+     * @param xa x of the first point
+     * @param ya y of the first point
+     * @param xb x of the second point
+     * @param yb y of the second point
+     * @return q
+     */
+    template <typename NUM>
+    constexpr NUM getQ(const NUM& xa, const NUM& ya, const NUM& xb, const NUM& yb) {
+        return ya - getM(xa, ya, xb, yb)*xa;
+    }
+
+    /**
+     * @brief get q of a line going through 2 points
+     * 
+     * The linear equation is:
+     * ```
+     * y = mx + q
+     * ```
+     * 
+     * @tparam NUM type fo the points
+     * @param xa x of the first point
+     * @param ya y of the first point
+     * @param m angular coefficient of the line
+     * @return q
+     */
+    template <typename NUM>
+    constexpr NUM getQ(const NUM& xa, const NUM& ya, const NUM& m) {
+        return ya - m*xa;
+    }
+
+    /**
+     * @brief transform a value linearly
+     * 
+     * The transformation follows the following equation:
+     * ```
+     * y = mx + q
+     * ```
+     * 
+     * @param x the value to transform
+     * @param m angular coefficient of the line
+     * @param q y of the point in x=0
+     * @return y transformed value
+     */
+    template <typename NUM>
+    constexpr NUM linearTransform(const NUM& x, const NUM& m, const NUM& q) {
+        return m*x + q;
+    }
+
+    /**
+     * @brief transform a value linearly
+     * 
+     * The transformation follows the following equation:
+     * ```
+     * y = mx + q
+     * ```
+     * 
+     * @param x the value to transform
+     * @param xa x of the first point the line go through
+     * @param ya y of the first point the line go through
+     * @param xb x of the second point the line go through
+     * @param yb y of the second point the line go through
+     * @return y
+     */
+    template <typename NUM>
+    constexpr NUM linearTransform(const NUM& x, const NUM& xa, const NUM& ya, const NUM& xb, const NUM& yb) {
+        auto m = getM(xa, ya, xb, yb);
+        auto q = getQ(xa, ya, m);
+        return linearTransform(x, m, q);
+    }
+
+    /**
+     * @brief get a function tha monotonically crescent. Starts from 0 up till 1
+     * 
+     * The function will yield values monotonically crescent in a "smooth way"
+     * 
+     * @note
+     * implementationwise, it uses atan function
+     * 
+     * @pre
+     *  @li \f$ x > 0 \f$;
+     * 
+     * @param x value
+     * @return a monotonically crescent value
+     */
+    template <typename NUM>
+    constexpr double getMonotonicallyCrescent(const NUM& x) {
+        return (2./cpp_utils::pi()) * std::atan(static_cast<double>(x));
+    }
+
+    /**
+     * @brief get a function tha monotonically crescent. Starts from `minY` up till `maxY`
+     * 
+     * The function will yield values monotonically crescent in a "smooth way"
+     * 
+     * @note
+     * implementationwise, it uses atan function
+     * 
+     * @pre
+     *  @li \f$ x > 0 \f$;
+     * 
+     * @param x value
+     * @param minY the minimum value the function can yield
+     * @param maxY the maximum value the function can yield
+     * @return a monotonically crescent value
+     */
+    template <typename NUM1, typename NUM2, typename NUM3>
+    constexpr double getMonotonicallyCrescent(const NUM1& x, const NUM2& minY, const NUM3& maxY) {
+        return static_cast<double>(minY) + static_cast<double>(maxY - minY) * getMonotonicallyCrescent(x);
+    }
+
+    template <typename NUM1, typename NUM2, typename NUM3, typename NUM4, typename NUM5, typename NUM6>
+    constexpr double getMonotonicallyCrescent(const NUM1& x, const NUM2& ratio, const NUM3& minX, const NUM4& maxX, const NUM5& minY, const NUM6& maxY) {
+        //we map the x from [minX, maxX] to [0,10000], since atan(0) = 0 and atan(1000) is about 1
+        auto bigN = 10000.;
+        auto width = static_cast<double>(maxX - minX);
+        auto m = getM(static_cast<double>(minX), 0., static_cast<double>(maxX), bigN);
+        auto q = getQ(static_cast<double>(minX), 0., m);
+        auto newX = linearTransform(static_cast<double>(x), m, q);
+        return getMonotonicallyCrescent(ratio * x, minY, maxY);
+    }
+
+    /**
      * @brief Get normal distribution
      * 
      * @code
@@ -58,16 +272,20 @@ namespace cpp_utils {
     /**
      * @brief compute a gaussian which is 
      * 
+     * @note
+     * in the gaussian, \f$ \mu + 3 \sigma \f$ holds 99.7% of the data
+     * 
      * @param x 
      * @param mean 
-     * @param stddev 
+     * @param stddevN a number which represents how rapidly the gaussian slows down. It is correlated to the standard deviation. 0 means the 
      * @param minX 
      * @param maxX 
      * @param minY 
      * @param maxY 
      * @return double 
+     * @see https://en.wikipedia.org/wiki/Normal_distribution
      */
-    double getCenteredGaussian(double x, double stddev, double minX, double maxX, double minY, double maxY);
+    double getCenteredGaussian(double x, double stddevN, double minX, double maxX, double minY, double maxY);
 
     double getLeftGaussian(double x, double stddev, double minX, double maxX, double minY, double maxY);
 
@@ -114,11 +332,15 @@ namespace cpp_utils {
      * @param epsilon threshold of equality. (e.g., 0.001, 0.0001). If the difference between the 2 numbers is less than the threshold, the 2 numbers are equal
      * @return true if `a` is the same of `b`
      * @return false otherwise
+     * @see https://stackoverflow.com/a/253874/1887602
      */
     template <typename T>
-    bool isApproximatelyEqual(T a, T b, T epsilon) {
-        //debug(std::abs(a - b), "<=", (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)), "*", epsilon, "=", ( (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)) * epsilon));
-        return std::abs(a - b) <= ( (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)) * epsilon);
+    constexpr bool isApproximatelyEqual(const T& a, const T& b, const T& epsilon) {
+        const T& m = std::max(std::abs(a), std::abs(b));
+        const int digitsm = getIntegerDigits(m, false);
+        cdebug("TEST a=", a, "b=", b, "max=", m, "digits of max", digitsm);
+        cdebug(std::abs(a - b), "<=", (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)), "*", pow10<T>(-digitsm), "* 10 *", epsilon, "=", ( (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)) * pow10<T>(-digitsm) * 10 * epsilon));
+        return std::abs(a - b) <= (m * pow10<T>(-digitsm) * 10 * epsilon);
     }
 
     /**
@@ -354,6 +576,7 @@ namespace cpp_utils {
     bool isDecimal(const unsigned long& n) {
         return true;
     }
+
 
     /**
      * @brief compute a value when it is inside a ring bound.
