@@ -331,9 +331,61 @@ SCENARIO("test linearTransform") {
 
 SCENARIO("test monotonically crescent") {
 
-    REQUIRE(getMonotonicallyCrescent(0, 0, 1) == 0.);
-    REQUIRE(getMonotonicallyCrescent(0, 0, 1) == 0.);
-    //TODO continue from here
+    GIVEN("between 0 and 1") {
+        critical("getMonotonicallyCrescent(0, 0, 1) = ", getMonotonicallyCrescent(0, 0, 1));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(0, 0, 1), 0., 1e-3));
+        critical("getMonotonicallyCrescent(1, 0, 1) = ", getMonotonicallyCrescent(1, 0, 1));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(1, 0, 1), 0.5, 1e-3));
+        critical("getMonotonicallyCrescent(2, 0, 1) = ", getMonotonicallyCrescent(2, 0, 1));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(2, 0, 1), 0.704, 1e-3));
+        critical("getMonotonicallyCrescent(3, 0, 1) = ", getMonotonicallyCrescent(3, 0, 1));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(3, 0, 1), 0.795, 1e-3));
+        critical("getMonotonicallyCrescent(4, 0, 1) = ", getMonotonicallyCrescent(4, 0, 1));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(4, 0, 1), 0.844, 1e-3));
+    }
+
+    GIVEN("between 1 and 3") {
+        critical("getMonotonicallyCrescent(0, 0, 1) = ", getMonotonicallyCrescent(0, 0, 1));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(0, 1, 3), 1.0, 1e-3));
+        critical("getMonotonicallyCrescent(1, 0, 1) = ", getMonotonicallyCrescent(1, 0, 1));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(1, 1, 3), 1+2*0.5, 1e-3));
+        critical("getMonotonicallyCrescent(2, 0, 1) = ", getMonotonicallyCrescent(2, 0, 1));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(2, 1, 3), 1+2*0.704, 1e-3));
+        critical("getMonotonicallyCrescent(3, 0, 1) = ", getMonotonicallyCrescent(3, 0, 1));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(3, 1, 3), 1+2*0.795, 1e-3));
+        critical("getMonotonicallyCrescent(4, 0, 1) = ", getMonotonicallyCrescent(4, 0, 1));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(4, 1, 3), 1+2*0.844, 1e-3));
+    }
+
+    GIVEN("between y=[1,3] and x=[5,10], standard ratio") {
+        auto_critical(getMonotonicallyCrescent(5, 1.0, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(5, 1.0, 5, 10, 1, 3), 1.0, 1e-3));
+        auto_critical(getMonotonicallyCrescent(6, 1.0, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(6, 1.0, 5, 10, 1, 3), 2.999, 1e-3));
+        auto_critical(getMonotonicallyCrescent(7, 1.0, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(7, 1.0, 5, 10, 1, 3), 2.999, 1e-3));
+        auto_critical(getMonotonicallyCrescent(8, 1.0, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(8, 1.0, 5, 10, 1, 3), 2.999, 1e-3));
+        auto_critical(getMonotonicallyCrescent(9, 1.0, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(9, 1.0, 5, 10, 1, 3), 2.999, 1e-3));
+        auto_critical(getMonotonicallyCrescent(10, 1.0, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(10, 1.0, 5, 10, 1, 3), 3.0, 1e-3));
+    }
+
+    GIVEN("between y=[1,3] and x=[5,10], smaller ratio") {
+        auto_critical(getMonotonicallyCrescent(5, 0.1, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(5, 0.1, 5, 10, 1, 3), 1.0, 1e-3));
+        auto_critical(getMonotonicallyCrescent(6, 0.1, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(6, 0.1, 5, 10, 1, 3), 2.993, 1e-3));
+        auto_critical(getMonotonicallyCrescent(7, 0.1, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(7, 0.1, 5, 10, 1, 3), 2.999, 1e-3));
+        auto_critical(getMonotonicallyCrescent(8, 0.1, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(8, 0.1, 5, 10, 1, 3), 2.999, 1e-3));
+        auto_critical(getMonotonicallyCrescent(9, 0.1, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(9, 0.1, 5, 10, 1, 3), 2.999, 1e-3));
+        auto_critical(getMonotonicallyCrescent(10, 0.1, 5, 10, 1, 3));
+        REQUIRE(isApproximatelyEqual(getMonotonicallyCrescent(10, 0.1, 5, 10, 1, 3), 3.0, 1e-3));
+    }
 
 }
 

@@ -37,7 +37,7 @@ namespace cpp_utils {
      */
     template <typename NUM>
     constexpr int getIntegerDigits(const NUM& n, bool countZero = true) {
-        cdebug("n=", n);
+        debug("n=", n);
         if (n < 0) {
             return getIntegerDigits(-n, countZero);
         }
@@ -69,7 +69,7 @@ namespace cpp_utils {
             1e+11, 1e+12, 1e+13, 1e+14, 1e+15, 
             1e+16, 1e+17, 1e+18, 1e+19, 1e+20, 
         };
-        cdebug("a=", a);
+        debug("a=", a);
         assert(a >= -20 && a <= +20);
         return static_cast<NUM>(pow[20 + a]);
     }
@@ -92,9 +92,9 @@ namespace cpp_utils {
      * @param yb y of the second point
      * @return m
      */
-    template <typename NUM>
-    constexpr NUM getM(const NUM& xa, const NUM& ya, const NUM& xb, const NUM& yb) {
-        return (ya-yb)/(xa-xb);
+    template <typename NUM1, typename NUM2, typename NUM3, typename NUM4>
+    constexpr double getM(const NUM1& xa, const NUM2& ya, const NUM3& xb, const NUM4& yb) {
+        return static_cast<double>(ya-yb)/static_cast<double>(xa-xb);
     }
 
     /**
@@ -115,8 +115,8 @@ namespace cpp_utils {
      * @param yb y of the second point
      * @return q
      */
-    template <typename NUM>
-    constexpr NUM getQ(const NUM& xa, const NUM& ya, const NUM& xb, const NUM& yb) {
+    template <typename NUM1, typename NUM2, typename NUM3, typename NUM4>
+    constexpr double getQ(const NUM1& xa, const NUM2& ya, const NUM3& xb, const NUM4& yb) {
         return ya - getM(xa, ya, xb, yb)*xa;
     }
 
@@ -134,8 +134,8 @@ namespace cpp_utils {
      * @param m angular coefficient of the line
      * @return q
      */
-    template <typename NUM>
-    constexpr NUM getQ(const NUM& xa, const NUM& ya, const NUM& m) {
+    template <typename NUM1, typename NUM2, typename NUM3>
+    constexpr double getQ(const NUM1& xa, const NUM2& ya, const NUM3& m) {
         return ya - m*xa;
     }
 
@@ -152,9 +152,9 @@ namespace cpp_utils {
      * @param q y of the point in x=0
      * @return y transformed value
      */
-    template <typename NUM>
-    constexpr NUM linearTransform(const NUM& x, const NUM& m, const NUM& q) {
-        return m*x + q;
+    template <typename NUM1, typename NUM2, typename NUM3>
+    constexpr double linearTransform(const NUM1& x, const NUM2& m, const NUM3& q) {
+        return static_cast<double>(m*x + q);
     }
 
     /**
@@ -172,8 +172,8 @@ namespace cpp_utils {
      * @param yb y of the second point the line go through
      * @return y
      */
-    template <typename NUM>
-    constexpr NUM linearTransform(const NUM& x, const NUM& xa, const NUM& ya, const NUM& xb, const NUM& yb) {
+    template <typename NUM1, typename NUM2, typename NUM3, typename NUM4, typename NUM5>
+    constexpr double linearTransform(const NUM1& x, const NUM2& xa, const NUM3& ya, const NUM4& xb, const NUM5& yb) {
         auto m = getM(xa, ya, xb, yb);
         auto q = getQ(xa, ya, m);
         return linearTransform(x, m, q);
@@ -219,15 +219,67 @@ namespace cpp_utils {
         return static_cast<double>(minY) + static_cast<double>(maxY - minY) * getMonotonicallyCrescent(x);
     }
 
+    /**
+     * @brief get a function tha monotonically crescent. Starts from `minY` up till `maxY`
+     * 
+     * The function will yield values monotonically crescent in a "smooth way"
+     * 
+     * @note
+     * implementationwise, it uses atan function
+     * 
+     * @pre
+     *  @li \f$ x \in [minX, maxX]\f$;
+     *  @li  \f$ ratio > 0 \f$;
+     * 
+     * @param x value
+     * @param ratio a number allowing you to determine how fast the function monotonically increment. 1 for normal increment. Values greater than 1 means that the function reaches maxY faster w.r.t of the same @c x. Values smaller than 0 means that the function reaches maxY slower w.r.t the same @c c.
+     * @param minX the minimum value @c x can have. if \f$ x = minX \f$, the functon yields @c minY. If \f$x = maxX \f$, the function yields @c maxY.
+     * @param maxX the maximum value @c x can have
+     * @param minY the minimum value the function can yield
+     * @param maxY the maximum value the function can yield
+     * @return a monotonically crescent value
+     */
     template <typename NUM1, typename NUM2, typename NUM3, typename NUM4, typename NUM5, typename NUM6>
     constexpr double getMonotonicallyCrescent(const NUM1& x, const NUM2& ratio, const NUM3& minX, const NUM4& maxX, const NUM5& minY, const NUM6& maxY) {
         //we map the x from [minX, maxX] to [0,10000], since atan(0) = 0 and atan(1000) is about 1
         auto bigN = 10000.;
-        auto width = static_cast<double>(maxX - minX);
-        auto m = getM(static_cast<double>(minX), 0., static_cast<double>(maxX), bigN);
-        auto q = getQ(static_cast<double>(minX), 0., m);
-        auto newX = linearTransform(static_cast<double>(x), m, q);
-        return getMonotonicallyCrescent(ratio * x, minY, maxY);
+        auto m = getM(minX, 0., maxX, bigN);
+        auto q = getQ(minX, 0., m);
+        auto newX = linearTransform(x, m, q);
+        debug("m=", m, "q=", q, "x=", x, "newX=", newX);
+        return getMonotonicallyCrescent(ratio * newX, minY, maxY);
+    }
+
+    /**
+     * @brief like ::getMonotonicallyCrescent but instead of repeatadly computing the same operation to fetch m and q, the developers gives them in input
+     * 
+     * @code
+     *  minX = 5;
+     *  minY = 2;
+     *  maxX = 10;
+     *  maxY = 3;
+     * auto m = getM(minX, minY, maxX, maxY);
+     * auto q = getQ(minX, minY, m);
+     * //call several time the function
+     * getMonotonicallyCrescent(x1, ratio1, m, q, minY, maxY);
+     * getMonotonicallyCrescent(x2, ratio2, m, q, minY, maxY);
+     * getMonotonicallyCrescent(x3, ratio3, m, q, minY, maxY);
+     * getMonotonicallyCrescent(x4, ratio4, m, q, minY, maxY);
+     * @endcode
+     * 
+     * @param x the number in input to compute a monotonically increase number
+     * @param ratio a number allowing you to determine how fast the function monotonically increment. 1 for normal increment. Values greater than 1 means that the function reaches maxY faster w.r.t of the same @c x. Values smaller than 0 means that the function reaches maxY slower w.r.t the same @c c.
+     * @param m angular coefficient computed previously. 
+     * @param q y-value of the point on the line whose x=0.
+     * @param minY the minimum value the function can yield
+     * @param maxY the maximum value the function can yield
+     * @return a monotonically crescent value
+     */
+    template <typename NUM1, typename NUM2, typename NUM3, typename NUM4, typename NUM5, typename NUM6>
+    constexpr double getMonotonicallyCrescentFast(const NUM1& x, const NUM2& ratio, const NUM3& m, const NUM4& q, const NUM5& minY, const NUM6& maxY) {
+        auto newX = linearTransform(x, m, q);
+        debug("m=", m, "q=", q, "x=", x, "newX=", newX);
+        return getMonotonicallyCrescent(ratio * newX, minY, maxY);
     }
 
     /**
@@ -338,8 +390,8 @@ namespace cpp_utils {
     constexpr bool isApproximatelyEqual(const T& a, const T& b, const T& epsilon) {
         const T& m = std::max(std::abs(a), std::abs(b));
         const int digitsm = getIntegerDigits(m, false);
-        cdebug("TEST a=", a, "b=", b, "max=", m, "digits of max", digitsm);
-        cdebug(std::abs(a - b), "<=", (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)), "*", pow10<T>(-digitsm), "* 10 *", epsilon, "=", ( (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)) * pow10<T>(-digitsm) * 10 * epsilon));
+        debug("TEST a=", a, "b=", b, "max=", m, "digits of max", digitsm);
+        debug(std::abs(a - b), "<=", (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)), "*", pow10<T>(-digitsm), "* 10 *", epsilon, "=", ( (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)) * pow10<T>(-digitsm) * 10 * epsilon));
         return std::abs(a - b) <= (m * pow10<T>(-digitsm) * 10 * epsilon);
     }
 
@@ -622,6 +674,28 @@ namespace cpp_utils {
     template <typename T>
     constexpr T ringBound(T val, const T& lb, const T& ub) {
         return lb + ringBound(val - lb, ub - lb);
+    }
+
+    /**
+     * @brief constraint a value within an inclusive interval
+     * 
+     * @tparam NUM1 type of @c x
+     * @tparam NUM2 type of @c lb
+     * @tparam NUM3 type of @c ub
+     * @param x the value to test
+     * @param lb lowerbound of the interval
+     * @param ub upperbound of the interval
+     * @return lb if \f$ x < lb \f$, ub if \f$ x > ub \f$, @c x otherwise
+     */
+    template <typename NUM1, typename NUM2, typename NUM3>
+    constexpr NUM1 bound(const NUM1& x, const NUM2& lb, const NUM3& ub) {
+        if (x < lb) {
+            return static_cast<NUM1>(lb);
+        }
+        if (x > ub) {
+            return static_cast<NUM2>(ub);
+        }
+        return x;
     }
 
 }
