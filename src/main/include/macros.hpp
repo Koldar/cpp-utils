@@ -8,6 +8,9 @@
 #ifndef MACROS_H_
 #define MACROS_H_
 
+#define _INTERNAL_STR(x) #x
+#define TO_STRING(x) _INTERNAL_STR(x)
+
 /**
  * @brief declare that a class @c X should extends a class @c Y
  * 
