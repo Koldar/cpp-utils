@@ -390,8 +390,8 @@ namespace cpp_utils {
     constexpr bool isApproximatelyEqual(const T& a, const T& b, const T& epsilon) {
         const T& m = std::max(std::abs(a), std::abs(b));
         const int digitsm = getIntegerDigits(m, false);
-        debug("TEST a=", a, "b=", b, "max=", m, "digits of max", digitsm);
-        debug(std::abs(a - b), "<=", (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)), "*", pow10<T>(-digitsm), "* 10 *", epsilon, "=", ( (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)) * pow10<T>(-digitsm) * 10 * epsilon));
+        c_debug("TEST a=", a, "b=", b, "max=", m, "digits of max", digitsm);
+        c_debug(std::abs(a - b), "<=", (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)), "*", pow10<T>(-digitsm), "* 10 *", epsilon, "=", ( (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)) * pow10<T>(-digitsm) * 10 * epsilon));
         return std::abs(a - b) <= (m * pow10<T>(-digitsm) * 10 * epsilon);
     }
 
