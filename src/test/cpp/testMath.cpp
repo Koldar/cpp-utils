@@ -54,6 +54,7 @@ SCENARIO("test math") {
         REQUIRE(isApproximatelyEqual(5.001, 5.003, 0.0001) == false);
 
         WHEN("problematic tests") {
+            auto_critical(isApproximatelyEqual(0.135335, 0.0, 1e-0));
             REQUIRE(isApproximatelyEqual(0.135335, 0.0, 1e-0) == true);
             REQUIRE(isApproximatelyEqual(0.135335, 0.1, 1e-1) == true);
             REQUIRE(isApproximatelyEqual(0.135335, 0.13, 1e-2));
@@ -299,6 +300,10 @@ SCENARIO("test linearTransform") {
 
         WHEN("first point is not origin") {
             REQUIRE(isApproximatelyEqual(getM(1., 1., 2., 3.), 2., 1e-3));
+        }
+
+        WHEN("problematic") {
+            REQUIRE(isApproximatelyEqual(getM(0, 1.0, 482, 0.1), -0.00186, 1e-5));
         }
     }
 

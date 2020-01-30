@@ -2,6 +2,9 @@
 #define _MATH_HEADER__
 
 #include <cmath>
+
+#include <boost/math/special_functions/relative_difference.hpp>
+
 #include "exceptions.hpp"
 #include "log.hpp"
 
@@ -14,6 +17,60 @@ namespace cpp_utils {
      */
     constexpr double pi() {
         return std::atan(1)*4;
+    }
+
+     /**
+     * @brief compute log 2
+     * 
+     * @note
+     * this function allows for computation compile time
+     * 
+     * @tparam T type of both the input and the output
+     * @param n input
+     * @return constexpr T \f$log_{2}(n)\f$
+     */
+    template <typename T>
+    constexpr T log2(T n) {
+        return (n<2) ? 0 : 1 + log2(n/2);
+    }
+
+    template <typename NUM>
+    constexpr NUM abs(const NUM& n) {
+        return n >= 0 ? n : -n;
+    }
+
+    namespace internal {
+
+        template <typename NUM, typename ...OTHER>
+        constexpr NUM _min2(const NUM& min, const NUM& f, const OTHER&... others) {
+            return _min2(f < min ? f : min, others...);
+        }
+
+        template <typename NUM>
+        constexpr NUM _min2(const NUM& min, const NUM& f) {
+            return f < min ? f : min;
+        }
+
+        template <typename NUM, typename ...OTHER>
+        constexpr NUM _max2(const NUM& max, const NUM& f, const OTHER&... others) {
+            return _max2(f > max ? f : max, others...);
+        }
+
+        template <typename NUM>
+        constexpr NUM _max2(const NUM& max, const NUM& f) {
+            return f > max ? f : max;
+        }
+
+    }
+
+    template <typename NUM, typename ...OTHER>
+    constexpr NUM min(const NUM& f, const OTHER&... n) {
+        return internal::_min2(f, n...);
+    }
+
+    template <typename NUM, typename ...OTHER>
+    constexpr NUM max(const NUM& f, const OTHER&... n) {
+        return internal::_max2(f, n...);
     }
 
     /**
@@ -94,7 +151,7 @@ namespace cpp_utils {
      */
     template <typename NUM1, typename NUM2, typename NUM3, typename NUM4>
     constexpr double getM(const NUM1& xa, const NUM2& ya, const NUM3& xb, const NUM4& yb) {
-        return static_cast<double>(ya-yb)/static_cast<double>(xa-xb);
+        return (static_cast<double>(ya) - static_cast<double>(yb)) / (static_cast<double>(xa) - static_cast<double>(xb));
     }
 
     /**
@@ -117,7 +174,7 @@ namespace cpp_utils {
      */
     template <typename NUM1, typename NUM2, typename NUM3, typename NUM4>
     constexpr double getQ(const NUM1& xa, const NUM2& ya, const NUM3& xb, const NUM4& yb) {
-        return ya - getM(xa, ya, xb, yb)*xa;
+        return static_cast<double>(ya) - getM(xa, ya, xb, yb) * static_cast<double>(xa);
     }
 
     /**
@@ -136,7 +193,7 @@ namespace cpp_utils {
      */
     template <typename NUM1, typename NUM2, typename NUM3>
     constexpr double getQ(const NUM1& xa, const NUM2& ya, const NUM3& m) {
-        return ya - m*xa;
+        return static_cast<double>(ya) - static_cast<double>(m)*static_cast<double>(xa);
     }
 
     /**
@@ -154,7 +211,7 @@ namespace cpp_utils {
      */
     template <typename NUM1, typename NUM2, typename NUM3>
     constexpr double linearTransform(const NUM1& x, const NUM2& m, const NUM3& q) {
-        return static_cast<double>(m*x + q);
+        return static_cast<double>(m)*static_cast<double>(x) + static_cast<double>(q);
     }
 
     /**
@@ -216,7 +273,7 @@ namespace cpp_utils {
      */
     template <typename NUM1, typename NUM2, typename NUM3>
     constexpr double getMonotonicallyCrescent(const NUM1& x, const NUM2& minY, const NUM3& maxY) {
-        return static_cast<double>(minY) + static_cast<double>(maxY - minY) * getMonotonicallyCrescent(x);
+        return static_cast<double>(minY) + (static_cast<double>(maxY) - static_cast<double>(minY)) * getMonotonicallyCrescent(x);
     }
 
     /**
@@ -388,11 +445,18 @@ namespace cpp_utils {
      */
     template <typename T>
     constexpr bool isApproximatelyEqual(const T& a, const T& b, const T& epsilon) {
-        const T& m = std::max(std::abs(a), std::abs(b));
-        const int digitsm = getIntegerDigits(m, false);
-        c_debug("TEST a=", a, "b=", b, "max=", m, "digits of max", digitsm);
-        c_debug(std::abs(a - b), "<=", (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)), "*", pow10<T>(-digitsm), "* 10 *", epsilon, "=", ( (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)) * pow10<T>(-digitsm) * 10 * epsilon));
-        return std::abs(a - b) <= (m * pow10<T>(-digitsm) * 10 * epsilon);
+        //see https://stackoverflow.com/a/41405501/1887602
+        auto_debug(a);
+        auto_debug(b);
+        auto_debug(epsilon);
+        auto diff = std::fabs(a - b);
+        if (diff <= epsilon)
+            return true;
+
+        if (diff < std::fmax(std::fabs(a), std::fabs(b)) * epsilon)
+            return true;
+
+        return false;
     }
 
     /**
@@ -438,21 +502,6 @@ namespace cpp_utils {
     template <typename T>
     bool isDefinitelyLessThan(T a, T b, T epsilon) {
         return (b - a) > ( (std::abs(a) < std::abs(b) ? std::abs(b) : std::abs(a)) * epsilon);
-    }
-
-    /**
-     * @brief compute log 2
-     * 
-     * @note
-     * this function allows for computation compile time
-     * 
-     * @tparam T type of both the input and the output
-     * @param n input
-     * @return constexpr T \f$log_{2}(n)\f$
-     */
-    template <typename T>
-    constexpr T log2(T n) {
-        return (n<2) ? 0 : 1 + log2(n/2);
     }
 
     template <typename T>
