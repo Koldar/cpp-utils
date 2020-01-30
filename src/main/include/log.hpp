@@ -103,8 +103,19 @@ void __abstractLog(int levelNo, const char* level, const char* file, const char*
  * @param[in] ... the entries to put on stream
  */
 #define debug(...) _abstractLog(0, "DEBUG", __VA_ARGS__)
+/**
+ * @brief like ::debug, but you use it to show the value of a variable
+ * 
+ * @code
+ *  auto_debug(atoi("5")); //atoi("5") = 5
+ * @endcode
+ * 
+ * @param a C expression without side effects whose value you want to show on the log
+ */
+#define auto_debug(x) debug(TO_STRING(x), "=", x)
 #else
 #define debug(...) ;
+#define auto_debug(x) ;
 #endif
 
 #if QUICK_LOG <= 1
@@ -120,8 +131,19 @@ void __abstractLog(int levelNo, const char* level, const char* file, const char*
  * @param[in] ... the entries to put on stream
  */
 #define finest(...) _abstractLog(1, "FINST", __VA_ARGS__)
+/**
+ * @brief like ::finest, but you use it to show the value of a variable
+ * 
+ * @code
+ *  auto_finest(atoi("5")); //atoi("5") = 5
+ * @endcode
+ * 
+ * @param a C expression without side effects whose value you want to show on the log
+ */
+#define auto_finest(x) finest(TO_STRING(x), "=", x)
 #else
 #define finest(...) ;
+#define auto_finest(x) ;
 #endif
 
 #if QUICK_LOG <= 2
@@ -137,8 +159,19 @@ void __abstractLog(int levelNo, const char* level, const char* file, const char*
  * @param[in] ... the entries to put on stream
  */
 #define finer(...) _abstractLog(2, "FINER", __VA_ARGS__)
+/**
+ * @brief like ::finer, but you use it to show the value of a variable
+ * 
+ * @code
+ *  auto_finer(atoi("5")); //atoi("5") = 5
+ * @endcode
+ * 
+ * @param a C expression without side effects whose value you want to show on the log
+ */
+#define auto_finer(x) finer(TO_STRING(x), "=", x)
 #else
 #define finer(...) ;
+#define auto_finer(x) ;
 #endif
 
 #if QUICK_LOG <= 3
@@ -154,8 +187,19 @@ void __abstractLog(int levelNo, const char* level, const char* file, const char*
  * @param[in] ... the entries to put on stream
  */
 #define fine(...) _abstractLog(3, "FINE", __VA_ARGS__)
+/**
+ * @brief like ::fine, but you use it to show the value of a variable
+ * 
+ * @code
+ *  auto_fine(atoi("5")); //atoi("5") = 5
+ * @endcode
+ * 
+ * @param a C expression without side effects whose value you want to show on the log
+ */
+#define auto_fine(x) fine(TO_STRING(x), "=", x)
 #else
 #define fine(...) ;
+#define auto_fine(x) ;
 #endif
 
 #if QUICK_LOG <= 5
@@ -171,8 +215,19 @@ void __abstractLog(int levelNo, const char* level, const char* file, const char*
  * @param[in] ... the entries to put on stream
  */
 #define info(...) _abstractLog(5, "INFO ", __VA_ARGS__)
+/**
+ * @brief like ::info, but you use it to show the value of a variable
+ * 
+ * @code
+ *  auto_info(atoi("5")); //atoi("5") = 5
+ * @endcode
+ * 
+ * @param a C expression without side effects whose value you want to show on the log
+ */
+#define auto_info(x) info(TO_STRING(x), "=", x)
 #else
 #define info(...) ;
+#define auto_info(x) ;
 #endif
 
 #if QUICK_LOG <= 6
@@ -188,8 +243,19 @@ void __abstractLog(int levelNo, const char* level, const char* file, const char*
  * @param[in] ... the entries to put on stream
  */
 #define warning(...) _abstractLog(6, "WARN ", __VA_ARGS__)
+/**
+ * @brief like ::warning, but you use it to show the value of a variable
+ * 
+ * @code
+ *  auto_warning(atoi("5")); //atoi("5") = 5
+ * @endcode
+ * 
+ * @param a C expression without side effects whose value you want to show on the log
+ */
+#define auto_warning(x) warning(TO_STRING(x), "=", x)
 #else
 #define warning(...) ;
+#define auto_warning(x) ;
 #endif
 
 #if QUICK_LOG <= 7
@@ -205,8 +271,19 @@ void __abstractLog(int levelNo, const char* level, const char* file, const char*
  * @param[in] ... the entries to put on stream
  */
 #define log_error(...) _abstractLog(7, "ERROR", __VA_ARGS__)
+/**
+ * @brief like ::log_error, but you use it to show the value of a variable
+ * 
+ * @code
+ *  auto_log_error(atoi("5")); //atoi("5") = 5
+ * @endcode
+ * 
+ * @param a C expression without side effects whose value you want to show on the log
+ */
+#define auto_log_error(x) log_error(TO_STRING(x), "=", x)
 #else
 #define log_error(...) ;
+#define auto_log_error(x) ;
 #endif
 
 #if QUICK_LOG <= 8
@@ -222,16 +299,37 @@ void __abstractLog(int levelNo, const char* level, const char* file, const char*
  * @param[in] ... the entries to put on stream
  */
 #define critical(...) _abstractLog(8, "CRTCL", __VA_ARGS__)
-#define cdebug(...) _abstractLog(8, "DEBUG", __VA_ARGS__)
-#define cfinest(...) _abstractLog(8, "FINST", __VA_ARGS__)
-#define cfiner(...) _abstractLog(8, "FINER", __VA_ARGS__)
-#define cfine(...) _abstractLog(8, "FINE ", __VA_ARGS__)
-#define cinfo(...) _abstractLog(8, "INFO ", __VA_ARGS__)
-#define cwarning(...) _abstractLog(8, "WARN ", __VA_ARGS__)
-#define clog_error(...) _abstractLog(8, "ERROR", __VA_ARGS__)
-#define ccritical(...) _abstractLog(8, "CRTCL", __VA_ARGS__)
+/**
+ * @brief like ::critical, but you use it to show the value of a variable
+ * 
+ * @code
+ *  auto_critical(atoi("5")); //atoi("5") = 5
+ * @endcode
+ * 
+ * @param a C expression without side effects whose value you want to show on the log
+ */
+#define auto_critical(x) critical(TO_STRING(x), "=", x)
+
+#define c_debug(...) _abstractLog(8, "DEBUG", __VA_ARGS__)
+#define c_finest(...) _abstractLog(8, "FINST", __VA_ARGS__)
+#define c_finer(...) _abstractLog(8, "FINER", __VA_ARGS__)
+#define c_fine(...) _abstractLog(8, "FINE ", __VA_ARGS__)
+#define c_info(...) _abstractLog(8, "INFO ", __VA_ARGS__)
+#define c_warning(...) _abstractLog(8, "WARN ", __VA_ARGS__)
+#define c_log_error(...) _abstractLog(8, "ERROR", __VA_ARGS__)
+#define c_critical(...) _abstractLog(8, "CRTCL", __VA_ARGS__)
 #else
 #define critical(...) ;
+#define auto_critical(x) ;
+
+#define c_debug(...) ;
+#define c_finest(...) ;
+#define c_finer(...) ;
+#define c_fine(...) ;
+#define c_info(...) ;
+#define c_warning(...) ;
+#define c_log_error(...) ;
+#define ccritical(...) ;
 #endif
 
 /**
