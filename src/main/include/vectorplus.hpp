@@ -6,6 +6,7 @@
 #include <functional>
 #include <type_traits>
 
+#include "functional.hpp"
 #include "ICleanable.hpp"
 #include "imemory.hpp"
 #include "Random.hpp"
@@ -240,7 +241,7 @@ public:
     }
 
     template<typename OUTPUT>
-    vectorplus<OUTPUT> map(const std::function<OUTPUT(EL)>& lambda) const {
+    vectorplus<OUTPUT> map(const cpp_utils::function_t<EL, OUTPUT>& lambda) const {
         vectorplus<OUTPUT> result{};
         for (auto el: *this) {
             result.add(lambda(el));
