@@ -5,9 +5,11 @@
 
 namespace cpp_utils {
 
-    struct MyEnum: public AbstractEnum {
+    struct MyEnum: public AbstractEnum<MyEnum> {
     private:
-        MyEnum(const std::string& name): AbstractEnum{name} {
+        static std::vector<const AbstractEnum<MyEnum>*> VALUES;
+    private:
+        MyEnum(const std::string& name): AbstractEnum{name, VALUES} {
 
         }
     public:
@@ -15,7 +17,6 @@ namespace cpp_utils {
         static const MyEnum KO;
         static const MyEnum BOH;
     };
-
 }
 
 #endif
