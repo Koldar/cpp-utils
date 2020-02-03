@@ -73,7 +73,8 @@ set(CMAKE_FILE_ALTERED_COMMAND "")
 # - 1.8: added Catch framework in test, log default to 3, improve documentation, add library names and apt-get, include cpp/include recusrive search
 # - 1.9: allow developer to change -std flag, add definition and compile flags without touching cmake files
 # - 1.10: -std defaults from c++11 to c++14
-set(CMAKE_FILE_BUILDING_PROCESS_VERSION "1.10")
+# - 1.11; -std defaults from c++14 to c++17
+set(CMAKE_FILE_BUILDING_PROCESS_VERSION "1.11")
 #The place where all the stuff created by "sudo make install" will be positioned"
 #Leave it if you don't want to change the behaviour. Can be overriden by U_INSTALL_DIRECTORY. For example: "-DU_INSTALL_DIRECTORY=~/usr"
 #(no end slash!).
