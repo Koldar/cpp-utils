@@ -44,40 +44,37 @@ namespace cpp_utils {
     public:
         using This = AbstractEnum;
     private:
-        const std::vector<const AbstractEnum<CHILD>*>& values;
         int index;
         std::string name;
     protected:
-        AbstractEnum(const std::string& name, std::vector<const AbstractEnum<CHILD>*>& values): index{AbstractEnum::getNextId(values)}, name{name}, values{values} {
-            values.push_back(this);
+        AbstractEnum(const std::string& name, std::vector<const CHILD*>& values): index{AbstractEnum::getNextId(values)}, name{name} {
+            values.push_back(static_cast<const CHILD*>(this));
         }
     public:
         virtual ~AbstractEnum() {
 
         }
 
-        AbstractEnum(const This& o): index{o.index}, name{o.name}, values{o.values} {
+        AbstractEnum(const This& o): index{o.index}, name{o.name} {
 
         }
         
-        AbstractEnum(This&& o): index{o.index}, name{o.name}, values{o.values} {
+        AbstractEnum(This&& o): index{o.index}, name{o.name} {
         }
 
         This& operator =(const This& o) {
             this->index = o.index;
             this->name = o.name;
-            this->values = o.values;
             return *this;
         }
 
         This& operator = (This&& o) {
             this->index = o.index;
             this->name = o.name;
-            this->values = o.values;
             return *this;
         }
     private:
-        static int getNextId(const std::vector<const AbstractEnum<CHILD>*>& values) {
+        static int getNextId(const std::vector<const CHILD*>& values) {
             return values.size();
         }
     public:
@@ -87,14 +84,6 @@ namespace cpp_utils {
 
         std::string getName() const {
             return this->name;
-        }
-
-        const CHILD& getFirst() const {
-            return this->values[0];
-        }
-
-        const CHILD& getValues() const {
-            return this->values;
         }
     public:
         friend bool operator ==(const This& a, const This& b) {

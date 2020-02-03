@@ -15,4 +15,6 @@ SCENARIO("given an enum") {
     REQUIRE(scout(a) == "KO");
     REQUIRE(a.getName() == "KO");
 
+    REQUIRE(a.getFirst() == MyEnum::OK);
+
 }
