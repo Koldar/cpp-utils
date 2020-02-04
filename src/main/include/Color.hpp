@@ -5,7 +5,7 @@
 
 namespace cpp_utils {
 
-    typedef wrapped_number<unsigned char, 0, 255> wrapped_uchar;
+    typedef wrapped_number<unsigned char, 0, 255, int> wrapped_uchar;
 
 	class color_t {
 	public:
