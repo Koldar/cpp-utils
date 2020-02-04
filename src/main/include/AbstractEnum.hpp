@@ -101,6 +101,14 @@ namespace cpp_utils {
 
     };
 
+
+    // #define DECLARE_ENUM(enumClass, ...) \
+    //     class enumClass: public cpp_utils::AbstractEnum { \
+    //         _DECLARE_ENUM_ATTRIBUTES(__VA_ARGS__) \
+    //     } \
+
+    // #define _DECLARE_ENUM_ATTRIBUTES(...) 
+
 }
 
 #endif
