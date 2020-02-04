@@ -478,6 +478,50 @@ public:
     const EL& getRandom() const {
         return (*this)[Random::next(0, this->size(), true, false)];
     }
+    
+    /**
+     * @brief create a string from the vector plus
+     * 
+     * @param start the string to put at the beginning of the vector
+     * @param sep the string to put between one element and the next one of the vector
+     * @param end the string to put at the end of the vector
+     * @return std::string the built string
+     */
+    std::string makeString(const std::string& start, const std::string& sep, const std::string& end) const {
+        std::stringstream ss;
+        ss << start;
+        for (int i=0; i<this->size(); ++i) {
+            ss << (*this)[i];
+            if ((i+1) < this->size()) {
+                //intermediate element
+                ss << sep;
+            } else {
+                //last element
+            }
+        }
+        ss << end;
+
+        return ss.str();
+    }
+
+    /**
+     * @brief like ::makeString, but the first and the last characters are, respectively "[" and "]"
+     * 
+     * @param sep the string to put between one element and the next one of the vector
+     * @return std::string the string built
+     */
+    std::string makeString(const std::string& sep) const {
+        return this->makeString("[", sep, "]");
+    }
+
+    /**
+     * @brief like ::makeString, but the sep string is ","
+     * 
+     * @return std::string the string built
+     */
+    std::string makeString() const {
+        return this->makeString(",");
+    }
 public:
     template <typename... OTHER>
     static vectorplus<EL> make(OTHER... other) {
