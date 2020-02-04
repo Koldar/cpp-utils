@@ -539,7 +539,7 @@ namespace cpp_utils::graphs {
          * @return nodeid_t 
          */
         nodeid_t getRandomVertex() const {
-            int node = cpp_utils::Random::next(static_cast<size_t>(0), this->numberOfVertices());
+            int node = cpp_utils::Random::next(0, static_cast<int>(this->numberOfVertices()));
             for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
                 if (node == 0) {
                     return it->first;
