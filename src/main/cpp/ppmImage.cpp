@@ -41,13 +41,13 @@ PPMImage::PPMImage(const char* filename) {
 	this->width = width;
 	this->height = height;
 	this->image = new color_t[this->width * this->height];
-	int red, green, blue;
+	unsigned char red, green, blue;
 	debug("width is", this->width, " height is", this->height);
 	for (size_t y=0; y<this->height; ++y) {
 		for (size_t x=0; x<this->width; ++x) {
 			f >> red >> green >> blue;
 			//debug("x=", x, "y=", y);
-			this->setPixel(x, y, color_t{wrapped_uchar{red}, wrapped_uchar{green}, wrapped_uchar{blue}});
+			this->setPixel(x, y, color_t{red, green, blue});
 		}
 	}
 
