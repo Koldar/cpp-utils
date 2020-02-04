@@ -1,9 +1,11 @@
 #include "Color.hpp"
 
+#include "log.hpp"
+
 namespace cpp_utils {
 
     const color_t color_t::LIGHT_RED = RED.lighter(0.2);
-    const color_t color_t::RED = color_t{wrapped_uchar{250}, wrapped_uchar{0}, wrapped_uchar{0}};
+    const color_t color_t::RED = color_t{wrapped_uchar{255}, wrapped_uchar{0}, wrapped_uchar{0}};
     const color_t color_t::DARK_RED = RED.darker(0.2);
 
     const color_t color_t::LIGHT_GREEN = GREEN.lighter(0.2);
