@@ -286,7 +286,7 @@ namespace cpp_utils {
 
         std::string cmd = internal::callPyEval(ss, args...);
 
-        critical("command is ", cmd);
+        debug("command is ", cmd);
         return callExternalProgramAndFetchOutput(cmd);
     }
 
