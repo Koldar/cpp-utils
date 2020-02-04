@@ -10,6 +10,7 @@
 #include "ICleanable.hpp"
 #include "imemory.hpp"
 #include "Random.hpp"
+#include "IList.hpp"
 
 namespace cpp_utils {
 
@@ -26,50 +27,54 @@ std::ostream& operator << (std::ostream& out, const vectorplus<EL>& vec);
  * @tparam EL 
  */
 template<typename EL>
-class vectorplus : public std::vector<EL>, ICleanable, IMemorable {
+class vectorplus : public std::vector<EL>, public IList<EL>,  ICleanable, IMemorable {
 public:
-    typedef vectorplus<EL> This;
-    typedef std::vector<EL> Super;
+    using This = vectorplus<EL>;
+    using Super1 = std::vector<EL>;
+    using Super2 = IList<EL>;
+    using Super1::size;
+    using Super1::begin;
+    using Super1::end;
 public:
     friend std::ostream& operator << <>(std::ostream& out, const vectorplus<EL>& vec);
 public:
-    vectorplus(): Super{} {
+    vectorplus(): Super1{} {
     }
-    vectorplus(const EL& el): Super(20, el) {
+    vectorplus(const EL& el): Super1(20, el) {
     }
-    vectorplus(const Super& other): Super{other} {
+    vectorplus(const Super1& other): Super1{other} {
 
     }
-    vectorplus(std::size_t size, const EL& el): Super(size, el) {
+    vectorplus(std::size_t size, const EL& el): Super1(size, el) {
 
     }
     template <typename... OTHER>
-    vectorplus(const EL& first, const EL& second, const EL& third, const OTHER&... args) : Super{} {
+    vectorplus(const EL& first, const EL& second, const EL& third, const OTHER&... args) : Super1{} {
         this->add(first);
         this->add(second);
         this->add(third);
         this->add(args...);
     }
-    vectorplus(Super&& other): Super{other} {
+    vectorplus(Super1&& other): Super1{other} {
 
     }
-    vectorplus(const cpp_utils::vectorplus<EL>& other): Super{} {
+    vectorplus(const cpp_utils::vectorplus<EL>& other): Super1{} {
         debug("building the path!!!!");
         for (auto el : other) {
             this->add(el);
         }
     }
 
-    vectorplus(cpp_utils::vectorplus<EL>&& other) : Super{other} {
+    vectorplus(cpp_utils::vectorplus<EL>&& other) : Super1{other} {
     }
 
     This& operator=(const This& other) {
-        Super::operator =(other);
+        Super1::operator =(other);
         return *this;
     }
 
     vectorplus<EL>& operator=(This&& other) {
-        Super::operator =(other);
+        Super1::operator =(std::move(other));
         return *this;
     }
 
@@ -84,24 +89,99 @@ protected:
         return *this;
     }
 public:
-    /**
-     * @brief check if the vector is actually empty
-     * 
-     * @return true if the vector has no elements
-     * @return false otherwise
-     */
-    bool isEmpty() const {
-        return std::vector<EL>::empty();
+    size_t size() const {
+        return Super1::size();
     }
-    /**
-     * @brief check if the vector has at least one element inside it
-     * 
-     * @return true if the vector has at least one element
-     * @return false otherwise
-     */
-    bool hasAtLeastAnElement() const {
-        return this->size() > 0;
+public:
+    template <typename OUT>
+    vectorplus<OUT> map(const function_t<EL, OUT>& mapper) const {
+        vectorplus<OUT> result{};
+        for (auto el : *this) {
+            result.add(mapper(el));
+        }
+        return result;
     }
+
+    /**
+     * @brief generates a **new** vector only with the elements satisfying the filter
+     * 
+     * @param lambda the filter
+     * @return vectorplus<EL> a new vector
+     */
+    vectorplus<EL> select(const predicate_t<EL>& filter) const {
+        vectorplus<EL> result{};
+        for (auto el: *this) {
+            if (filter(el)) {
+                result.add(el);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @brief generates a **new** vector only with the elements that **don't satisfy** the filter
+     * 
+     * @param lambda the filter
+     * @return vectorplus<EL> a new vector
+     */
+    vectorplus<EL> reject(const predicate_t<EL>& lambda) const {
+        vectorplus<EL> result{};
+        for (auto el: *this) {
+            if (!lambda(el)) {
+                result.add(el);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @brief left reduce operation
+     * 
+     * @code
+     * vector={1,2,3,4};
+     * first=0;
+     * lambda=+
+     * (((((0) + 1) + 2) + 3) + 4)
+     * @endcode
+     * 
+     * @tparam OUT the type of the result of this operation
+     * @param first first value used to combine to the head of the vector
+     * @param lambda function to apply
+     * @return OUT value obtained by the reduction
+     */
+    template <typename OUT>
+    OUT lreduce(const OUT& first, const bifunction_t<EL, OUT, OUT>& lambda) const {
+        OUT result{first};
+        for (auto el : *this) {
+            result = lambda(el, result);
+        }
+        return result;
+    }
+
+    /**
+     * @brief right reduce operation
+     * 
+     * @code
+     * vector={1,2,3,4};
+     * first=0;
+     * lambda=+
+     * (1 + (2 + (3 + (4 + (0)))))
+     * @endcode
+     * 
+     * @tparam OUT the type of the result of this operation
+     * @param first first value used to combine to the tail of the vector
+     * @param lambda function to apply
+     * @return OUT value obtained by the reduction
+     */
+    template <typename OUT>
+    OUT rreduce(const OUT& first, const bifunction_t<EL, OUT, OUT>& lambda) const {
+        OUT result{first};
+        for (int i=this->lastIndex(); i>=0; --i) {
+            result = lambda((*this)[i], result);
+        }
+        return result;
+    }
+public:
     /**
      * @brief an element in the vector. use negative indices for going backwards in the vector
      * 
@@ -238,94 +318,6 @@ public:
     cpp_utils::vectorplus<EL>& sort(std::function<bool(EL,EL)> sorter) {
         std::sort(this->begin(), this->end(), sorter);
         return *this;
-    }
-
-    template<typename OUTPUT>
-    vectorplus<OUTPUT> map(const cpp_utils::function_t<EL, OUTPUT>& lambda) const {
-        vectorplus<OUTPUT> result{};
-        for (auto el: *this) {
-            result.add(lambda(el));
-        }
-        return result;
-    }
-
-    /**
-     * @brief generates a **new** vector only with the elements satisfying the filter
-     * 
-     * @param lambda the filter
-     * @return vectorplus<EL> a new vector
-     */
-    vectorplus<EL> filter(std::function<bool(const EL&)> lambda) const {
-        vectorplus<EL> result{};
-        for (auto el: *this) {
-            if (lambda(el)) {
-                result.add(el);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * @brief generates a **new** vector only with the elements that **don't satisfy** the filter
-     * 
-     * @param lambda the filter
-     * @return vectorplus<EL> a new vector
-     */
-    vectorplus<EL> reject(std::function<bool(EL)> lambda) const {
-        vectorplus<EL> result{};
-        for (auto el: *this) {
-            if (!lambda(el)) {
-                result.add(el);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * @brief left reduce operation
-     * 
-     * @code
-     * vector={1,2,3,4};
-     * first=0;
-     * lambda=+
-     * (((((0) + 1) + 2) + 3) + 4)
-     * @endcode
-     * 
-     * @tparam OUTPUT the type of the result of this operation
-     * @param first first value used to combine to the head of the vector
-     * @param lambda function to apply
-     * @return OUTPUT value obtained by the reduction
-     */
-    template <typename OUTPUT>
-    OUTPUT lreduce(const OUTPUT first, std::function<OUTPUT(EL, OUTPUT)> lambda) const {
-        OUTPUT result = first;
-        for (auto i=0; i<this->size(); ++i) {
-            result = lambda((*this)[i], result);
-        }
-        return result;
-    }
-    /**
-     * @brief right reduce operation
-     * 
-     * @code
-     * vector={1,2,3,4};
-     * first=0;
-     * lambda=+
-     * (1 + (2 + (3 + (4 + (0)))))
-     * @endcode
-     * 
-     * @tparam OUTPUT the type of the result of this operation
-     * @param first first value used to combine to the tail of the vector
-     * @param lambda function to apply
-     * @return OUTPUT value obtained by the reduction
-     */
-    template <typename OUTPUT>
-    OUTPUT rreduce(const OUTPUT& first, std::function<OUTPUT(EL, OUTPUT)> lambda) const {
-        OUTPUT result = first;
-        for (auto i=this->lastIndex(); i>=0; --i) {
-            result = lambda((*this)[i], result);
-        }
-        return result;
     }
 
     /**
