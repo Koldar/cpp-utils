@@ -463,12 +463,31 @@ public:
     }
 
     /**
+     * @brief get a randomic index for this vector
+     * 
+     * @return int 
+     */
+    int getRandomIndex() const {
+        return Random::next(0, static_cast<int>(this->size()), false);   
+    }
+
+    /**
      * @brief get a random element in the vector
      * 
      * @return const EL& a random element in the vector
      */
     const EL& getRandom() const {
         return (*this)[Random::next(0, this->size(), true, false)];
+    }
+
+    /**
+     * @brief like ::getRandom(), but  yield the index of the chosen element
+     * 
+     * @return std::pair<int, const EL&> 
+     */
+    std::pair<int, const EL&> getRandomPair() const {
+        int id = Random::next(0, static_cast<int>(this->size()), false);
+        return std::pair{id, this->at(id)};
     }
     
     /**
