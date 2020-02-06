@@ -22,18 +22,20 @@ namespace cpp_utils::exceptions {
     protected:
         std::string message;
         boost::stacktrace::stacktrace stacktrace;
+        mutable std::string wholeMessage;
     public:
-        AbstractException(): message{}, stacktrace{boost::stacktrace::stacktrace()} {
+        AbstractException(): message{}, stacktrace{boost::stacktrace::stacktrace()}, wholeMessage{} {
         }
-        AbstractException(const std::string& str): message{str}, stacktrace{boost::stacktrace::stacktrace()} {
+        AbstractException(const std::string& str): message{str}, stacktrace{boost::stacktrace::stacktrace()}, wholeMessage{} {
         }
         template <typename... OTHERS>
-        AbstractException(const OTHERS&... others) : message{swcout(others...)}, stacktrace{boost::stacktrace::stacktrace()} {
+        AbstractException(const OTHERS&... others) : message{swcout(others...)}, stacktrace{boost::stacktrace::stacktrace()}, wholeMessage{} {
         }
         virtual const char* what() const throw() {
-            std::stringstream ss;
-            ss << this->message << "\n" << this->stacktrace;
-            return ss.str().c_str();
+            if (this->wholeMessage.empty()) {
+                this->wholeMessage = scout(this->message, "\n", this->stacktrace);
+            }
+            return this->wholeMessage.c_str();
         }
         const std::string& getMessage() const throw() {
             return this->message;
@@ -170,6 +172,18 @@ namespace cpp_utils::exceptions {
     };
 
     /**
+     * @brief Exception thrown when you expected a well specific value, but you got something else
+     * 
+     */
+    class ExpectedValueException: public AbstractException {
+    public:
+        template <typename X, typename Y>
+        ExpectedValueException(const X& expected, const Y& actual): AbstractException{"expected \"", expected, "\", but got \"", actual, "\""} {
+
+        }
+    };
+
+    /**
      * @brief exception to throw when the operation needs to have at least one element in a container, but the container is actually empty
      * 
      * @tparam ITEM type of the element inside the container
@@ -247,7 +261,7 @@ namespace cpp_utils::exceptions {
     private:
         std::string filename;
     public:
-        FileOpeningException(const boost::filesystem::path& p): AbstractException{"Couldn't open file \"", filename, "\". Maybe it doesn't exist?"}, filename{p.native()} {
+        FileOpeningException(const boost::filesystem::path& p): AbstractException{"Couldn't open file \"", p.native(), "\". Maybe it doesn't exist?"}, filename{p.native()} {
         }
         FileOpeningException(const std::string& filename): AbstractException{"Couldn't open file \"", filename, "\". Maybe it doesn't exist?"}, filename{filename} {
         }

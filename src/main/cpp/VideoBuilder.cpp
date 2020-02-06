@@ -52,7 +52,7 @@ namespace cpp_utils {
     VideoBuilder& VideoBuilder::addImagesUntilNoFound(const IntInterval& range, const function_t<int, boost::filesystem::path>& mapper) {
         for (int i=range.getLB(); i<range.getUB(); ++i) {
             auto filename = mapper(i);
-            if (!cpp_utils::exists(filename)) {
+            if (!cpp_utils::filesystem::exists(filename)) {
                 break;
             }
             this->addImage(filename);
@@ -72,11 +72,11 @@ namespace cpp_utils {
         }
         //see https://trac.ffmpeg.org/wiki/ChangingFrameRate
         critical("duration is", this->duration);
-        auto demuxerPath = this->generateConcatDemuxer(cpp_utils::basename(path).native(), this->duration);
+        auto demuxerPath = this->generateConcatDemuxer(cpp_utils::filesystem::basename(path).native(), this->duration);
 
-        boost::filesystem::path tmpMp4{scout("/tmp/", cpp_utils::basename(path).native(), ".mp4")};
-        auto absolutePath = cpp_utils::absolute(path);
-        auto outputPath = cpp_utils::changeExtension(absolutePath, "mp4");
+        boost::filesystem::path tmpMp4{scout("/tmp/", cpp_utils::filesystem::basename(path).native(), ".mp4")};
+        auto absolutePath = cpp_utils::filesystem::absolute(path);
+        auto outputPath = cpp_utils::filesystem::changeExtension(absolutePath, "mp4");
 
         boost::filesystem::path tmp;
         if (!this->audioFile.empty()) {
@@ -96,15 +96,15 @@ namespace cpp_utils {
             callFFMPEG("ffmpeg -y -i \"", tmp.native(), "\" -i \"", this->audioFile.native(), "\" -shortest -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k \"", outputPath.native(), "\"");
 
             //delete tmp file
-            cpp_utils::remove(tmpMp4);
+            cpp_utils::filesystem::remove(tmpMp4);
         }
 
         //delete demuxer
-        cpp_utils::remove(demuxerPath);
+        cpp_utils::filesystem::remove(demuxerPath);
 
         if (this->removeImages) {
             for (auto image : this->imageNames) {
-                cpp_utils::remove(image);
+                cpp_utils::filesystem::remove(image);
             }
         }
 
@@ -121,12 +121,12 @@ namespace cpp_utils {
         concatDemuxer << "ffconcat version 1.0" << "\n";
         concatDemuxer << "# total of " << this->imageNames.size() << "images" << "\n";
         for (auto p : this->imageNames) {
-            concatDemuxer << "file " << cpp_utils::absolute(p) << "\n";
+            concatDemuxer << "file " << cpp_utils::filesystem::absolute(p) << "\n";
             concatDemuxer << "duration " << duration << "\n";
         }
         //repeat the last file
         auto lastImageName = this->imageNames.getTail();
-        concatDemuxer << "file " << cpp_utils::absolute(lastImageName) << "\n";
+        concatDemuxer << "file " << cpp_utils::filesystem::absolute(lastImageName) << "\n";
     
         //close file
         concatDemuxer.close();

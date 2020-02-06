@@ -20,8 +20,8 @@ SCENARIO("test video builder", "[VideoBuilder]") {
             .buildVideo("./output-fast.mp4")
             ;
 
-        REQUIRE(cpp_utils::exists("./output.mp4"));
-        REQUIRE(cpp_utils::exists("./output-fast.mp4"));
+        REQUIRE(cpp_utils::filesystem::exists("./output.mp4"));
+        REQUIRE(cpp_utils::filesystem::exists("./output-fast.mp4"));
     }
 
     GIVEN("with audio") {
@@ -36,6 +36,6 @@ SCENARIO("test video builder", "[VideoBuilder]") {
             ;
         
 
-        REQUIRE(cpp_utils::exists("./output-with-audio.mp4"));
+        REQUIRE(cpp_utils::filesystem::exists("./output-with-audio.mp4"));
     }
 }

@@ -140,6 +140,15 @@ namespace cpp_utils {
         return ojoin(out, " ", args...);
     }
 
+    /**
+     * @brief check if a string starts with a given substring
+     * 
+     * @param str the string to check
+     * @param substring the substring in @c str
+     * @return true true if `substring` is at the beginning of `str`
+     * @return false 
+     */
+    bool startWith(const std::string& str, const std::string& substring);
 
     /**
      * @brief a "sprintf" version returning a `string`, not a `char*`
@@ -148,7 +157,7 @@ namespace cpp_utils {
      * @param ... parameters. the parameters will be interpreted as `printf` parameters, **not** as `<<` parameters!
      * @return std::string 
      */
-    //TODO add [[deprecated("use swcout instead")]]
+    [[deprecated("use swcout instead")]]
     std::string sprintf(const char* format, ...);
     /**
      * @brief a "vsprintf" version returning a `string`, not a `char*`
@@ -157,7 +166,7 @@ namespace cpp_utils {
      * @param ap parameters. the parameters will be interpreted as `printf` parameters, **not** as `<<` parameters!
      * @return std::string 
      */
-    //TODO add [[deprecated("use swcout instead")]]
+    [[deprecated("use swcout instead")]]
     std::string vsprintf(const char* format, va_list ap);
 
 

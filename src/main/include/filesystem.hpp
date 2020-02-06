@@ -3,7 +3,7 @@
 
 #include <boost/filesystem.hpp>
 
-namespace cpp_utils {
+namespace cpp_utils::filesystem {
 
     /**
      * @brief rename a file or a directory

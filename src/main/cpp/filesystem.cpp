@@ -4,7 +4,7 @@
 
 #include "strings.hpp"
 
-namespace cpp_utils {
+namespace cpp_utils::filesystem {
 
     void rename(const boost::filesystem::path& p, const std::string& newName) {
         auto newPath = p.parent_path();
@@ -13,7 +13,7 @@ namespace cpp_utils {
     }
 
     bool remove(const boost::filesystem::path& p) {
-        if (cpp_utils::exists(p)) {
+        if (cpp_utils::filesystem::exists(p)) {
             std::remove(p.native().c_str());
             return true;
         }
@@ -25,7 +25,7 @@ namespace cpp_utils {
     }
 
     bool exist(const boost::filesystem::path& p) {
-        return cpp_utils::exists(p);
+        return cpp_utils::filesystem::exists(p);
     }
 
     bool isEmpty(const boost::filesystem::path& p) {

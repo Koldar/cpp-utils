@@ -37,4 +37,8 @@ namespace cpp_utils {
         return std::string{buffer};
     }
 
+    bool startWith(const std::string& str, const std::string& substring) {
+        return str.rfind(substring, 0) == 0;
+    }
+
 }
