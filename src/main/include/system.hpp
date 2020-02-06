@@ -141,7 +141,7 @@ namespace cpp_utils {
 
         std::array<char, 128> buffer;
         //std::unique_ptr<FILE, decltype(&pclose)> pipe{popen(cmd.c_str(), "r"), pclose};
-        critical("executing", cmd);
+        info("executing", cmd);
         errno = 0;
         FILE* pipe = ::popen(cmd.c_str(), "r");
         if (pipe == nullptr) {
@@ -191,7 +191,7 @@ namespace cpp_utils {
         errno = 0;
         debug("pid opened are", getPIDNumberOpened());
         debug("open files are ", getOpenFileDescriptors());
-        critical("executing", cmd);
+        info("executing", cmd);
         
         errno = 0;
         FILE* pipe = popen(cmd.c_str(), "r");
