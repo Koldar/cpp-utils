@@ -849,9 +849,9 @@ namespace cpp_utils::graphs {
 
             f.close();
 
-            callExternalProgram("dot -Tpng -o /tmp/getPPM.png /tmp/getPPM.dot");
+            callExternalProgram("dot -Tpng -o \"/tmp/getPPM.png\" \"/tmp/getPPM.dot\"");
             //https://askubuntu.com/a/84415/703658
-            callExternalProgram("convert -depth 8 -compress none /tmp/getPPM.png /tmp/getPPM.ppm");
+            callExternalProgram("convert -depth 8 -compress none \"/tmp/getPPM.png\" \"/tmp/getPPM.ppm\"");
             PPMImage* result = new PPMImage{"/tmp/getPPM.ppm"};
             return result;
         }

@@ -36,8 +36,8 @@ void IImageable::_saveImage(ImageExtension extension, const char* filename) cons
     }
 
     ppm->savePPM(filename);
-    callExternalProgram("convert %s.ppm %s.%s", filename, filename, ext);
-    callExternalProgram("rm -f %s.ppm", filename);
+    callExternalProgram("convert \"%s.ppm\" \"%s.%s\"", filename, filename, ext);
+    callExternalProgram("rm -f \"%s.ppm\"", filename);
     if (ppm != this) {
         //happens when this is already a ppm (e.g., PPMImage)
         delete ppm;

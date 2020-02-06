@@ -331,7 +331,7 @@ namespace cpp_utils {
 
 	bool isProgramInstalled(const std::string& command) {
 		std::string output = callUnsafeExternalProgramAndFetchOutput("which ", command);
-		critical("output of which ", command, "is \"", output, "\"");
+		info("output of which ", command, "is \"", output, "\"");
 		return output.size() > 0;
 	}
 
