@@ -139,6 +139,19 @@ namespace cpp_utils::filesystem {
         return _join(result, others...);
     }
 
+    /**
+     * @brief perform the join of all the paths passed as parameters and, at the end, it computes the absolute path of it
+     * 
+     * @tparam OTHER 
+     * @param others 
+     * @return boost::filesystem::path 
+     */
+    template <typename ...OTHER>
+    boost::filesystem::path joinAbs(const OTHER&... others) {
+        boost::filesystem::path result{};
+        return cpp_utils::filesystem::absolute(cpp_utils::filesystem::join(result, others...));
+    }
+
 }
 
 #endif
