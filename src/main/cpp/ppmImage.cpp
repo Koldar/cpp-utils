@@ -215,10 +215,10 @@ size_t PPMImage::getHeight() const {
 
 void PPMImage::checkDimensions(const PPMImage& a, const PPMImage& b) {
 	if (a.width != b.width) {
-		throw exceptions::InvalidArgumentException{};
+		throw exceptions::InvalidPairScenarioException{a.width, b.width};
 	}
 	if (a.height != b.height) {
-		throw  exceptions::InvalidArgumentException{};
+		throw  exceptions::InvalidPairScenarioException{a.width, b.width};
 	}
 }
 

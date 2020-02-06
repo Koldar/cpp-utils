@@ -49,7 +49,7 @@ namespace cpp_utils {
         }
         This& operator=(const This& o) {
             if (this->val < o.val) {
-                throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This assignment with", o, "will make it increase");
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically decrescent! This assignment with", o, "will make it increase"};
             }
 
             Super2::operator =(o);
@@ -62,7 +62,7 @@ namespace cpp_utils {
         This& operator=(This&& o) {
             debug("move on ", this->val, "and ", o.val);
             if (this->val < o.val) {
-                throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This assignment with", o, "will make it increase");
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically decrescent! This assignment with", o, "will make it increase"};
             }
 
             debug("calling super::move");
@@ -88,7 +88,7 @@ namespace cpp_utils {
     public:
         This& add(const This& b) {
             if (b.val > 0) {
-                throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This sum will make it increase!");
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically decrescent! This sum will make it increase!"};
             }
             if (b.val != 0) {
                 this->fireEvent([&, b](Listener& l) { l.onNumberDecreased(this->val, this->val + b.val); });
@@ -98,7 +98,7 @@ namespace cpp_utils {
         }
         This& subtract(const This& b) {
             if (b.val < 0) {
-                throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This subtraction will make it increase!");
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically decrescent! This subtraction will make it increase!"};
             }
             if (b.val != 0) {
                 this->fireEvent([&, b](Listener& l) { l.onNumberDecreased(this->val, this->val - b.val); });
@@ -110,7 +110,7 @@ namespace cpp_utils {
         This& multiply(const This& b) {
             //(a*b)>a => ab-a>0 => a(b-1)>0
             if (this->val * (b.val - 1) > 0) {
-                throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This multiplication with", b, "will make it increase!");
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically decrescent! This multiplication with", b, "will make it increase!"};
             }
             if (b.val != 1) {
                 this->fireEvent([&, b](Listener& l) { l.onNumberDecreased(this->val, this->val * b.val); });
@@ -121,7 +121,7 @@ namespace cpp_utils {
         This& divide(const This& b) {
             //(a/b)>a => a>ab => ab-a<0 => a(b-1)<0
             if (this->val * (b.val - 1) < 0) {
-                throw cpp_utils::exceptions::makeInvalidArgumentException(*this, "is monotonically decrescent! This division will make it increase!");
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically decrescent! This division will make it increase!"};
             }
             if (b.val != 1) {
                 this->fireEvent([&, b](Listener& l) { l.onNumberDecreased(this->val, this->val / b.val); });

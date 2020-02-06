@@ -73,7 +73,7 @@ namespace cpp_utils {
                 case 7: log_error("number", what, "increased from ", oldValue, "to", newValue, "!"); break;
                 case 8: critical("number", what, "increased from ", oldValue, "to", newValue, "!"); break;
                 default:
-                    throw cpp_utils::exceptions::InvalidArgumentException("invalid logLevel", logLevel);
+                    throw cpp_utils::exceptions::InvalidArgumentException{"invalid logLevel", logLevel};
             }
             critical("done calling onNumberIncreased");
         }
@@ -112,7 +112,7 @@ namespace cpp_utils {
                     critical("number", what, "decreased from ", oldValue, "to", newValue, "!"); break;
                 }
                 default: {
-                    throw cpp_utils::exceptions::InvalidArgumentException("invalid logLevel", logLevel);
+                    throw cpp_utils::exceptions::InvalidScenarioException{"log level", logLevel};
                 }
             }
             debug("done calling onNumberDecreased");

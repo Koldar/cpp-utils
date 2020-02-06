@@ -16,7 +16,7 @@ namespace cpp_utils {
             case ImageExtension::PPM: { ss << "ppm"; break; }
             case ImageExtension::FIG: { ss << "fig"; break; }
             default:
-                throw cpp_utils::exceptions::makeInvalidScenarioException(ext);
+                throw cpp_utils::exceptions::InvalidScenarioException{"image extension", ext};
         }
         return ss;
     }
@@ -32,7 +32,7 @@ void IImageable::_saveImage(ImageExtension extension, const char* filename) cons
         case ImageExtension::PPM: ppm->savePPM(filename); return;
         case ImageExtension::FIG: ext="fig"; break;
         default:
-            throw exceptions::InvalidScenarioException<ImageExtension>{extension};
+            throw exceptions::InvalidScenarioException{"image extension", extension};
     }
 
     ppm->savePPM(filename);

@@ -11,7 +11,7 @@ namespace cpp_utils {
 
     bool operator == (const timing_t& a, const timing_t& b) {
         if (a.unit != b.unit) {
-            throw cpp_utils::exceptions::InvalidArgumentException{};
+            throw cpp_utils::exceptions::InvalidPairScenarioException{a, b};
         }
         if (&a == &b) {
             return true;
@@ -21,7 +21,7 @@ namespace cpp_utils {
 
     bool operator != (const timing_t& a, const timing_t& b) {
         if (a.unit != b.unit) {
-            throw cpp_utils::exceptions::InvalidArgumentException{};
+            throw cpp_utils::exceptions::InvalidPairScenarioException{a, b};
         }
         if (&a != &b) {
             return true;
@@ -31,7 +31,7 @@ namespace cpp_utils {
 
     bool operator < (const timing_t& a, const timing_t& b) {
         if (a.unit != b.unit) {
-            throw cpp_utils::exceptions::InvalidArgumentException{};
+            throw cpp_utils::exceptions::InvalidPairScenarioException{a, b};
         }
         if (&a == &b) {
             return false;
@@ -40,7 +40,7 @@ namespace cpp_utils {
     }
     bool operator <= (const timing_t& a, const timing_t& b) {
         if (a.unit != b.unit) {
-            throw cpp_utils::exceptions::InvalidArgumentException{};
+            throw cpp_utils::exceptions::InvalidPairScenarioException{a, b};
         }
         if (&a == &b) {
             return true;
@@ -50,7 +50,7 @@ namespace cpp_utils {
 
     bool operator > (const timing_t& a, const timing_t& b) {
         if (a.unit != b.unit) {
-            throw cpp_utils::exceptions::InvalidArgumentException{};
+            throw cpp_utils::exceptions::InvalidPairScenarioException{a, b};
         }
         if (&a == &b) {
             return false;
@@ -60,7 +60,7 @@ namespace cpp_utils {
 
     bool operator >= (const timing_t& a, const timing_t& b) {
         if (a.unit != b.unit) {
-            throw cpp_utils::exceptions::InvalidArgumentException{};
+            throw cpp_utils::exceptions::InvalidPairScenarioException{a, b};
         }
         if (&a == &b) {
             return true;
@@ -107,7 +107,7 @@ namespace cpp_utils {
                     case timeunit_e::MINUTE: return timeunit_e::HOUR + (i-1);
                     case timeunit_e::HOUR: return timeunit_e::DAY + (i-1);
                     default: {
-                        throw cpp_utils::exceptions::InvalidScenarioException<timeunit_e>{a};
+                        throw cpp_utils::exceptions::InvalidScenarioException{"time unit", a};
                     }
                 }
             }
@@ -123,7 +123,7 @@ namespace cpp_utils {
                 case timeunit_e::HOUR: return 60*60;
                 case timeunit_e::DAY: return 24*60*60;
                 default: {
-                    throw cpp_utils::exceptions::InvalidScenarioException<timeunit_e>{u};
+                    throw cpp_utils::exceptions::InvalidScenarioException{"time unit", u};
                 }
             }
         }
@@ -152,7 +152,7 @@ namespace cpp_utils {
                 return "day";
             }
             default: {
-                throw cpp_utils::exceptions::InvalidScenarioException<timeunit_e>{u};
+                throw cpp_utils::exceptions::InvalidScenarioException{"time unit", u};
             }
             }
         }

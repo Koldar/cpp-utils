@@ -40,7 +40,7 @@ namespace cpp_utils {
         This& operator=(const This& o) {
             debug("trying to copy the listeneral");
             if (this->listener != nullptr && o.listener != nullptr && this->listener != o.listener) {
-                throw cpp_utils::exceptions::makeInvalidArgumentException("impossible to copy the listeners: we would lose a listener! this=", this->listener, "other=", o.listener);
+                throw cpp_utils::exceptions::InvalidArgumentException{"impossible to copy the listeners: we would lose a listener! this=", this->listener, "other=", o.listener};
             }
             if (this->listener == nullptr && o.listener != nullptr) {
                 debug("this listener is copied from other listers.. (this = ", this->listener, ", other=", o.listener, ")");
@@ -60,7 +60,7 @@ namespace cpp_utils {
         This& operator=(This&& o) {
             debug("trying to move listeners...");
             if (this->listener != nullptr && o.listener != nullptr && this->listener != o.listener) {
-                throw cpp_utils::exceptions::makeInvalidArgumentException("impossible to copy the listeners: we would lose a listener! this=", this->listener, "other=", o.listener);
+                throw cpp_utils::exceptions::InvalidArgumentException{"impossible to copy the listeners: we would lose a listener! this=", this->listener, "other=", o.listener};
             }
             if (this->listener == nullptr && o.listener != nullptr) {
                 debug("this listener is copied from other listers.. (this = ", this->listener, ", other=", o.listener, ")");

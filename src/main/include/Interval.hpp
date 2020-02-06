@@ -114,7 +114,7 @@ namespace cpp_utils {
                 case 2: this->lbIncluded = this->ubIncluded && o.lbIncluded; break;
                 case 3: this->lbIncluded = this->ubIncluded && o.ubIncluded; break;
                 default: {
-                    throw cpp_utils::exceptions::makeInvalidScenarioException(amin);
+                    throw cpp_utils::exceptions::InvalidScenarioException{"minimum", amin};
                 }
             }
 
@@ -125,7 +125,7 @@ namespace cpp_utils {
                 case 2: this->ubIncluded = this->ubIncluded && o.lbIncluded; break;
                 case 3: this->ubIncluded = this->ubIncluded && o.ubIncluded; break;
                 default: {
-                    throw cpp_utils::exceptions::makeInvalidScenarioException(amin);
+                    throw cpp_utils::exceptions::InvalidScenarioException{"maximum", amax};
                 }
             }
 

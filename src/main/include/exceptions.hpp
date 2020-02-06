@@ -13,22 +13,6 @@
 namespace cpp_utils::exceptions {
 
     /**
-     * @brief macro inserting a constructor accepting a string
-     * 
-     * @param[in] exception the name of the expection
-     */
-    #define ADD_STRING_CONSTRUCTOR(expection) \
-        expection(const char* format, ...) : AbstractException{} { \
-            char buffer[1000]; \
-            va_list ap; \
-            va_start(ap, format); \
-            vsnprintf(buffer, 1000, format, ap); \
-            va_end(ap); \
-            \
-            this->updateMessage(buffer); \
-        } \
-
-    /**
      * @brief super class of all the exceptions
      * 
      */
@@ -39,23 +23,17 @@ namespace cpp_utils::exceptions {
         std::string message;
         boost::stacktrace::stacktrace stacktrace;
     public:
-        ADD_STRING_CONSTRUCTOR(AbstractException)
-        AbstractException(const std::string& str): message{""}, stacktrace{boost::stacktrace::stacktrace()}{
-            std::stringstream ss;
-            ss << str << "\n" << this->stacktrace;
-            this->message = ss.str();
-        }
-        AbstractException(const char* format, va_list ap): message{}, stacktrace{boost::stacktrace::stacktrace()} {
-            char buffer[1000];
-            vsnprintf(buffer, 1000, format, ap);
-
-            this->updateMessage(buffer);
-        }
         AbstractException(): message{}, stacktrace{boost::stacktrace::stacktrace()} {
-            this->updateMessage("");
+        }
+        AbstractException(const std::string& str): message{str}, stacktrace{boost::stacktrace::stacktrace()} {
+        }
+        template <typename... OTHERS>
+        AbstractException(const OTHERS&... others) : message{swcout(others...)}, stacktrace{boost::stacktrace::stacktrace()} {
         }
         virtual const char* what() const throw() {
-            return this->getMessage().c_str();
+            std::stringstream ss;
+            ss << this->message << "\n" << this->stacktrace;
+            return ss.str().c_str();
         }
         const std::string& getMessage() const throw() {
             return this->message;
@@ -83,10 +61,12 @@ namespace cpp_utils::exceptions {
      */
     class ImpossibleException: public AbstractException {
     public:
-        ImpossibleException() : AbstractException{"the impossible has sadly happened!"} {
+        ImpossibleException() : AbstractException{"The impossible has sadly happened!"} {
 
         }
-        ADD_STRING_CONSTRUCTOR(ImpossibleException)
+        template <typename... OTHERS>
+        ImpossibleException(const OTHERS&... others) : AbstractException{others...} {
+        }
     };
 
     /**
@@ -115,8 +95,7 @@ namespace cpp_utils::exceptions {
     template <typename TYPE>
     class InvalidScenarioException: public AbstractException {
     public:
-        InvalidScenarioException(TYPE t) : AbstractException{}, t{t} {
-            this->updateMessage(cpp_utils::swcout("No matched scenario for value ", t, ", which type is ", typeid(t).name()));
+        InvalidScenarioException(const std::string& description, const TYPE& t) : AbstractException{"No matched scenario for", description, "for value ", t, ", which type is ", typeid(t).name()}, t{t} {
         }
     private:
         TYPE t;
@@ -133,6 +112,7 @@ namespace cpp_utils::exceptions {
      * @return InvalidScenarioException<TYPE> an exception
      */
     template <typename TYPE>
+    [[deprecated]]
     InvalidScenarioException<TYPE> makeInvalidScenarioException(TYPE t) {
         return InvalidScenarioException<TYPE>(t);
     }
@@ -157,8 +137,7 @@ namespace cpp_utils::exceptions {
          * @param t1 the in valid value of the first parameter
          * @param t2 the invalid value of the second parameter
          */
-        InvalidPairScenarioException(T1 t1, T2 t2) : AbstractException{}, t1{t1}, t2{t2} {
-            this->updateMessage(cpp_utils::sprintf("No matched scenario for value %s-%s", t1, t2));
+        InvalidPairScenarioException(const T1& t1, const T2& t2) : AbstractException{"No matched scenario for value", t1, "-", t2}, t1{t1}, t2{t2} {
         }
     };
 
@@ -171,8 +150,7 @@ namespace cpp_utils::exceptions {
     private:
         const SELF& self;
     public:
-        InvalidStateException(const SELF& self): AbstractException{}, self{self} {
-            this->updateMessage(cpp_utils::scout(self, "is in an invalid state"));
+        InvalidStateException(const SELF& self): AbstractException{self, "is in an invalid state"}, self{self} {
         }
     };
 
@@ -187,8 +165,7 @@ namespace cpp_utils::exceptions {
     template <typename T, typename U>
     class InvalidFormatException: public AbstractException {
     public:
-        InvalidFormatException(T container, U element): AbstractException{} {
-            this->updateMessage(cpp_utils::sprintf("in %s the element %s cause a format invalidation!", container, element));
+        InvalidFormatException(const T& container, const U& element): AbstractException{"within container \"", container, "\" the element \"", element, "\" cause a format invalidation!"} {
         }
     };
 
@@ -201,8 +178,7 @@ namespace cpp_utils::exceptions {
     template <typename ITEM, typename CONTAINER>
     class ElementNotFoundException: public AbstractException {
     public:
-        ElementNotFoundException(const ITEM& item, const CONTAINER& container) : AbstractException{} {
-            this->updateMessage(cpp_utils::scout("Item ", item, " not present in container ", container));
+        ElementNotFoundException(const ITEM& item, const CONTAINER& container) : AbstractException{"Item \"", item, "\" not present in container \"", container, "\""} {
         }
     };
 
@@ -212,59 +188,34 @@ namespace cpp_utils::exceptions {
      */
     class NotYetImplementedException: public AbstractException {
     public:
-        NotYetImplementedException(const char* c): AbstractException{"Feature %s still needs to be implemented", c} {
+        NotYetImplementedException(const std::string& c): AbstractException{"Feature", c, "still needs to be implemented"} {
 
-        }
-        NotYetImplementedException(const std::string& c): AbstractException{"Feature %s still needs to be implemented", c.c_str()} {
-            
-        }
-    };
-
-    class InvalidArgumentException: public AbstractException {
-    public:
-        InvalidArgumentException(): AbstractException{} {
-            this->updateMessage(cpp_utils::scout("Invalid argument exception"));
-        }
-        InvalidArgumentException(const char* format, ...) : AbstractException{} {
-            char buffer[1000];
-            va_list ap;
-            va_start(ap, format);
-            vsnprintf(buffer, 1000, format, ap);
-            va_end(ap);
-
-            this->updateMessage(std::string{buffer});
         }
     };
 
     /**
-     * @brief create an invalid arguments exception
+     * @brief exception to throw when a function cannot operate correctly with the the parameters given
      * 
-     * @code
-     * throw makeImpossibleException("the number", 3, "is invalid!");
-     * @endcode
-     * 
-     * @tparam OTHERS 
-     * @param types message to put in the exception
-     * @return ImpossibleException instance of the impossible exception
      */
-    template <typename ...OTHERS>
-    InvalidArgumentException makeInvalidArgumentException(const OTHERS&... types) {
-        return InvalidArgumentException{cpp_utils::swcout(types...).c_str()};
-    }
+    class InvalidArgumentException: public AbstractException {
+    public:
+        template <typename... OTHER>
+        InvalidArgumentException(const OTHER&... other): AbstractException{other...} {
+
+        } 
+    };
 
     class OperationFailedException: public AbstractException {
     public:
-        OperationFailedException(const char* operation): AbstractException{}, operation{operation} {
-            this->updateMessage(cpp_utils::sprintf("Operation %s failed", operation));
+        OperationFailedException(const std::string& operation): AbstractException{"Operation", operation, "failed"}, operation{operation} {
         }
     private:
-        const char* operation;	
+        std::string operation;	
     };
 
     class CommandFailedException : public AbstractException {
     public:
-        CommandFailedException(const std::string& command, int exitCode): AbstractException{}, command{command}, exitCode{exitCode} {
-            this->updateMessage(cpp_utils::scout("Command \"", command, "\" failed with exit status ", exitCode));
+        CommandFailedException(const std::string& command, int exitCode): AbstractException{"Command \"", command, "\" failed with exit status ", exitCode}, command{command}, exitCode{exitCode} {
         }
     private:
         std::string command;
@@ -277,12 +228,14 @@ namespace cpp_utils::exceptions {
      */
     class CommandNotFoundException : public AbstractException {
     public:
-        CommandNotFoundException(const std::string& command, const std::string& version, const std::string& howToInstall): AbstractException{}, command{command}, version{version}, howToInstall{howToInstall} {
-            this->updateMessage(cpp_utils::scout("Command \"", command, "\" is not installed on your system. I've installed it via ", howToInstall, " and in my setup the version was ", version));
+        CommandNotFoundException(const std::string& command, const std::string& version, const std::string& howToInstall): 
+            AbstractException{"Command \"", command, "\" is not installed on your system. I've installed it via ", howToInstall, " and in my setup the version was ", version}, 
+            command{command}, version{version}, howToInstall{howToInstall} {
         }
 
-        CommandNotFoundException(const std::string& command, const std::string& howToInstall): AbstractException{}, command{command}, version{""}, howToInstall{howToInstall} {
-            this->updateMessage(cpp_utils::scout("Command \"", command, "\" is not installed on your system. I've installed it via ", howToInstall));
+        CommandNotFoundException(const std::string& command, const std::string& howToInstall): 
+            AbstractException{"Command \"", command, "\" is not installed on your system. I've installed it via ", howToInstall}, 
+            command{command}, version{""}, howToInstall{howToInstall} {
         }
     private:
         std::string command;
@@ -294,17 +247,13 @@ namespace cpp_utils::exceptions {
     private:
         std::string filename;
     public:
-        FileOpeningException(const boost::filesystem::path& p): AbstractException{}, filename{p.native()} {
-            this->updateMessage(cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename));
+        FileOpeningException(const boost::filesystem::path& p): AbstractException{"Couldn't open file \"", filename, "\". Maybe it doesn't exist?"}, filename{p.native()} {
         }
-        FileOpeningException(const std::string& filename): AbstractException{}, filename{filename} {
-            this->updateMessage(cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename));
+        FileOpeningException(const std::string& filename): AbstractException{"Couldn't open file \"", filename, "\". Maybe it doesn't exist?"}, filename{filename} {
         }
-        FileOpeningException(const char* filename): AbstractException{}, filename{filename} {
-            this->updateMessage(cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename));
+        FileOpeningException(const char* filename): AbstractException{"Couldn't open file \"", filename, "\". Maybe it doesn't exist?"}, filename{filename} {
         }
-        FileOpeningException(FILE* f): AbstractException{}, filename{recoverFilename(f)} {
-            this->updateMessage(cpp_utils::sprintf("Couldn't open file \"%s\". Maybe it doesn't exist?", filename));
+        FileOpeningException(FILE* f): AbstractException{"Couldn't open file \"", recoverFilename(f), "\". Maybe it doesn't exist?"}, filename{recoverFilename(f)} {
         }
     };
 
@@ -320,12 +269,12 @@ namespace cpp_utils::exceptions {
     class NumericalOperationException: public AbstractException {
     public:
         template<typename T>
-        NumericalOperationException(const char* operation, T value): AbstractException{swcout("Aborting since performing the operation", operation, "will lead to a wrong numerical conversion of", value, "!")} {
+        NumericalOperationException(const char* operation, T value): AbstractException{"Aborting since performing the operation", operation, "will lead to a wrong numerical conversion of", value, "!"} {
 
         }
 
         template<typename T1, typename T2>
-        NumericalOperationException(const char* operation, T1 value1, T2 value2): AbstractException{swcout("Aborting since performing the operation", value1, operation, value2, "will surely lead to a wrong result!")} {
+        NumericalOperationException(const char* operation, T1 value1, T2 value2): AbstractException{"Aborting since performing the operation", value1, operation, value2, "will surely lead to a wrong result!"} {
 
         }
     };
@@ -336,14 +285,8 @@ namespace cpp_utils::exceptions {
      */
     class GenericException: public AbstractException {
     public:
-        GenericException(const char* format, ...) : AbstractException{} {
-            char buffer[1000];
-            va_list ap;
-            va_start(ap, format);
-            vsnprintf(buffer, 1000, format, ap);
-            va_end(ap);
-
-            this->message = std::string{buffer};
+        template <typename... OTHER>
+        GenericException(const OTHER&... other) : AbstractException{other...} {
         }
     };
 
@@ -355,8 +298,7 @@ namespace cpp_utils::exceptions {
     template <typename CONTAINER>
     class EmptyObjectException: public AbstractException {
     public:
-        EmptyObjectException(const CONTAINER& container) : AbstractException{}, container{container} {
-            this->updateMessage(cpp_utils::sprintf("Container %s is actually empty! Cannot fetch data from it!", container));
+        EmptyObjectException(const CONTAINER& container) : AbstractException{"Container", container, "is actually empty! Cannot fetch data from it!"}, container{container} {
         }
     private:
         const CONTAINER& container;
@@ -368,8 +310,7 @@ namespace cpp_utils::exceptions {
      */
     class AbstractMethodCalledException: public AbstractException {
     public:
-        AbstractMethodCalledException(const char* methodName) : AbstractException{}, methodName{methodName} {
-            this->updateMessage(cpp_utils::sprintf("Cannot execute method \"%s\". The developer says it is abstract!", methodName));
+        AbstractMethodCalledException(const char* methodName) : AbstractException{"Cannot execute method \"", methodName, "\". The developer says it is abstract!"}, methodName{methodName} {
         }
     private:
         const std::string methodName;

@@ -549,7 +549,7 @@ namespace cpp_utils {
 
         while (true) {
             if (limit == 0) {
-                throw cpp_utils::exceptions::makeInvalidArgumentException("cannot convert fraction", decimal, "into numerator and denominator", decimal, ". epsilon=", epsilon, "limit", limit);
+                throw cpp_utils::exceptions::InvalidArgumentException{"cannot convert fraction", decimal, "into numerator and denominator", decimal, ". epsilon=", epsilon, "limit", limit};
             }
             limit -= 1;
 

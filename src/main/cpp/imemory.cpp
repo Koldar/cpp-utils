@@ -119,7 +119,7 @@ std::ostream& operator <<(std::ostream& out, const MemoryConsumptionEnum& mce) {
             break;
         }
         default:
-        throw cpp_utils::exceptions::InvalidScenarioException<MemoryConsumptionEnum>{mce};
+        throw cpp_utils::exceptions::InvalidScenarioException{"memory consumption enum", mce};
     }
     return out;
 }
