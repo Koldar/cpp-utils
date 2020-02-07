@@ -5,6 +5,7 @@
 #include "igraph.hpp"
 #include "serializers.hpp"
 #include "iterator.hpp"
+#include "assertions.hpp"
 
 namespace cpp_utils::graphs {
 
@@ -233,9 +234,25 @@ namespace cpp_utils::graphs {
         AdjacentGraph(IImmutableGraph<G,V,E>&& other) : payload{other.getPayload()}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
             this->init(other);
         }
+        /**
+         * @brief Build an adjacent graph from a unique pointer. Then it deallocates it
+         * 
+         * @note
+         * this operation is slow
+         * 
+         * After this operation, the pointer managed by the smart pointer will not refer to anything anymore and the associated memory area will be freed
+         * 
+         * @param other the unique_pointer whose ownership we need to transfer
+         */
+        AdjacentGraph(std::unique_ptr<IImmutableGraph<G,V,E>>&& other): payload{other->getPayload()}, vertexPayload{}, edges{}, outEdgesOfvertexBegin{} {
+            auto* ptr = other.release();
+            this->init(*ptr);
+            delete ptr;
+        }
         AdjacentGraph(const AdjacentGraph<G, V,E>& other): payload{other.payload}, vertexPayload{other.vertexPayload}, edges{other.edges}, outEdgesOfvertexBegin{other.outEdgesOfvertexBegin} {
 
         }
+        
         AdjacentGraph(AdjacentGraph<G, V,E>&& other): payload{::std::move(other.payload)}, vertexPayload{::std::move(other.vertexPayload)}, edges{::std::move(other.edges)}, outEdgesOfvertexBegin{::std::move(other.outEdgesOfvertexBegin)} {
             
         }
@@ -419,14 +436,15 @@ namespace cpp_utils::graphs {
         virtual void changeWeightEdge(nodeid_t sourceId, nodeid_t sinkId, const E& newPayload) {
             for (auto i=this->outEdgesOfvertexBegin[sourceId]; i<this->outEdgesOfvertexBegin[sourceId+1]; ++i) {
                 if (this->edges[i].getSinkId() == sinkId) {
-                    this->edges[i].getPayload() = newPayload;
+                    this->edges[i].setPayload(newPayload);
                     return;
                 }
             }
             throw cpp_utils::exceptions::ElementNotFoundException<nodeid_t, AdjacentGraph<G,V,E>>{sinkId, *this};
         }
         virtual void changeWeightOutEdge(nodeid_t sourceId, moveid_t index, const E& newPayload) {
-            this->edges[this->outEdgesOfvertexBegin[sourceId] + index].getPayload() = newPayload;
+            assertInRange(0, index, this->getOutDegree(sourceId), true, false);
+            this->edges[this->outEdgesOfvertexBegin[sourceId] + index].setPayload(newPayload);
         }
     public:
         virtual MemoryConsumption getByteMemoryOccupied() const {

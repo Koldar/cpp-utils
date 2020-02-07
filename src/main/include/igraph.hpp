@@ -110,6 +110,23 @@ namespace cpp_utils::graphs {
      */
     template<typename E>
     class Edge {
+    private:
+        /**
+         * @brief label associated to the edge
+         * 
+         */
+        E payload;
+        /**
+         * @brief id of the source of the edge
+         * 
+         */
+        nodeid_t sourceId;
+        /**
+         * @brief id of the sink of the edge
+         * 
+         */
+        nodeid_t sinkId;
+    public:
         friend bool operator == <E>(const Edge<E>& a, const Edge<E>& b);
         friend std::ostream& operator << (std::ostream& ss, const Edge<E>& e) {
             ss << "(" << e.getSourceId() << "-> " << e.getSinkId() << ": " << e.getPayload() << ")";
@@ -171,10 +188,6 @@ namespace cpp_utils::graphs {
         bool hasSink(nodeid_t sinkId) const {
             return this->sinkId == sinkId;
         }
-    private:
-        E payload;
-        nodeid_t sourceId;
-        nodeid_t sinkId;
     };
 
     template <typename E>
@@ -258,12 +271,35 @@ namespace cpp_utils::graphs {
             return ss;
         }
     public:
+        /**
+         * @brief Get a mutable reference of the label of the edge
+         * 
+         * @return E& the label
+         */
         E& getPayload() {
             return this->payload;
         }
+        /**
+         * @brief Get a unmutable reference of the label of the edge
+         * 
+         * @return const E& the label
+         */
         const E& getPayload() const {
             return this->payload;
         }
+        /**
+         * @brief Set the edge label
+         * 
+         * @param p the new label to set
+         */
+        void setPayload(const E& p) {
+            this->payload = p;
+        }
+        /**
+         * @brief get the id of the sink vertex fo this edge
+         * 
+         * @return nodeid_t 
+         */
         nodeid_t getSinkId() const {
             return this->sinkId;
         }

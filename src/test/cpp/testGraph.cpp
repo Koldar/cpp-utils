@@ -279,7 +279,17 @@ SCENARIO("test adjacent graph") {
             REQUIRE(lg.getMaxOutDegree() == 2);
             REQUIRE(lg.getMaxInDegree() == 1);
         }
+
+        WHEN("constructing a graph from a unique_ptr") {
+
+            //tranfer ownership of an r-value
+            AdjacentGraph<int, int, bool> y{std::unique_ptr<IImmutableGraph<int, int, bool>>{new AdjacentGraph<int, int ,bool>{ag}}};
+
+            REQUIRE(y == ag);
+        }
     }
+
+
 }
 
 SCENARIO("test graphs") {
