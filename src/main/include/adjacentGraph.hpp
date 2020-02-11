@@ -429,6 +429,10 @@ namespace cpp_utils::graphs {
             }
             return false;
         }
+    protected:
+        virtual nodeid_t getLastVertexId() const {
+            return this->vertexPayload.size() - 1;
+        }
     public:
         virtual void changeVertexPayload(nodeid_t vertexId, const V& payload) {
             this->vertexPayload[vertexId] = payload;
