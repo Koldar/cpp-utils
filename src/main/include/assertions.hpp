@@ -50,6 +50,7 @@
  * @note
  * the condition should not have side effects
  * 
+ * @param an expression that, if satisfied, will lead to an error
  */
 #define assertDoNotHappen(condition) \
     if ((condition)) { \
@@ -101,6 +102,14 @@
 #else
 #define assertionFailed(...) ;
 #define assertHappens(condition) ;
+/**
+ * @brief ensure a condition does not happen in runtime
+ * 
+ * @note
+ * the condition should not have side effects
+ * 
+ * @param an expression that, if satisfied, will lead to an error
+ */
 #define assertDoNotHappen(condition) ;
 
 #define assertEqual(x, y) ;
