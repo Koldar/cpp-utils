@@ -882,15 +882,15 @@ namespace cpp_utils::graphs {
             f.open("/tmp/getPPM.dot", std::ofstream::out | std::ofstream::trunc);
 
             f << "digraph {\n";
-            info("iterate over vertices...");
+            finer("iterate over vertices...");
             for (auto it=this->beginVertices(); it!=this->endVertices(); ++it) {
-                info("drawing vertex", it->first);
+                finest("drawing vertex", it->first);
                 f << "N" << it->first << " [label=\"id:" << it->first << "\\n" << it->second << "\"];\n";
             }
 
-            info("iterate over edges...");
+            finer("iterate over edges...");
             for (auto it=this->beginEdges(); it!=this->endEdges(); ++it) {
-                info("drawing edge", it->getSourceId(), "->", it->getSinkId());
+                finest("drawing edge", it->getSourceId(), "->", it->getSinkId());
                 f << "N" << it->getSourceId() << " -> N" << it->getSinkId() << " [label=\"" << it->getPayload() << "\"];\n";
             }
             f << "}\n";

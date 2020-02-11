@@ -371,6 +371,7 @@ namespace cpp_utils::graphs {
             return false;
         }
         virtual OutEdge<E> getOutEdge(nodeid_t id, moveid_t index) const {
+            debug("checking the outedge of", id, " for move", index, "(outdegree is", this->getOutDegree(id), ")");
             return this->edges[this->outEdgesOfvertexBegin[id] + index];
         }
         virtual bool hasEdge(nodeid_t sourceId, nodeid_t sinkId) const {
