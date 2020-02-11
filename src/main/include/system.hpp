@@ -118,6 +118,7 @@ namespace cpp_utils {
      */
     boost::filesystem::path getLinkTargetName(const boost::filesystem::path& link);
 
+    [[deprecated]]
     int callExternalProgram(const char* format, ...);
 
     /**
@@ -234,7 +235,12 @@ namespace cpp_utils {
             throw cpp_utils::exceptions::CommandNotFoundException{programNameToCheck, versionYouHave, ""};
         }
 
-        return callExternalProgram("%s", cmd.c_str());
+        int exitCode = system(cmd.c_str());
+		if (exitCode != 0) {
+			throw exceptions::CommandFailedException{cmd, exitCode};
+		}
+
+        return exitCode;
     }
 
     template <typename ...OTHER>
@@ -245,6 +251,42 @@ namespace cpp_utils {
         }
 
         return callExternalProgramAndFetchOutput(cmd);
+    }
+
+    /**
+     * @brief call convert program by first checking if the program is installed
+     * 
+     * @tparam OTHER the command involving convert to run
+     * @param other the command involving convert to run
+     * @return int exit status of the command
+     */
+    template <typename ...OTHER>
+    int callConvert(const OTHER&... other) {
+        return callExternalProgramSafe("convert", "6.9.10-23", other...);
+    }
+
+    /**
+     * @brief call rm program by first checking if the program is installed
+     * 
+     * @tparam OTHER the command involving rm
+     * @param other the command involving rm
+     * @return int exist status of the command
+     */
+    template <typename ...OTHER>
+    int callRm(const OTHER&... other) {
+        return callExternalProgramSafe("rm", "8.30", other...);
+    }
+
+    /**
+     * @brief call dot program by first checking if the program is installed
+     * 
+     * @tparam OTHER the command involving dot
+     * @param other the command involving dot
+     * @return int exist status of the command
+     */
+    template <typename ...OTHER>
+    int callDot(const OTHER&... other) {
+        return callExternalProgramSafe("dot", "2.40.1", other...);
     }
 
     template <typename ...OTHER>
