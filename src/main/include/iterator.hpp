@@ -1,5 +1,5 @@
-#ifndef _ITERATOR_HEADER__
-#define _ITERATOR_HEADER__
+#ifndef _CPPUTILS_ITERATOR_HEADER__
+#define _CPPUTILS_ITERATOR_HEADER__
 
 #include <functional>
 #include <memory>
