@@ -75,7 +75,12 @@ namespace cpp_utils {
 		void mergePixel(size_t x, size_t y, const color_t& color);
 		void merge(const PPMImage& other);
 		PPMImage& mean(const PPMImage& other);
-		void savePPM(const std::string& filename) const;
+		/**
+		 * @brief save the image on the file system
+		 * 
+		 * @param filename path of the image
+		 */
+		void savePPM(const boost::filesystem::path& filename) const;
 		size_t totalPixels() const {
 			return this->width * this->height;
 		}

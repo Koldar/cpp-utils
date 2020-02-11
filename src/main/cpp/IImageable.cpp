@@ -21,7 +21,7 @@ namespace cpp_utils {
         return ss;
     }
 
-void IImageable::_saveImage(ImageExtension extension, const char* filename) const {
+void IImageable::_saveImage(ImageExtension extension, const boost::filesystem::path& filename) const {
     PPMImage* ppm = this->getPPM();
     const char* ext;
     switch (extension) {
@@ -36,121 +36,12 @@ void IImageable::_saveImage(ImageExtension extension, const char* filename) cons
     }
 
     ppm->savePPM(filename);
-    callExternalProgram("convert \"%s.ppm\" \"%s.%s\"", filename, filename, ext);
-    callExternalProgram("rm -f \"%s.ppm\"", filename);
+    callConvert("convert \"", filename.native(), ".ppm\" \"", filename.native(), ".", ext, "\"");
+    callRm("rm -f \"", filename.native(), ".ppm\"");
     if (ppm != this) {
         //happens when this is already a ppm (e.g., PPMImage)
         delete ppm;
     }
-}
-
-void IImageable::saveSVG(const std::string& filename, ...) const {
-    va_list ap;
-    va_start(ap, filename);
-    this->vsaveImage(ImageExtension::SVG, filename.c_str(), ap);
-    va_end(ap);
-}
-void IImageable::saveSVG(const char* filename, ...) const {
-    va_list ap;
-    va_start(ap, filename);
-    this->vsaveImage(ImageExtension::SVG, filename, ap);
-    va_end(ap);
-}
-void IImageable::saveSVG(const boost::filesystem::path& p) const {
-    auto ext = cpp_utils::toLowercase(cpp_utils::filesystem::extension(p).native());
-    auto tmp = ext != "svg" ? p : cpp_utils::filesystem::withoutExtension(p);
-    this->_saveImage(ImageExtension::PNG, tmp.native().c_str());
-}
-
-void IImageable::savePNG(const std::string& filename, ...) const {
-    va_list ap;
-    va_start(ap, filename);
-    this->vsaveImage(ImageExtension::PNG, filename.c_str(), ap);
-    va_end(ap);
-}
-void IImageable::savePNG(const char* filename, ...) const {
-    va_list ap;
-    va_start(ap, filename);
-    this->vsaveImage(ImageExtension::PNG, filename, ap);
-    va_end(ap);
-}
-void IImageable::savePNG(const boost::filesystem::path& p) const {
-    auto ext = cpp_utils::toLowercase(cpp_utils::filesystem::extension(p).native());
-    auto tmp = ext != "png" ? p : cpp_utils::filesystem::withoutExtension(p);
-    this->_saveImage(ImageExtension::PNG, tmp.native().c_str());
-}
-
-
-void IImageable::saveJPEG(const std::string& filename, ...) const {
-    va_list ap;
-    va_start(ap, filename);
-    this->vsaveImage(ImageExtension::JPEG, filename.c_str(), ap);
-    va_end(ap);
-}
-void IImageable::saveJPEG(const char* filename, ...) const {
-    va_list ap;
-    va_start(ap, filename);
-    this->vsaveImage(ImageExtension::JPEG, filename, ap);
-    va_end(ap);
-}
-void IImageable::saveJPEG(const boost::filesystem::path& p) const {
-    auto ext = cpp_utils::toLowercase(cpp_utils::filesystem::extension(p).native());
-    auto tmp = ext != "jpeg" ? p : cpp_utils::filesystem::withoutExtension(p);
-    this->_saveImage(ImageExtension::JPEG, tmp.native().c_str());
-}
-
-void IImageable::saveBMP(const std::string& filename, ...) const {
-    va_list ap;
-    va_start(ap, filename);
-    this->vsaveImage(ImageExtension::BMP, filename.c_str(), ap);
-    va_end(ap);
-}
-void IImageable::saveBMP(const char* filename, ...) const {
-    va_list ap;
-    va_start(ap, filename);
-    this->vsaveImage(ImageExtension::BMP, filename, ap);
-    va_end(ap);
-}
-void IImageable::saveBMP(const boost::filesystem::path& p) const {
-    auto ext = cpp_utils::toLowercase(cpp_utils::filesystem::extension(p).native());
-    auto tmp = ext != "bmp" ? p : cpp_utils::filesystem::withoutExtension(p);
-    this->_saveImage(ImageExtension::BMP, tmp.native().c_str());
-}
-
-void IImageable::saveFIG(const std::string& filename, ...) const {
-    va_list ap;
-    va_start(ap, filename);
-    this->vsaveImage(ImageExtension::FIG, filename.c_str(), ap);
-    va_end(ap);
-}
-void IImageable::saveFIG(const char* filename, ...) const {
-    va_list ap;
-    va_start(ap, filename);
-    this->vsaveImage(ImageExtension::FIG, filename, ap);
-    va_end(ap);
-}
-void IImageable::saveFIG(const boost::filesystem::path& p) const {
-    auto ext = cpp_utils::toLowercase(cpp_utils::filesystem::extension(p).native());
-    auto tmp = ext != "fig" ? p : cpp_utils::filesystem::withoutExtension(p);
-    this->_saveImage(ImageExtension::FIG, tmp.native().c_str());
-}
-
-void IImageable::vsaveImage(ImageExtension extension, const char* filename, va_list ap) const {
-    char buffer[1000];
-    vsnprintf(buffer, 1000, filename, ap);
-    info("vsaveImage buffer is\"", buffer, "\"");
-
-    this->_saveImage(extension, buffer);
-}
-void IImageable::saveImage(ImageExtension extension, const char* filename, ...) const {
-    char buffer[1000];
-    va_list ap;
-    va_start(ap, filename);
-    vsnprintf(buffer, 1000, filename, ap);
-    va_end(ap);
-    info("saveImage buffer is\"", buffer, "\"");
-
-    this->_saveImage(extension, buffer);
 }
 
 }

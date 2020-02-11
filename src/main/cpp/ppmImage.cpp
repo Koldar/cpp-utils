@@ -200,9 +200,9 @@ PPMImage* PPMImage::getPPM() const {
 	return const_cast<PPMImage*>(this);
 }
 
-void PPMImage::savePPM(const std::string& filename) const {
+void PPMImage::savePPM(const boost::filesystem::path& filename) const {
 	//create ppm
-	this->generatePPM(filename);
+	this->generatePPM(filename.native());
 }
 
 size_t PPMImage::getWidth() const {

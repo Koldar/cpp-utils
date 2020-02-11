@@ -44,70 +44,77 @@ namespace cpp_utils {
          */
         virtual PPMImage* getPPM() const = 0;
     protected:
-        void _saveImage(ImageExtension extension, const char* filename) const;
+        void _saveImage(ImageExtension extension, const boost::filesystem::path& filename) const;
     public:
-        void saveSVG(const std::string& filename, ...) const;
-        void saveSVG(const char* filename, ...) const;
         /**
          * @brief save a SVG file
          * 
          * @post
          * @li svg present in the file system
          * 
-         * @param p the path where to save it. If the path has extension SVG, we will not duplicate such extension
+         * @param others a sequence of elements that are concatenated together in order to form the path where to save the image
          */
-        void saveSVG(const boost::filesystem::path& p) const;
+        template< typename... OTHER>
+        void saveSVG(const OTHER&... others) const {
+            boost::filesystem::path p{scout(others...)};
+            this->_saveImage(ImageExtension::SVG, p);
+        }
 
-        void savePNG(const std::string& filename, ...) const;
-        void savePNG(const char* filename, ...) const;
         /**
-         * @brief save a SVG file
+         * @brief save a PNG file
          * 
          * @post
          * @li svg present in the file system
          * 
-         * @param p the path where to save it. If the path has extension SVG, we will not duplicate such extension
+         * @param others a sequence of elements that are concatenated together in order to form the path where to save the image
          */
-        void savePNG(const boost::filesystem::path& p) const;
+        template< typename... OTHER>
+        void savePNG(const OTHER&... others) const {
+            boost::filesystem::path p{scout(others...)};
+            this->_saveImage(ImageExtension::PNG, p);
+        }
 
-        void saveJPEG(const std::string& filename, ...) const;
-        void saveJPEG(const char* filename, ...) const;
         /**
-         * @brief save a SVG file
+         * @brief save a JPEG file
          * 
          * @post
          * @li svg present in the file system
          * 
-         * @param p the path where to save it. If the path has extension SVG, we will not duplicate such extension
+         * @param others a sequence of elements that are concatenated together in order to form the path where to save the image
          */
-        void saveJPEG(const boost::filesystem::path& p) const;
+        template< typename... OTHER>
+        void saveJPEG(const OTHER&... others) const {
+            boost::filesystem::path p{scout(others...)};
+            this->_saveImage(ImageExtension::JPEG, p);
+        }
 
-        void saveBMP(const std::string& filename, ...) const;
-        void saveBMP(const char* filename, ...) const;
         /**
-         * @brief save a SVG file
+         * @brief save a BMP file
          * 
          * @post
          * @li svg present in the file system
          * 
-         * @param p the path where to save it. If the path has extension SVG, we will not duplicate such extension
+         * @param others a sequence of elements that are concatenated together in order to form the path where to save the image
          */
-        void saveBMP(const boost::filesystem::path& p) const;
+        template< typename... OTHER>
+        void saveBMP(const OTHER&... others) const {
+            boost::filesystem::path p{scout(others...)};
+            this->_saveImage(ImageExtension::BMP, p);
+        }
 
-        void saveFIG(const std::string& filename, ...) const;
-        void saveFIG(const char* filename, ...) const;
         /**
-         * @brief save a SVG file
+         * @brief save a FIG file
          * 
          * @post
          * @li svg present in the file system
          * 
-         * @param p the path where to save it. If the path has extension SVG, we will not duplicate such extension
+         * @param others a sequence of elements that are concatenated together in order to form the path where to save the image
          */
-        void saveFIG(const boost::filesystem::path& p) const;
-    public:
-        void vsaveImage(ImageExtension extension, const char* filename, va_list ap) const;
-        void saveImage(ImageExtension extension, const char* filename, ...) const;
+        template< typename... OTHER>
+        void saveFIG(const OTHER&... others) const {
+            boost::filesystem::path p{scout(others...)};
+            this->_saveImage(ImageExtension::FIG, p);
+        }
     };
 
 }
