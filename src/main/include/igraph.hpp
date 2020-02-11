@@ -311,11 +311,13 @@ namespace cpp_utils::graphs {
     template <typename G, typename V, typename E>
     class IImmutableGraph: public IMemorable, public IImageable {
     public:
-        friend std::ostream& operator << (std::ostream& ss, const IImmutableGraph<G,V,E>& g) {
+        using This = IImmutableGraph<G,V,E>;
+    public:
+        friend std::ostream& operator << (std::ostream& ss, const This& g) {
             ss << g.getPayload();
             return ss;
         }
-        friend bool operator ==(const IImmutableGraph<G,V,E>& a, const IImmutableGraph<G,V,E>& b) {
+        friend bool operator ==(const This& a, const This& b) {
             if (&a == &b) {
                 return true;
             }
@@ -376,10 +378,10 @@ namespace cpp_utils::graphs {
          * @return size_t the number of edges in the graph
          */
         virtual std::size_t numberOfEdges() const = 0;
-        virtual IImmutableGraph<G,V,E>::const_vertex_iterator beginVertices() const = 0;
-        virtual IImmutableGraph<G,V,E>::const_vertex_iterator endVertices() const = 0;
-        virtual IImmutableGraph<G,V,E>::const_edge_iterator beginEdges() const = 0;
-        virtual IImmutableGraph<G,V,E>::const_edge_iterator endEdges() const = 0;
+        virtual This::const_vertex_iterator beginVertices() const = 0;
+        virtual This::const_vertex_iterator endVertices() const = 0;
+        virtual This::const_edge_iterator beginEdges() const = 0;
+        virtual This::const_edge_iterator endEdges() const = 0;
         /**
          * @brief the maximum number of edges you can have in this graph
          * 
@@ -841,7 +843,7 @@ namespace cpp_utils::graphs {
          * @param fromNewToOld a vector where each index is the id of a vertex in the new coordinate system while the associated cell represents the id of the same vertex in the old coordinate system
          * @return a new graph where each vertex has been ordered as specified by the parameters
          */
-        virtual std::unique_ptr<IImmutableGraph<G, V, E>> reorderVertices(const std::vector<nodeid_t>& fromOldToNew, const std::vector<nodeid_t>& fromNewToOld) const {
+        virtual std::unique_ptr<This> reorderVertices(const std::vector<nodeid_t>& fromOldToNew, const std::vector<nodeid_t>& fromNewToOld) const {
             AdjacentGraph<G,V,E>* result = new AdjacentGraph<G,V,E>{this->getPayload()};
 
             //vertices
