@@ -71,6 +71,70 @@ namespace cpp_utils {
 
     template <typename IN1, typename IN2, typename IN3>
     using triconsumer_t = std::function<void(const IN1& in, const IN2& in2, const IN3& in3)>;
+
+
+    // lambda mapper as structs
+
+    template <typename IN, typename OUT>
+    struct template_function_t {
+        static OUT apply(const IN& in) {
+            return OUT{};
+        };
+    };
+
+    template <typename IN1, typename IN2, typename OUT>
+    struct template_bifunction_t {
+        static OUT apply(const IN1& in1, const IN2& in2) {
+            return OUT{};
+        }
+    };
+
+    template <typename IN1, typename IN2, typename IN3, typename OUT>
+    struct template_trifunction_t {
+        static OUT apply(const IN1& in1, const IN2& in2, const IN3& in3) {
+            return OUT{};
+        }
+    };
+
+    template <typename IN>
+    struct template_autofunction_t {
+        static IN apply(const IN& in) {
+            return IN{};
+        };
+    };
+
+    template <typename IN>
+    using template_predicate_t = template_function_t<IN, bool>;
+
+    template <typename IN1, typename IN2>
+    using template_bipredicate_t = template_bifunction_t<IN1, IN2, bool>;
+
+    template <typename IN1, typename IN2, typename IN3>
+    using template_tripredicate_t = template_trifunction_t<IN1, IN2, IN3, bool>;
+
+    template <typename IN>
+    struct template_runnable_t {
+        static void apply() {
+        };
+    };
+
+    template <typename IN>
+    struct template_consumer_t {
+        static void apply(const IN& in) {
+        };
+    };
+
+    template <typename IN1, typename IN2>
+    struct template_biconsumer_t {
+        static void apply(const IN1& in1, const IN2& in2) {
+        };
+    };
+
+    template <typename IN1, typename IN2, typename IN3>
+    struct template_triconsumer_t {
+        static void apply(const IN1& in1, const IN2& in2, const IN3& in3) {
+        };
+    };
 }
 
 #endif 
