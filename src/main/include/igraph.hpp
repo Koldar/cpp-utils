@@ -521,6 +521,16 @@ namespace cpp_utils::graphs {
          * @return false 
          */
         virtual bool isEmpty() const = 0;
+    protected:
+        /**
+         * @brief Retrieve the id of the last vertex of the graph.
+         * 
+         * what is the last vertex of the graph is completely implementation dependent.
+         * Do not  rely on it
+         * 
+         * @return nodeid_t 
+         */
+        virtual nodeid_t getLastVertexId() const = 0;
     public:
         /**
          * @brief get the maximum out degree a node has
