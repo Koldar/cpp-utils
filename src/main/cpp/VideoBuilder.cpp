@@ -72,6 +72,7 @@ namespace cpp_utils {
         }
         //see https://trac.ffmpeg.org/wiki/ChangingFrameRate
         critical("duration is", this->duration);
+        critical("the video will be based on", this->imageNames.size(), "images!");
         auto demuxerPath = this->generateConcatDemuxer(cpp_utils::filesystem::basename(path).native(), this->duration);
 
         boost::filesystem::path tmpMp4{scout("/tmp/", cpp_utils::filesystem::basename(path).native(), ".mp4")};
