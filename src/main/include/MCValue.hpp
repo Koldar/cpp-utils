@@ -50,7 +50,7 @@ namespace cpp_utils {
         }
         This& operator=(const This& o) {
             if (this->val > o.val) {
-                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! This assignment will make it decrease"};
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! The copy assignment with ", o, "will make it decrease"};
             }
             if (this->val != o.val) {
                 this->fireEvent([&](Listener& l) { l.onNumberIncreased(this->val, o.val); });
@@ -60,7 +60,7 @@ namespace cpp_utils {
         }
         This& operator=(This&& o) {
             if (this->val > o.val) {
-                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! This assignment will make it decrease"};
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! This move assignment with ", o, "will make it decrease"};
             }
             if (this->val != o.val) {
                 this->fireEvent([&](Listener& l) { l.onNumberIncreased(this->val, o.val); });
@@ -75,7 +75,7 @@ namespace cpp_utils {
     public:
         This& add(const This& b) {
             if (b.val < 0) {
-                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! This sum will make it ddcrease!"};
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! This sum with ", b, "will make it ddcrease!"};
             }
             if (b.val != 0) {
                 this->fireEvent([&](Listener& l) { l.onNumberIncreased(this->val, this->val + b.val); });
@@ -85,7 +85,7 @@ namespace cpp_utils {
         }
         This& subtract(const This& b) {
             if (b.val > 0) {
-                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! This subtraction will make it ddcrease!"};
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! This subtraction with ", b, " will make it ddcrease!"};
             }
             if (b.val != 0) {
                 this->fireEvent([&](Listener& l) { l.onNumberIncreased(this->val, this->val - b.val); });
@@ -96,7 +96,7 @@ namespace cpp_utils {
         This& multiply(const This& b) {
             //(a*b)<a => ab -a < 0 => a(b-1)<0
             if (this->val * (b.val - 1) < 0) {
-                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! This multiplication will make it ddcrease!"};
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! This multiplication with ", b, "will make it ddcrease!"};
             }
             if (b.val != 1) {
                 this->fireEvent([&](Listener& l) { l.onNumberIncreased(this->val, this->val * b.val); });
@@ -107,7 +107,7 @@ namespace cpp_utils {
         This& divide(const This& b) {
             //(a/b)<a => a<ab => ab-a>0 => a(b-1)>0
             if (this->val * (b.val - 1) > 0) {
-                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! This division will make it ddcrease!"};
+                throw cpp_utils::exceptions::InvalidArgumentException{*this, "is monotonically crescent! This division with ", b, "will make it ddcrease!"};
             }
             if (b.val != 1) {
                 this->fireEvent([&](Listener& l) { l.onNumberIncreased(this->val, this->val / b.val); });
