@@ -27,7 +27,10 @@ template <typename K, typename V,
 >
 class MapPlus: public std::unordered_map<K, V, HASH, PRED, ALLOC>, public ICleanable {
 public:
-    friend std::ostream& operator <<(std::ostream& out, const MapPlus<K, V, HASH, PRED, ALLOC>& a) {
+    using This = MapPlus<K, V, HASH, PRED, ALLOC>;
+    using Super = std::unordered_map<K, V, HASH, PRED, ALLOC>;
+public:
+    friend std::ostream& operator <<(std::ostream& out, const This& a) {
         out << "{";
         for (auto it=a.cbegin(); it!=a.cend(); ++it) {
             out << it->first << ": " << it->second << ", ";
@@ -36,14 +39,32 @@ public:
         return out;
     }
 public:
-    MapPlus(): std::unordered_map<K, V, HASH, PRED, ALLOC>{} {
+    MapPlus(): Super{} {
 
     }
     virtual ~MapPlus() {
 
     }
-    MapPlus(const MapPlus<K, V, HASH, PRED, ALLOC>& other): std::unordered_map<K, V, HASH, PRED, ALLOC>{other} {
+    MapPlus(const This& other): Super{other} {
 
+    }
+    MapPlus(This&& other): Super{std::move(other)} {
+
+    }
+    This& operator =(const This& o) {
+        Super::operator =(o);
+        return *this;
+    }
+    This& operator =(This&& o) {
+        Super::operator =(std::move(o));
+        return *this;
+    }
+public:
+    V& operator [](const K& k) {
+        return Super::operator [](k);
+    }
+    const V& operator [](const K& k) const {
+        return Super::at(k);
     }
 public:
     /**
@@ -98,6 +119,17 @@ public:
             }
         }
         throw cpp_utils::exceptions::ElementNotFoundException<V, MapPlus<K, V, HASH, PRED, ALLOC>>{v, *this};
+    }
+
+    /**
+     * @brief remove the key-mapping present in the map
+     * 
+     * The function does nothing if the key was not present in the map
+     * 
+     * @param k the key to remove
+     */
+    void removeKey(const K& k) {
+        (*this).erase(k);   
     }
 public:
     virtual void cleanup() {
