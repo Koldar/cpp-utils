@@ -10,7 +10,6 @@
 #include "ICleanable.hpp"
 #include "imemory.hpp"
 #include "Random.hpp"
-#include "IList.hpp"
 
 namespace cpp_utils {
 
@@ -27,11 +26,10 @@ std::ostream& operator << (std::ostream& out, const vectorplus<EL>& vec);
  * @tparam EL 
  */
 template<typename EL>
-class vectorplus : public std::vector<EL>, public IList<EL>,  ICleanable, IMemorable {
+class vectorplus : public std::vector<EL>, ICleanable, IMemorable {
 public:
     using This = vectorplus<EL>;
     using Super1 = std::vector<EL>;
-    using Super2 = IList<EL>;
     using Super1::size;
     using Super1::begin;
     using Super1::end;
@@ -182,6 +180,9 @@ public:
         return result;
     }
 public:
+    bool isEmpty() const {
+        return Super1::empty();
+    }
     /**
      * @brief an element in the vector. use negative indices for going backwards in the vector
      * 
