@@ -67,7 +67,7 @@ namespace cpp_utils {
    
     VideoBuilder& VideoBuilder::buildVideo(const boost::filesystem::path& path) const {
         if (this->imageNames.isEmpty()) {
-            warning("no images to build ", path, "! Ignoring");
+            critical("no images to build ", path, "! Ignoring");
             return const_cast<VideoBuilder&>(*this);
         }
         //see https://trac.ffmpeg.org/wiki/ChangingFrameRate
