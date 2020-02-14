@@ -111,6 +111,9 @@ namespace cpp_utils::datastructures {
             assertHappens(this->present);
             return this->value;
         }
+        explicit operator T() const {
+            return this->value;
+        }
     public:
         /**
          * @brief make the element in the structure be invalid
