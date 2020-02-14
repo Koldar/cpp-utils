@@ -237,6 +237,51 @@ namespace cpp_utils {
     }
 
     /**
+     * @brief Generate a bounded sigmoid
+     * 
+     * Use this function when you need to generate a monotonically crescent number
+     * 
+     * @image html images/sigmoid.png ""
+     * 
+     * @tparam NUM0 type of x castable to double
+     * @tparam NUM1 type of xMin castable to double
+     * @tparam NUM2 type of xMax castable to double
+     * @tparam NUM3 type of yMin castable to double
+     * @tparam NUM4 type of yMax castable to double
+     * @tparam NUM5 type of steepness castable to double
+     * @tparam NUM6 type of steepnessLocation castable to double
+     * @param xMin the minimum value x can have
+     * @param xMax the maximum value x can have
+     * @param yMin the minimum value the output of the function can have (obtainable when `x = xMin`)
+     * @param yMax the maximum value the output of the function can have (obtainable when `x = xMax`)
+     * @param steepness how quickly the function increases in value. strictly greater than 0. number greater than 1 means that the sigmoid change is steep. number in (0,1) means that the sigmoid change si smooth. parameter set t 1 means no alterations to the sigmoid.
+     * @param steepnessLocation a number between 0 and 1. 0 means the sigmoid y-value change happens near `xMin', 1 means the sigmoi y-value change happens near `xMax`; 0.5 it happens in the middle
+     * @return constexpr double output of the sigmoid
+     */
+    template <typename NUM0, typename NUM1, typename NUM2, typename NUM3, typename NUM4, typename NUM5, typename NUM6>
+    constexpr double getSigmoid(const NUM0& x, const NUM1& xMin, const NUM2& xMax, const NUM3& yMin, const NUM4& yMax, const NUM5& steepness, const NUM6& steepnessLocation) {
+        return getSigmoid<double, double, double, double, double, double, double>(x, xMin, xMax, yMin, yMax, steepness, steepnessLocation);
+    }
+
+    template <>
+    constexpr double getSigmoid(const double& x, const double& xMin, const double& xMax, const double& yMin, const double& yMax, const double& steepness, const double& steepnessLocation) {
+        double deltax = xMin + steepnessLocation * (xMax - xMin);
+        double actualx = (x - deltax)/steepness;
+        return yMin + (yMax - yMin) * ((exp(actualx))/(exp(actualx) + 1));
+    }
+
+    template <typename NUM0, typename NUM1, typename NUM2, typename NUM3, typename NUM4, typename NUM5, typename NUM6>
+    constexpr double getInverseSigmoid(const NUM0& x, const NUM1& xMin, const NUM2& xMax, const NUM3& yMin, const NUM4& yMax, const NUM5& steepness, const NUM6& steepnessLocation) {
+        return getInverseSigmoid<double, double, double, double, double, double, double>(x, xMin, xMax, yMin, yMax, steepness, steepnessLocation);
+    }
+
+    template <>
+    constexpr double getInverseSigmoid(const double& x, const double& xMin, const double& xMax, const double& yMin, const double& yMax, const double& steepness, const double& steepnessLocation) {
+        double actualX = xMin + (xMax - x);
+        return getSigmoid<double, double, double, double, double, double, double>(actualX, xMin, xMax, yMin, yMax, steepness, 1. - steepnessLocation);
+    }
+
+    /**
      * @brief get a function tha monotonically crescent. Starts from 0 up till 1
      * 
      * The function will yield values monotonically crescent in a "smooth way"
