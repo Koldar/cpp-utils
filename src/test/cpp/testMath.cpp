@@ -203,6 +203,81 @@ SCENARIO("test math") {
     }
 }
 
+SCENARIO("test sigmoid") {
+
+    GIVEN("steepness location is in the middle") {
+        auto_critical(getSigmoid(3, 3, 7, 1, 5, 0.5, 0.5));
+        REQUIRE(isApproximatelyEqual(getSigmoid(3, 3, 7, 1, 5, 0.5, 0.5), 1.071, 1e-3));
+        
+        auto_critical(getSigmoid(4, 3, 7, 1, 5, 0.5, 0.5));
+        REQUIRE(isApproximatelyEqual(getSigmoid(4, 3, 7, 1, 5, 0.5, 0.5), 1.476, 1e-3));
+        
+        auto_critical(getSigmoid(5, 3, 7, 1, 5, 0.5, 0.5));
+        REQUIRE(isApproximatelyEqual(getSigmoid(5, 3, 7, 1, 5, 0.5, 0.5), 3.0, 1e-3));
+        
+        auto_critical(getSigmoid(6, 3, 7, 1, 5, 0.5, 0.5));
+        REQUIRE(isApproximatelyEqual(getSigmoid(6, 3, 7, 1, 5, 0.5, 0.5), 4.523, 1e-3));
+
+        auto_critical(getSigmoid(7, 3, 7, 1, 5, 0.5, 0.5));
+        REQUIRE(isApproximatelyEqual(getSigmoid(7, 3, 7, 1, 5, 0.5, 0.5), 4.928, 1e-3));
+    }
+
+    GIVEN("steepness location is 0.8") {
+        auto_critical(getSigmoid(3, 3, 7, 1, 5, 0.5, 0.8));
+        REQUIRE(isApproximatelyEqual(getSigmoid(3, 3, 7, 1, 5, 0.5, 0.8), 1.006, 1e-3));
+        
+        auto_critical(getSigmoid(4, 3, 7, 1, 5, 0.5, 0.8));
+        REQUIRE(isApproximatelyEqual(getSigmoid(4, 3, 7, 1, 5, 0.5, 0.8), 1.048, 1e-3));
+        
+        auto_critical(getSigmoid(5, 3, 7, 1, 5, 0.5, 0.8));
+        REQUIRE(isApproximatelyEqual(getSigmoid(5, 3, 7, 1, 5, 0.5, 0.8), 1.332, 1e-3));
+        
+        auto_critical(getSigmoid(6, 3, 7, 1, 5, 0.5, 0.8));
+        REQUIRE(isApproximatelyEqual(getSigmoid(6, 3, 7, 1, 5, 0.5, 0.8), 2.605, 1e-3));
+
+        auto_critical(getSigmoid(7, 3, 7, 1, 5, 0.5, 0.8));
+        REQUIRE(isApproximatelyEqual(getSigmoid(7, 3, 7, 1, 5, 0.5, 0.8), 4.328, 1e-3));
+    }
+}
+
+SCENARIO("test inverse sigmoid") {
+
+    GIVEN("steepness location is in the middle") {
+        auto_critical(getInverseSigmoid(3, 3, 7, 1, 5, 0.5, 0.5));
+        REQUIRE(isApproximatelyEqual(getInverseSigmoid(3, 3, 7, 1, 5, 0.5, 0.5), 4.928, 1e-3));
+        
+        auto_critical(getInverseSigmoid(4, 3, 7, 1, 5, 0.5, 0.5));
+        REQUIRE(isApproximatelyEqual(getInverseSigmoid(4, 3, 7, 1, 5, 0.5, 0.5), 4.523, 1e-3));
+        
+        auto_critical(getInverseSigmoid(5, 3, 7, 1, 5, 0.5, 0.5));
+        REQUIRE(isApproximatelyEqual(getInverseSigmoid(5, 3, 7, 1, 5, 0.5, 0.5), 3., 1e-3));
+        
+        auto_critical(getInverseSigmoid(6, 3, 7, 1, 5, 0.5, 0.5));
+        REQUIRE(isApproximatelyEqual(getInverseSigmoid(6, 3, 7, 1, 5, 0.5, 0.5), 1.476, 1e-3));
+
+        auto_critical(getInverseSigmoid(7, 3, 7, 1, 5, 0.5, 0.5));
+        REQUIRE(isApproximatelyEqual(getInverseSigmoid(7, 3, 7, 1, 5, 0.5, 0.5), 1.071, 1e-3));
+    }
+
+    GIVEN("steepness location is 0.8") {
+        auto_critical(getInverseSigmoid(3, 3, 7, 1, 5, 0.5, 0.8));
+        REQUIRE(isApproximatelyEqual(getInverseSigmoid(3, 3, 7, 1, 5, 0.5, 0.8), 4.993, 1e-3));
+        
+        auto_critical(getInverseSigmoid(4, 3, 7, 1, 5, 0.5, 0.8));
+        REQUIRE(isApproximatelyEqual(getInverseSigmoid(4, 3, 7, 1, 5, 0.5, 0.8), 4.951, 1e-3));
+        
+        auto_critical(getInverseSigmoid(5, 3, 7, 1, 5, 0.5, 0.8));
+        REQUIRE(isApproximatelyEqual(getInverseSigmoid(5, 3, 7, 1, 5, 0.5, 0.8), 4.667, 1e-3));
+        
+        auto_critical(getInverseSigmoid(6, 3, 7, 1, 5, 0.5, 0.8));
+        REQUIRE(isApproximatelyEqual(getInverseSigmoid(6, 3, 7, 1, 5, 0.5, 0.8), 3.394, 1e-3));
+
+        auto_critical(getInverseSigmoid(7, 3, 7, 1, 5, 0.5, 0.8));
+        REQUIRE(isApproximatelyEqual(getInverseSigmoid(7, 3, 7, 1, 5, 0.5, 0.8), 1.671, 1e-3));
+    }
+
+}
+
 SCENARIO("test MC and MD values", "[MCMDValues]") {
     GIVEN("a mc value") {
         MCValue<int> a = 4;
