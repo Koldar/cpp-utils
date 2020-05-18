@@ -63,7 +63,7 @@
  */
 #define assertEqual(x, y) \
     if ((x) != (y)) { \
-        assertionFailed(TO_STRING(x), "!=", TO_STRING(y), " failed. x= ", TO_STRING(x), " y= ", TO_STRING(y)); \
+        assertionFailed(TO_STRING(x), "!=", TO_STRING(y), " failed. x= ", (x), " y= ", (y)); \
     } \
 
 /**
@@ -72,8 +72,66 @@
  */
 #define assertNotEqual(x, y) \
     if ((x) == (y)) { \
-        assertionFailed(TO_STRING(x), "==", TO_STRING(y), " failed. x= ", TO_STRING(x), " y= ", TO_STRING(y)); \
+        assertionFailed(TO_STRING(x), "==", TO_STRING(y), " failed. x= ", (x), " y= ", (y)); \
     } \
+
+/**
+ * @brief ensure that 2 quantities are one strictly greater than the other one
+ * 
+ * @param x first quantity. Cannot have side effects
+ * @param y second quantity. Cannot have side effects
+ */
+#define assertGreater(x, y) \
+    if ((x) <= (y)) { \
+        assertionFailed(TO_STRING(x), ">", TO_STRING(y), " failed. x= ", (x), " y= ", (y)); \
+    }
+
+/**
+ * @brief ensure that 2 quantities are one greater or equal than the other one
+ * 
+ * @param x first quantity. Cannot have side effects
+ * @param y second quantity. Cannot have side effects
+ */
+#define assertGreaterEqual(x, y) \
+    if ((x) < (y)) { \
+        assertionFailed(TO_STRING(x), ">=", TO_STRING(y), " failed. x= ", (x), " y= ", (y)); \
+    }
+
+/**
+ * @brief ensure that 2 quantities are one strictly less than the other one
+ * 
+ * @param x first quantity. Cannot have side effects
+ * @param y second quantity. Cannot have side effects
+ */
+#define assertLess(x, y) \
+    if ((x) >= (y)) { \
+        assertionFailed(TO_STRING(x), "<", TO_STRING(y), " failed. x= ", (x), " y= ", (y)); \
+    }
+
+/**
+ * @brief ensure that 2 quantities are one less or equal than the other one
+ * 
+ * @param x first quantity. Cannot have side effects
+ * @param y second quantity. Cannot have side effects
+ */
+#define assertLessOrEqual(x, y) \
+    if ((x) > (y)) { \
+        assertionFailed(TO_STRING(x), "<=", TO_STRING(y), " failed. x= ", (x), " y= ", (y)); \
+    }
+
+/**
+ * @brief ensure that the antecedent implies the consequent
+ * 
+ * The assertion ensure that \f$ p \implies q \f$
+ * 
+ * @param p the antecedent of the implication
+ * @param q the consequence of the implication
+ * 
+ */
+#define assertImplication(p, q) \
+    if ((!(p)) || (q)) { \
+        assertionFailed(TO_STRING(x), "->", TO_STRING(y), " failed. p= ", (x), " q= ", (y)); \
+    }
 
 /**
  * @brief ensure that the value is inside 2 bound
@@ -114,6 +172,38 @@
 
 #define assertEqual(x, y) ;
 #define assertNotEqual(x, y) ;
+
+/**
+ * @brief ensure that 2 quantities are one strictly greater than the other one
+ * 
+ * @param x first quantity. Cannot have side effects
+ * @param y second quantity. Cannot have side effects
+ */
+#define assertGreater(x, y) ;
+
+/**
+ * @brief ensure that 2 quantities are one greater or equal than the other one
+ * 
+ * @param x first quantity. Cannot have side effects
+ * @param y second quantity. Cannot have side effects
+ */
+#define assertGreaterEqual(x, y) ;
+
+/**
+ * @brief ensure that 2 quantities are one strictly less than the other one
+ * 
+ * @param x first quantity. Cannot have side effects
+ * @param y second quantity. Cannot have side effects
+ */
+#define assertLess(x, y) ;
+
+/**
+ * @brief ensure that 2 quantities are one less or equal than the other one
+ * 
+ * @param x first quantity. Cannot have side effects
+ * @param y second quantity. Cannot have side effects
+ */
+#define assertLessOrEqual(x, y) ;
 
 #define assertInRange(lb, x, ub, lb_included, ub_included) ;
 
